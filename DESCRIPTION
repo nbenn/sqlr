@@ -1,9 +1,21 @@
 Package: sqlr
-Title: What the Package Does (one line, title case)
+Title: Build SQL queries for creating/altering tables
 Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-Depends: R (>= 3.4.1)
-License: What license is it under?
+Authors@R: c(
+    person("Nicolas", "Bennett", email = "nicolas.bennett@stat.math.ethz.ch",
+           role = c("aut", "cre")))
+Description:
+    Starting with MardaDB/MySQL and possibly expanding to other SQL dialects, the aim of this package is to help with generating queries for creating and altering tables.
+Depends:
+    R (>= 3.1.0)
+Imports:
+    RMariaDB (>= 1.0),
+    blob,
+    bit64,
+    DBI (>= 0.7)
+URL: https://github.com/nbenn/sqlr
+BugReports: https://github.com/nbenn/sqlr/issues
+License: GPL-3 | file LICENSE
 Encoding: UTF-8
 LazyData: true
+RoxygenNote: 6.0.1
