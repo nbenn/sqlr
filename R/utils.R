@@ -57,17 +57,16 @@ get_cfg <- function(file_name = NULL,
 
 #' @title Get the database connection
 #' 
-#' @inheritParams load_config
-#' @param update Logical, whether to force destroying and recreating the
-#' database connection.
+#' @inheritParams get_cfg
 #' 
 #' @return The database connection object.
 #'
-get_con <- function(cfg_file = NULL,
-                    update = FALSE) {
+get_con <- function(file_name = NULL,
+                    update = FALSE,
+                    section = "db_setup") {
 
   if (is.null(config$con) || !DBI::dbIsValid(config$con) || update)
-    config$con <- connect_db(get_cfg(cfg_file, section = "db_setup"))
+    config$con <- connect_db(get_cfg(file_name, section = section))
 
   config$con
 }
@@ -90,14 +89,15 @@ rm_con <- function() {
 #' @description Depending on the type selected by the user, the appropriate
 #' function is called to set up and/or connect to a database.
 #' 
-#' @param dbType The type of database to connect to (default: "mysql")
+#' @param config A named list containing parameters for \code{dbConnect}, as
+#' well as a slot "dbtype", specifying what database system to connect to.
 #' 
 #' @return A connection object that can be used for further database access.
 #' 
 connect_db <- function(config) {
-  db_type <- match.arg(config$db_type, "mysql")
-  switch(db_type,
-         mysql = do.call(connect_mysql, config))
+  dbtype <- match.arg(config$dbtype, "mysql")
+  switch(dbtype,
+         mysql = do.call(connect_mysql, config[names(config) != "dbtype"]))
 }
 
 #' @title Connect to a MySQL database
@@ -106,64 +106,57 @@ connect_db <- function(config) {
 #' sets up a database and user with all privileges to that schema if any of the
 #' two does not already exist.
 #' 
-#' @param db_name The name of the database to connect to/create
-#' @param user The username with which to connect to the database
-#' @param password The password used to authenticate the user with the
-#' database
-#' @param host Hostname of the MySQL server (default: "localhost")
-#' @param port The port of the MySQL server (default: 3306)
+#' @param ... Arguments passed to \code{dbConnect}
 #' 
-#' @return Connection object that can be used for further database access.
+#' @return Connection object that can be used for further database access. The
+#' connection is automatically destroyed when garbage collected.
 #' 
-connect_mysql <- function(db_name,
-                          username,
-                          password,
-                          host = "localhost",
-                          port = 3306,
-                          ...) {
+connect_mysql <- function(...) {
 
-  con <- tryCatch({
-    DBI::dbConnect(RMariaDB::MariaDB(), username = username,
-                   password = password, host = host, port = port,
-                   dbname = db_name)
-    },
+  dots <- list(...)
+  if (is.null(dots$host)) dots$host <- "localhost"
+
+  con <- tryCatch(
+    do.call(DBI::dbConnect, c(RMariaDB::MariaDB(), dots)),
     error = function(e) {
-      message("in order to set up the database, the credentials of an ",
-              "account with CREATE\nand GRANT privileges are needed ",
-              "temporarily.\nPlease enter the username (default root): ",
+      message("in order to set up the database ", dots$dbname, ", ",
+              "the credentials of an account with CREATE ",
+              "and GRANT privileges are needed temporarily. ",
+              "Please enter the username (default root): ",
               appendLF = FALSE)
 
-      root_user <- readline()
-      if (root_user == "")
-        root_user <- "root"
+      root_dots <- dots[names(dots) != "dbname"]
+
+      root_dots$username <- readline()
+      if (root_dots$username == "")
+        root_dots$username <- "root"
 
       message("Please enter the password: ", appendLF = FALSE)
       if (requireNamespace("getPass", quietly = TRUE))
-        root_pwd <- getPass::getPass("")
+        root_dots$password <- getPass::getPass("")
       else
-        root_pwd <- readline()
+        root_dots$password <- readline()
 
-      tmp <- DBI::dbConnect(RMariaDB::MariaDB(), username = root_user,
-                            password = root_pwd, host = host, port = port)
-      on.exit(DBI::dbDisconnect(tmp))
+      root_con <- do.call(DBI::dbConnect, c(RMariaDB::MariaDB(), root_dots))
+      on.exit(DBI::dbDisconnect(root_con))
 
       invisible(DBI::dbExecute(
-        tmp,
+        root_con,
         DBI::SQL(paste("CREATE DATABASE IF NOT EXISTS",
-                       DBI::dbQuoteIdentifier(tmp, db_name)))))
+                       DBI::dbQuoteIdentifier(root_con, dots$dbname)))))
 
       invisible(DBI::dbExecute(
-        tmp,
-        DBI::SQL(paste0("GRANT ALL ON ", DBI::dbQuoteIdentifier(tmp, db_name),
+        root_con,
+        DBI::SQL(paste0("GRANT ALL ON ", DBI::dbQuoteIdentifier(root_con,
+                                                                dots$dbname),
                         ".* TO ",
-                        DBI::dbQuoteString(tmp, username), "@",
-                        DBI::dbQuoteString(tmp, host),
-                        " IDENTIFIED BY ",
-                        DBI::dbQuoteString(tmp, password)))))
-
-      DBI::dbConnect(RMariaDB::MariaDB(), username = username,
-                     password = password, host = host, port = port,
-                     dbname = db_name)
+                        DBI::dbQuoteString(root_con, dots$username), "@",
+                        DBI::dbQuoteString(root_con, dots$host),
+                        if (!is.null(dots$password))
+                          paste(" IDENTIFIED BY",
+                                DBI::dbQuoteString(root_con, dots$password))
+                        ))))
+      do.call(DBI::dbConnect, c(RMariaDB::MariaDB(), dots))
     }
   )
 
