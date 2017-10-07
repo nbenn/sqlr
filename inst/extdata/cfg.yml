@@ -1,5 +1,11 @@
 db_setup:
-  db_type: mysql
-  db_name: test
+  dbtype: mysql
+  dbname: test
+  username: test
+  password: test123
+
+mysql_unittest:
+  dbtype: mysql
+  dbname: testthat
   username: test
   password: test123
