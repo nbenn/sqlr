@@ -7,7 +7,8 @@
 connect_db(config)
 }
 \arguments{
-\item{dbType}{The type of database to connect to (default: "mysql")}
+\item{config}{A named list containing parameters for \code{dbConnect}, as
+well as a slot "dbtype", specifying what database system to connect to.}
 }
 \value{
 A connection object that can be used for further database access.

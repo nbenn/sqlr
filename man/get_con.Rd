@@ -4,11 +4,16 @@
 \alias{get_con}
 \title{Get the database connection}
 \usage{
-get_con(cfg_file = NULL, update = FALSE)
+get_con(file_name = NULL, update = FALSE, section = "db_setup")
 }
 \arguments{
-\item{update}{Logical, whether to force destroying and recreating the
-database connection.}
+\item{file_name}{The file name of the config file. If no value is supplied,
+the current wd is searched for files ending in '.yaml' or '.yml', followed
+by the extdata dir in the package installation.}
+
+\item{update}{Logical, whether to force reading the config again from file.}
+
+\item{section}{Name of the top-level config file section to return}
 }
 \value{
 The database connection object.

@@ -4,23 +4,14 @@
 \alias{connect_mysql}
 \title{Connect to a MySQL database}
 \usage{
-connect_mysql(db_name, username, password, host = "localhost", port = 3306,
-  ...)
+connect_mysql(...)
 }
 \arguments{
-\item{db_name}{The name of the database to connect to/create}
-
-\item{password}{The password used to authenticate the user with the
-database}
-
-\item{host}{Hostname of the MySQL server (default: "localhost")}
-
-\item{port}{The port of the MySQL server (default: 3306)}
-
-\item{user}{The username with which to connect to the database}
+\item{...}{Arguments passed to \code{dbConnect}}
 }
 \value{
-Connection object that can be used for further database access.
+Connection object that can be used for further database access. The
+connection is automatically destroyed when garbage collected.
 }
 \description{
 This function provides a wrapper around \code{dbConnect} that
