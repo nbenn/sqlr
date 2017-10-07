@@ -2,7 +2,7 @@
 #' @title Config environment
 #' 
 #' @description Configuration information, as well as the current connection
-#' is save to and fetched from this environment.
+#' is saved to and fetched from this environment.
 #' 
 config <- new.env()
 
@@ -17,7 +17,7 @@ config <- new.env()
 load_config <- function(file_name = NULL) {
 
   find_yml <- function(dir) {
-    list.files(dir, pattern = "\\.y[a]?ml$", full.names = TRUE)[1]
+    list.files(dir, pattern = "\\.ya?ml$", full.names = TRUE)[1]
   }
 
   if (is.null(file_name)) {

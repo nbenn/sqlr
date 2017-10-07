@@ -10,6 +10,6 @@ config
 }
 \description{
 Configuration information, as well as the current connection
-is save to and fetched from this environment.
+is saved to and fetched from this environment.
 }
 \keyword{datasets}
