@@ -1,0 +1,5 @@
+db_setup:
+  db_type: mysql
+  db_name: test
+  username: test
+  password: test123

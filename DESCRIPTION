@@ -12,7 +12,8 @@ Imports:
     RMariaDB (>= 1.0),
     blob,
     bit64,
-    DBI (>= 0.7)
+    DBI (>= 0.7),
+    yaml
 URL: https://github.com/nbenn/sqlr
 BugReports: https://github.com/nbenn/sqlr/issues
 License: GPL-3 | file LICENSE
