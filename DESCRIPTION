@@ -12,9 +12,11 @@ Imports:
     RMariaDB (>= 1.0),
     blob,
     bit64,
+    hms,
     DBI (>= 0.7),
     yaml,
-    methods
+    methods,
+    rlang
 Suggests:
     testthat
 URL: https://github.com/nbenn/sqlr
