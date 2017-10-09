@@ -18,3 +18,8 @@ by the extdata dir in the package installation.}
 \value{
 The database connection object.
 }
+\description{
+Using the information from the yml config file, generate a
+data base connection object and store it alongside the config information
+in the config environment.
+}

@@ -1,6 +1,9 @@
 
 #' @title Generate SQL for a column definition
 #' 
+#' @description Generate SQL, that can be used for column definitions in 
+#' CREATE/ALTER TABLE statements.
+#' 
 #' @param ... Arguments passed to the S3 methods
 #' @param con A connection used to determine the SQL dialect to be used
 #' 
@@ -49,6 +52,9 @@ col_spec.MariaDBConnection <- function(name,
 }
 
 #' @title Generate SQL for an integer data type definition
+#' 
+#' @description Generate SQL, that can be used for integer data type
+#' specifications in column definitions for CREATE/ALTER TABLE statements.
 #' 
 #' @inheritParams col_spec
 #' 
@@ -117,6 +123,9 @@ col_int.MariaDBConnection <- function(type = "int",
 
 #' @title Generate SQL for floating point data type definition
 #' 
+#' @description Generate SQL, that can be used for floating point data type
+#' specifications in column definitions for CREATE/ALTER TABLE statements.
+#' 
 #' @inheritParams col_spec
 #' 
 #' @return SQL to be used in a CREATE table statement
@@ -141,6 +150,9 @@ col_dbl.MariaDBConnection <- function(prec = "double",
 }
 
 #' @title Generate SQL for a string data type definition
+#' 
+#' @description Generate SQL, that can be used for string data type
+#' specifications in column definitions for CREATE/ALTER TABLE statements.
 #' 
 #' @inheritParams col_spec
 #' 
@@ -200,6 +212,9 @@ col_chr.MariaDBConnection <- function(length = 255L,
 
 #' @title Generate SQL for a binary data type definition
 #' 
+#' @description Generate SQL, that can be used for binary data type
+#' specifications in column definitions for CREATE/ALTER TABLE statements.
+#' 
 #' @inheritParams col_spec
 #' 
 #' @return SQL to be used in a CREATE table statement
@@ -216,21 +231,21 @@ col_raw.MariaDBConnection <- function(length = 255L,
 
   stopifnot(is.numeric(length), length(length) == 1L, length > 0L,
             is.logical(fixed), length(fixed) == 1L,
-            is.logical(force_text), length(force_text) == 1L)
+            is.logical(force_blob), length(force_blob) == 1L)
 
   if (length < 256L) {
 
     if (fixed) {
       stopifnot(length > 256L)
       type <- paste0("BINARY(", length, ")")
-    } else if (force_text)
+    } else if (force_blob)
       type <- "TINYBLOB"
     else
       type <- paste0("VARBINARY(", length, ")")
 
   } else if (length < 65536L) {
 
-    if (force_text)
+    if (force_blob)
       type <- "BLOB"
     else {
       type <- paste0("VARBINARY(", length, ")")
@@ -249,6 +264,9 @@ col_raw.MariaDBConnection <- function(length = 255L,
 
 #' @title Generate SQL for a boolean data type definition
 #' 
+#' @description Generate SQL, that can be used for boolean data type
+#' specifications in column definitions for CREATE/ALTER TABLE statements.
+#' 
 #' @inheritParams col_spec
 #' 
 #' @return SQL to be used in a CREATE table statement
@@ -261,6 +279,9 @@ col_lgl <- function(..., con = get_con()) UseMethod("col_lgl", con)
 col_lgl.MariaDBConnection <- function(...) DBI::SQL("BOOL")
 
 #' @title Generate SQL for a factor data type definition
+#' 
+#' @description Generate SQL, that can be used for factor data type
+#' specifications in column definitions for CREATE/ALTER TABLE statements.
 #' 
 #' @inheritParams col_spec
 #' 
@@ -299,6 +320,9 @@ col_fct.MariaDBConnection <- function(levels,
 }
 
 #' @title Generate SQL for a date/time data type definition
+#' 
+#' @description Generate SQL, that can be used for date/time data type
+#' specifications in column definitions for CREATE/ALTER TABLE statements.
 #' 
 #' @inheritParams col_spec
 #' 

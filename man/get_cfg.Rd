@@ -18,3 +18,7 @@ by the extdata dir in the package installation.}
 \value{
 The database configuration as a list.
 }
+\description{
+In order not to constantly have to read the config file, it is
+read once and then saved to the config environment.
+}

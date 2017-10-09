@@ -14,3 +14,7 @@ by the extdata dir in the package installation.}
 \value{
 The database configuration as a list.
 }
+\description{
+Load the yml configuration file used for connecting to a data
+base.
+}

@@ -8,6 +8,9 @@ config <- new.env()
 
 #' @title Load yml configuration file
 #' 
+#' @description Load the yml configuration file used for connecting to a data
+#' base.
+#' 
 #' @param file_name The file name of the config file. If no value is supplied,
 #' the current wd is searched for files ending in '.yaml' or '.yml', followed
 #' by the extdata dir in the package installation.
@@ -26,7 +29,7 @@ load_config <- function(file_name = NULL) {
 
     if (is.na(file_name)) {
       file_name <- find_yml(system.file("extdata",
-                                        package = methods::getPackageName()))
+                            package = methods::getPackageName()))
     }
 
     stopifnot(!is.na(file_name))
@@ -37,6 +40,9 @@ load_config <- function(file_name = NULL) {
 }
 
 #' @title Load config list
+#' 
+#' @description In order not to constantly have to read the config file, it is
+#' read once and then saved to the config environment.
 #' 
 #' @inheritParams load_config
 #' @param update Logical, whether to force reading the config again from file.
@@ -57,6 +63,10 @@ get_cfg <- function(file_name = NULL,
 
 #' @title Get the database connection
 #' 
+#' @description Using the information from the yml config file, generate a
+#' data base connection object and store it alongside the config information
+#' in the config environment.
+#' 
 #' @inheritParams get_cfg
 #' 
 #' @return The database connection object.
@@ -72,6 +82,10 @@ get_con <- function(file_name = NULL,
 }
 
 #' @title Destroy the database connection
+#' 
+#' @description Destroy the database connection object that is currently saved
+#' in the config environment. It will only be destroyed on the next garbage
+#' collection run.
 #' 
 #' @return NULL (invisibly)
 #'
@@ -132,10 +146,7 @@ connect_mysql <- function(...) {
         root_dots$username <- "root"
 
       message("Please enter the password: ", appendLF = FALSE)
-      if (requireNamespace("getPass", quietly = TRUE))
-        root_dots$password <- getPass::getPass("")
-      else
-        root_dots$password <- readline()
+      root_dots$password <- readline()
 
       root_con <- do.call(DBI::dbConnect, c(RMariaDB::MariaDB(), root_dots))
       on.exit(DBI::dbDisconnect(root_con))

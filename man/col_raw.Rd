@@ -14,3 +14,7 @@ col_raw(..., con = get_con())
 \value{
 SQL to be used in a CREATE table statement
 }
+\description{
+Generate SQL, that can be used for binary data type
+specifications in column definitions for CREATE/ALTER TABLE statements.
+}

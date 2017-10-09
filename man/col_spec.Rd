@@ -14,3 +14,7 @@ col_spec(..., con = get_con())
 \value{
 SQL to be used in a CREATE table statement
 }
+\description{
+Generate SQL, that can be used for column definitions in 
+CREATE/ALTER TABLE statements.
+}

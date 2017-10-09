@@ -13,7 +13,8 @@ Imports:
     blob,
     bit64,
     DBI (>= 0.7),
-    yaml
+    yaml,
+    methods
 Suggests:
     testthat
 URL: https://github.com/nbenn/sqlr
