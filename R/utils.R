@@ -133,41 +133,48 @@ connect_mysql <- function(...) {
   con <- tryCatch(
     do.call(DBI::dbConnect, c(RMariaDB::MariaDB(), dots)),
     error = function(e) {
-      message("in order to set up the database ", dots$dbname, ", ",
-              "the credentials of an account with CREATE ",
-              "and GRANT privileges are needed temporarily. ",
-              "Please enter the username (default root): ",
-              appendLF = FALSE)
 
-      root_dots <- dots[names(dots) != "dbname"]
+      if (interactive()) {
 
-      root_dots$username <- readline()
-      if (root_dots$username == "")
-        root_dots$username <- "root"
+        message("in order to set up the database ", dots$dbname, ", ",
+                "the credentials of an account with CREATE ",
+                "and GRANT privileges are needed temporarily. ",
+                "Please enter the username (default root): ",
+                appendLF = FALSE)
 
-      message("Please enter the password: ", appendLF = FALSE)
-      root_dots$password <- readline()
+        root_dots <- dots[names(dots) != "dbname"]
 
-      root_con <- do.call(DBI::dbConnect, c(RMariaDB::MariaDB(), root_dots))
-      on.exit(DBI::dbDisconnect(root_con))
+        root_dots$username <- readline()
+        if (root_dots$username == "")
+          root_dots$username <- "root"
 
-      invisible(DBI::dbExecute(
-        root_con,
-        DBI::SQL(paste("CREATE DATABASE IF NOT EXISTS",
-                       DBI::dbQuoteIdentifier(root_con, dots$dbname)))))
+        message("Please enter the password: ", appendLF = FALSE)
+        root_dots$password <- readline()
 
-      invisible(DBI::dbExecute(
-        root_con,
-        DBI::SQL(paste0("GRANT ALL ON ", DBI::dbQuoteIdentifier(root_con,
-                                                                dots$dbname),
-                        ".* TO ",
-                        DBI::dbQuoteString(root_con, dots$username), "@",
-                        DBI::dbQuoteString(root_con, dots$host),
-                        if (!is.null(dots$password))
-                          paste(" IDENTIFIED BY",
-                                DBI::dbQuoteString(root_con, dots$password))
-                        ))))
-      do.call(DBI::dbConnect, c(RMariaDB::MariaDB(), dots))
+        root_con <- do.call(DBI::dbConnect, c(RMariaDB::MariaDB(), root_dots))
+        on.exit(DBI::dbDisconnect(root_con))
+
+        invisible(DBI::dbExecute(
+          root_con,
+          DBI::SQL(paste("CREATE DATABASE IF NOT EXISTS",
+                         DBI::dbQuoteIdentifier(root_con, dots$dbname)))))
+
+        invisible(DBI::dbExecute(
+          root_con,
+          DBI::SQL(paste0("GRANT ALL ON ", DBI::dbQuoteIdentifier(root_con,
+                                                                  dots$dbname),
+                          ".* TO ",
+                          DBI::dbQuoteString(root_con, dots$username), "@",
+                          DBI::dbQuoteString(root_con, dots$host),
+                          if (!is.null(dots$password))
+                            paste(" IDENTIFIED BY",
+                                  DBI::dbQuoteString(root_con, dots$password))
+                          ))))
+        do.call(DBI::dbConnect, c(RMariaDB::MariaDB(), dots))
+
+      } else
+
+      stop(e)
     }
   )
 
