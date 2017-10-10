@@ -136,6 +136,7 @@ connect_mysql <- function(...) {
 
       if (interactive()) {
 
+        # nocov start
         message("in order to set up the database ", dots$dbname, ", ",
                 "the credentials of an account with CREATE ",
                 "and GRANT privileges are needed temporarily. ",
@@ -171,7 +172,8 @@ connect_mysql <- function(...) {
                                   DBI::dbQuoteString(root_con, dots$password))
                           ))))
         do.call(DBI::dbConnect, c(RMariaDB::MariaDB(), dots))
-
+        # nocov end
+        
       } else
 
       stop(e)
