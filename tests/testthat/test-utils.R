@@ -20,4 +20,9 @@ test_that("config file can be loaded", {
 test_that("db connection can be established", {
   cfg <- sqlr:::get_cfg(section = "mysql_unittest")
   expect_s4_class(sqlr:::connect_db(cfg), "MariaDBConnection")
+  expect_s4_class(sqlr:::get_con(section = "mysql_unittest"),
+                  "MariaDBConnection")
+  expect_equal(sqlr:::get_con(section = "mysql_unittest"), sqlr:::config$con)
+  expect_null(sqlr:::rm_con())
+  expect_null(sqlr:::config$con)
 })
