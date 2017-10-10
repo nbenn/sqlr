@@ -3,9 +3,19 @@
 language: R
 sudo: false
 cache: packages
+dist: trusty
+
+services:
+  - mysql
 
 r_packages:
   - covr
+
+before_script:
+  - travis_retry mysql -u root -e "CREATE DATABASE IF NOT EXISTS testthat;"
+  - travis_retry mysql -u root -e "CREATE USER 'test'@'localhost' IDENTIFIED BY 'test123';"
+  - travis_retry mysql -u root -e "GRANT ALL PRIVILEGES ON `test`.* TO 'test'@'localhost';"
+  - travis_retry mysql -u root -e "FLUSH PRIVILEGES;"
 
 after_success:
   - Rscript -e 'covr::codecov()'
