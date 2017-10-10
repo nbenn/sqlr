@@ -244,4 +244,8 @@ test_that("date/time data types can be specified", {
                "TIME")
 })
 
+test_that("unit testing works on travis", {
+  expect_true(FALSE)
+})
+
 rm_con()
