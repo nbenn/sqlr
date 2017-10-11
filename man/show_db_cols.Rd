@@ -2,19 +2,49 @@
 % Please edit documentation in R/utils-queries.R
 \name{show_db_cols}
 \alias{show_db_cols}
-\title{Generate SQL for a boolean data type definition}
+\title{Show columns of db table(s)}
 \usage{
 show_db_cols(..., con = get_con())
 }
 \arguments{
-\item{...}{Arguments passed to the S3 methods}
+\item{con}{A connection object to connect to the db.}
 
-\item{con}{A connection used to determine the SQL dialect to be used}
+\item{tbls}{The table name(s).}
+
+\item{like}{A string, specifying a pattern to match column names against.}
+
+\item{where}{An SQL expression used to filter results.}
+
+\item{full}{A logical switch used to request additional information on each
+of the returned columns.}
 }
 \value{
-SQL to be used in a CREATE table statement
+A tibble.
 }
 \description{
-Generate SQL, that can be used for boolean data type
-specifications in column definitions for CREATE/ALTER TABLE statements.
+Display information about the columns in a/the given table(s).
+The result may be limited using the arguments \code{like}/\code{where}
+and more complete information can be requested using the switch \code{full}.
+The returned tibble holds the following values for each table column (see
+\url{https://dev.mysql.com/doc/refman/5.7/en/show-columns.html}):
+
+\describe{
+  \item{Field}{The column name.}
+  \item{Type}{The column data type.}
+  \item{Collation}{The collation for nonbinary string columns, or NULL for
+        other columns. This value is displayed only if you use the FULL
+        keyword.}
+  \item{Null}{Column nullability. The value is YES if NULL values can be
+        stored in the column, NO if not.}
+  \item{Key}{Whether the column is indexed: one of NA, PRI, UNI, MUL.}
+  \item{Default}{The default value for the column. This is NULL if the
+        column has an explicit default of NULL, or if the column definition
+        includes no DEFAULT clause.}
+  \item{Extra}{Any additional information that is available about a given
+        column, such as \code{auto_increment}}
+  \item{Privileges}{The privileges you have for the column. This value is
+        displayed only if \code{full} is true.}
+  \item{Comment}{Any comment included in the column definition. This value
+        is displayed only if \code{full} is true.}
+}
 }
