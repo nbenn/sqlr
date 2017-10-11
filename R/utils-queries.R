@@ -49,9 +49,11 @@ show_db_cols.MariaDBConnection <- function(tbls,
                                            ...) {
 
   stopifnot(is.character(tbls), length(tbls) >= 1,
-            is.character(like), length(like) == 1,
-            inherits(where, "SQL"), length(where) == 1,
             is.logical(full), length(full) == 1)
+  if (!is.null(like))
+    stopifnot(is.character(like), length(like) == 1)
+  if (!is.null(where))
+    stopifnot(inherits(where, "SQL"), length(where) == 1)
 
   stopifnot(all(sapply(tbls, function(tbl) DBI::dbExistsTable(con, tbl))))
 
