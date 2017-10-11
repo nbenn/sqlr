@@ -39,5 +39,5 @@ show_db_cols.MariaDBConnection <- function(tbls,
                              paste(" WHERE", where)
                            ))
 
-  DBI::dbGetQuery(con, query)
+  tibble::as_tibble(DBI::dbGetQuery(con, query))
 }
