@@ -173,7 +173,7 @@ connect_mysql <- function(...) {
                           ))))
         do.call(DBI::dbConnect, c(RMariaDB::MariaDB(), dots))
         # nocov end
-        
+
       } else
 
       stop(e)
