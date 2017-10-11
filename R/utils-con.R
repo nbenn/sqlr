@@ -137,11 +137,11 @@ connect_mysql <- function(...) {
       if (interactive()) {
 
         # nocov start
-        message("in order to set up the database ", dots$dbname, ", ",
-                "the credentials of an account with CREATE ",
-                "and GRANT privileges are needed temporarily. ",
-                "Please enter the username (default root): ",
-                appendLF = FALSE)
+        message(paste(strwrap(
+          paste("in order to set up the database ", dots$dbname, ", the",
+                "credentials of an account with CREATE and GRANT privileges",
+                "are needed temporarily. Please enter the username (default",
+                "root): ")), collapse = "\n"), appendLF = FALSE)
 
         root_dots <- dots[names(dots) != "dbname"]
 
