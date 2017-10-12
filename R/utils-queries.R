@@ -27,11 +27,9 @@
 #'         is displayed only if \code{full} is true.}
 #' }
 #' 
-#' @param tbls The table name(s).
-#' @param like A string, specifying a pattern to match column names against.
-#' @param where An SQL expression used to filter results.
-#' @param full A logical switch used to request additional information on each
-#' of the returned columns.
+#' @name show_db_cols
+#' 
+#' @param ... Arguments passed on to further methods.
 #' @param con A connection object to connect to the db.
 #' 
 #' @return A tibble.
@@ -40,7 +38,16 @@
 #' 
 show_db_cols <- function(..., con = get_con()) UseMethod("show_db_cols", con)
 
+#' @param tbls The table name(s).
+#' @param like A string, specifying a pattern to match column names against.
+#' @param where An SQL expression used to filter results.
+#' @param full A logical switch used to request additional information on each
+#' of the returned columns.
+#' 
+#' @rdname show_db_cols
+#' 
 #' @export
+#' 
 show_db_cols.MariaDBConnection <- function(tbls,
                                            like = NULL,
                                            where = NULL,

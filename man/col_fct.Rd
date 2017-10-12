@@ -2,14 +2,24 @@
 % Please edit documentation in R/col-spec.R
 \name{col_fct}
 \alias{col_fct}
+\alias{col_fct.MariaDBConnection}
 \title{Generate SQL for a factor data type definition}
 \usage{
 col_fct(..., con = get_con())
+
+\method{col_fct}{MariaDBConnection}(levels, type = c("enum", "set"),
+  char_set = NA_character_, collate = NA_character_, con = get_con(), ...)
 }
 \arguments{
 \item{...}{Arguments passed to the S3 methods}
 
 \item{con}{A connection used to determine the SQL dialect to be used}
+
+\item{levels}{A character vector, specifying the factor levels.}
+
+\item{type}{One of \code{enum}, \code{set}.}
+
+\item{char_set, collate}{The character set and collation used.}
 }
 \value{
 SQL to be used in a CREATE table statement

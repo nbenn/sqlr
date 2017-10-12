@@ -4,6 +4,20 @@
 #' @description Generate SQL, that can be used for foreign key reference
 #' definitions e.g. in CREATE/ALTER TABLE statements.
 #' 
+#' @name fk_spec
+#' 
+#' @param ... Arguments passed on to further methods.
+#' @param con Database connection object.
+#' 
+#' @return SQL to be used in a CREATE table statement
+#' 
+#' @section TODO: improve checks and add check unit test as soon as tables can
+#' be created.
+#' 
+#' @export
+#' 
+fk_spec <- function(..., con = get_con()) UseMethod("fk_spec", con)
+
 #' @param child_ind Index column name(s) from which the reference is pointing
 #' to.
 #' @param parent_tbl The table to which the reference is pointing to.
@@ -20,16 +34,10 @@
 #' @param check Logical switch for checking whether parent table/columns are
 #' available.
 #' 
-#' @return SQL to be used in a CREATE table statement
-#' 
-#' @section TODO: improve checks and add check unit test as soon as tables can
-#' be created.
+#' @rdname fk_spec
 #' 
 #' @export
 #' 
-fk_spec <- function(..., con = get_con()) UseMethod("fk_spec", con)
-
-#' @export
 fk_spec.MariaDBConnection <- function(child_ind,
                                       parent_tbl,
                                       parent_ind,

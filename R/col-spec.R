@@ -4,6 +4,8 @@
 #' @description Generate SQL, that can be used for column definitions in 
 #' CREATE/ALTER TABLE statements.
 #' 
+#' @name col_spec
+#' 
 #' @param ... Arguments passed to the S3 methods
 #' @param con A connection used to determine the SQL dialect to be used
 #' 
@@ -13,7 +15,37 @@
 #' 
 col_spec <- function(..., con = get_con()) UseMethod("col_spec", con)
 
+#' @param name String specifying the column name
+#' @param type Either a call to one of the functions capable of specifying a
+#' column type (where the con object will be replaced with the one from the
+#' enclosing function call), or the name of one of the functions (as string
+#' or function object) with arguments specified in the enclosing function call.
+#' @param nullable Logical switch specifying whether the column may contain
+#' NULL or not.
+#' @param default String specifying the default value.
+#' @param auto_increment Logical switch specifying whether the column is auto
+#' incrementing.
+#' @param key One of \code{NA}, \code{unique}, \code{primary}, \code{key},
+#' specifying if and what type of index the column represents.
+#' @param comment An optional comment string.
+#' 
+#' @examples
+#' col_spec(name = "foo", type = col_int())
+#' col_spec(name = "foo", type = col_int(unsigned = TRUE))
+#' 
+#' col_spec(name = "foo", type = col_int)
+#' col_spec(name = "foo", type = col_int, unsigned = TRUE)
+#' 
+#' col_spec(name = "foo", type = "integer")
+#' col_spec(name = "foo", type = "integer", unsigned = TRUE)
+#' 
+#' col_spec(name = "foo", type = "int")
+#' col_spec(name = "foo", type = "int", unsigned = TRUE)
+#' 
+#' @rdname col_spec
+#' 
 #' @export
+#' 
 col_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
                                                     collapse = ""),
                                        type = col_int(),
@@ -97,6 +129,8 @@ col_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
 #' @description Generate SQL, that can be used for integer data type
 #' specifications in column definitions for CREATE/ALTER TABLE statements.
 #' 
+#' @name col_int 
+#'
 #' @inheritParams col_spec
 #' 
 #' @return SQL to be used in a CREATE table statement
@@ -105,7 +139,17 @@ col_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
 #' 
 col_int <- function(..., con = get_con()) UseMethod("col_int", con)
 
+#' @param type One of \code{tiny}, \code{small}, \code{medium}, \code{int},
+#' \code{big}, specifying the type of integer.
+#' @param unsigned Logical switch specifying whether the integer is singed or
+#' unsigned.
+#' @param min,max The minimum/maximum values the integer column has to be able
+#' to hold. This can be used for inferring type and signedness automatically.
+#' 
+#' @rdname col_int
+#' 
 #' @export
+#' 
 col_int.MariaDBConnection <- function(type = "int",
                                       unsigned = FALSE,
                                       min = NA,
@@ -158,6 +202,8 @@ col_int.MariaDBConnection <- function(type = "int",
 #' @description Generate SQL, that can be used for floating point data type
 #' specifications in column definitions for CREATE/ALTER TABLE statements.
 #' 
+#' @name col_dbl 
+#'
 #' @inheritParams col_spec
 #' 
 #' @return SQL to be used in a CREATE table statement
@@ -166,7 +212,15 @@ col_int.MariaDBConnection <- function(type = "int",
 #' 
 col_dbl <- function(..., con = get_con()) UseMethod("col_dbl", con)
 
+#' @param prec One of \code{single}, \code{double}, specifying the floating
+#' point precision the column is expected to be capable of holding.
+#' @param unsigned Logical switch specifying whether the values are singed or
+#' unsigned.
+#' 
+#' @rdname col_dbl
+#' 
 #' @export
+#' 
 col_dbl.MariaDBConnection <- function(prec = "double",
                                       unsigned = FALSE,
                                       ...) {
@@ -186,6 +240,8 @@ col_dbl.MariaDBConnection <- function(prec = "double",
 #' @description Generate SQL, that can be used for string data type
 #' specifications in column definitions for CREATE/ALTER TABLE statements.
 #' 
+#' @name col_chr 
+#'
 #' @inheritParams col_spec
 #' 
 #' @return SQL to be used in a CREATE table statement
@@ -194,7 +250,19 @@ col_dbl.MariaDBConnection <- function(prec = "double",
 #' 
 col_chr <- function(..., con = get_con()) UseMethod("col_chr", con)
 
+#' @param length The maximum length of string the column is expected to hold.
+#' @param fixed Logical switch specifying whether strings are fixed length
+#' or varying in length.
+#' @param force_text String length threshold for forcing the type from
+#' (VAR)CHAR to TEXT which causes the values to be stored separately from the
+#' rest of the row. TEXT columns only contribute 9 to 12 bytes toward the row
+#' size limit (65,535 bytes).
+#' @param char_set,collate The character set and collation used.
+#' 
+#' @rdname col_chr
+#' 
 #' @export
+#' 
 col_chr.MariaDBConnection <- function(length = 255L,
                                       fixed = FALSE,
                                       force_text = length >= 16384L,
@@ -250,6 +318,8 @@ col_chr.MariaDBConnection <- function(length = 255L,
 #' @description Generate SQL, that can be used for binary data type
 #' specifications in column definitions for CREATE/ALTER TABLE statements.
 #' 
+#' @name col_raw 
+#'
 #' @inheritParams col_spec
 #' 
 #' @return SQL to be used in a CREATE table statement
@@ -258,7 +328,18 @@ col_chr.MariaDBConnection <- function(length = 255L,
 #' 
 col_raw <- function(..., con = get_con()) UseMethod("col_raw", con)
 
+#' @param length The maximum number of bytes the column is expected to hold.
+#' @param fixed Logical switch specifying whether lengths are fixed throughout
+#' rows.
+#' @param force_blob Length threshold for forcing the type from (VAR)BINARY to
+#' BLOB which causes the values to be stored separately from the rest of the
+#' row. BLOB columns only contribute 9 to 12 bytes toward the row size limit
+#' (65,535 bytes).
+#' 
+#' @rdname col_raw
+#' 
 #' @export
+#' 
 col_raw.MariaDBConnection <- function(length = 255L,
                                       fixed = FALSE,
                                       force_blob = length >= 16384L,
@@ -319,6 +400,8 @@ col_lgl.MariaDBConnection <- function(...) DBI::SQL("BOOL")
 #' @description Generate SQL, that can be used for factor data type
 #' specifications in column definitions for CREATE/ALTER TABLE statements.
 #' 
+#' @name col_fct 
+#'
 #' @inheritParams col_spec
 #' 
 #' @return SQL to be used in a CREATE table statement
@@ -327,7 +410,14 @@ col_lgl.MariaDBConnection <- function(...) DBI::SQL("BOOL")
 #' 
 col_fct <- function(..., con = get_con()) UseMethod("col_fct", con)
 
+#' @param levels A character vector, specifying the factor levels.
+#' @param type One of \code{enum}, \code{set}.
+#' @param char_set,collate The character set and collation used.
+#' 
+#' @rdname col_fct
+#' 
 #' @export
+#' 
 col_fct.MariaDBConnection <- function(levels,
                                       type = c("enum", "set"),
                                       char_set = NA_character_,
@@ -360,6 +450,8 @@ col_fct.MariaDBConnection <- function(levels,
 #' @description Generate SQL, that can be used for date/time data type
 #' specifications in column definitions for CREATE/ALTER TABLE statements.
 #' 
+#' @name col_dtm 
+#'
 #' @inheritParams col_spec
 #' 
 #' @return SQL to be used in a CREATE table statement
@@ -368,7 +460,15 @@ col_fct.MariaDBConnection <- function(levels,
 #' 
 col_dtm <- function(..., con = get_con()) UseMethod("col_dtm", con)
 
+#' @param type One of \code{datetime}, \code{date}, \code{time}, \code{year},
+#' specifying the type of date/time of the column.
+#' @param val A value, the class of which is used for automatically inferring
+#' type.
+#' 
+#' @rdname col_dtm
+#' 
 #' @export
+#' 
 col_dtm.MariaDBConnection <- function(type = c("datetime", "date", "time",
                                                "year"),
                                       val = NULL,

@@ -2,11 +2,17 @@
 % Please edit documentation in R/utils-queries.R
 \name{show_db_cols}
 \alias{show_db_cols}
+\alias{show_db_cols.MariaDBConnection}
 \title{Show columns of db table(s)}
 \usage{
 show_db_cols(..., con = get_con())
+
+\method{show_db_cols}{MariaDBConnection}(tbls, like = NULL, where = NULL,
+  full = FALSE, con = get_con(), ...)
 }
 \arguments{
+\item{...}{Arguments passed on to further methods.}
+
 \item{con}{A connection object to connect to the db.}
 
 \item{tbls}{The table name(s).}

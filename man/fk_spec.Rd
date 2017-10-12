@@ -2,11 +2,21 @@
 % Please edit documentation in R/key-spec.R
 \name{fk_spec}
 \alias{fk_spec}
+\alias{fk_spec.MariaDBConnection}
 \title{Generate SQL for reference definition}
 \usage{
 fk_spec(..., con = get_con())
+
+\method{fk_spec}{MariaDBConnection}(child_ind, parent_tbl, parent_ind,
+  constr_name = NA_character_, fk_name = NA_character_, match = c(NA,
+  "simple", "full", "partial"), on_del = "cascade", on_upd = "cascade",
+  check = TRUE, con = get_con(), ...)
 }
 \arguments{
+\item{...}{Arguments passed on to further methods.}
+
+\item{con}{Database connection object.}
+
 \item{child_ind}{Index column name(s) from which the reference is pointing
 to.}
 

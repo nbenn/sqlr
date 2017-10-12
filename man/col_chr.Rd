@@ -2,14 +2,31 @@
 % Please edit documentation in R/col-spec.R
 \name{col_chr}
 \alias{col_chr}
+\alias{col_chr.MariaDBConnection}
 \title{Generate SQL for a string data type definition}
 \usage{
 col_chr(..., con = get_con())
+
+\method{col_chr}{MariaDBConnection}(length = 255L, fixed = FALSE,
+  force_text = length >= 16384L, char_set = NA_character_,
+  collate = NA_character_, con = get_con(), ...)
 }
 \arguments{
 \item{...}{Arguments passed to the S3 methods}
 
 \item{con}{A connection used to determine the SQL dialect to be used}
+
+\item{length}{The maximum length of string the column is expected to hold.}
+
+\item{fixed}{Logical switch specifying whether strings are fixed length
+or varying in length.}
+
+\item{force_text}{String length threshold for forcing the type from
+(VAR)CHAR to TEXT which causes the values to be stored separately from the
+rest of the row. TEXT columns only contribute 9 to 12 bytes toward the row
+size limit (65,535 bytes).}
+
+\item{char_set, collate}{The character set and collation used.}
 }
 \value{
 SQL to be used in a CREATE table statement
