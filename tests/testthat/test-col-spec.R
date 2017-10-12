@@ -1,6 +1,6 @@
 context("mysql column specification")
 
-mysql <- get_con(section = "mysql_unittest")
+mysql <- sqlr:::get_con(section = "mysql_unittest")
 
 test_that("column types can be specified", {
   foo <- "bar"
