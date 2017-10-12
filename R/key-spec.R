@@ -234,3 +234,55 @@ uk_spec.MariaDBConnection <- function(cols,
                   if (!is.na(comment))
                     paste0(" COMMENT ", DBI::dbQuoteString(con, comment))))
 }
+
+#' @title Generate SQL for (secondary) key definition
+#' 
+#' @description Generate SQL, that can be used for (secondary) key definitions
+#' e.g. in CREATE/ALTER TABLE statements.
+#' 
+#' @name key_spec
+#' 
+#' @param ... Arguments passed on to further methods.
+#' @param con Database connection object.
+#' 
+#' @return SQL to be used in a CREATE table statement
+#' 
+#' @export
+#' 
+key_spec <- function(..., con = get_con()) UseMethod("key_spec", con)
+
+#' @inheritParams pk_spec
+#' 
+#' @rdname key_spec
+#' 
+#' @export
+#' 
+key_spec.MariaDBConnection <- function(cols,
+                                       index_name = NA_character_,
+                                       type = c(NA, "btree", "hash"),
+                                       block_size = NA_integer_,
+                                       comment = NA_character_,
+                                       con = get_con(),
+                                       ...) {
+
+  stopifnot(is.character(cols), length(cols) >= 1,
+            is.character(index_name), length(index_name) == 1,
+            is.integer(block_size), length(block_size) == 1,
+            is.character(comment), length(comment) == 1)
+
+  type <- match.arg(type)
+
+  DBI::SQL(paste0("KEY",
+                  if (!is.na(index_name))
+                    paste0(" ", DBI::dbQuoteIdentifier(con, index_name)),
+                  if (!is.na(type))
+                    paste0(" USING ", toupper(type)),
+                  " (",
+                    paste(DBI::dbQuoteIdentifier(con, cols),
+                          collapse = ", "),
+                  ")",
+                  if (!is.na(block_size))
+                    paste0(" KEY_BLOCK_SIZE = ", block_size),
+                  if (!is.na(comment))
+                    paste0(" COMMENT ", DBI::dbQuoteString(con, comment))))
+}
