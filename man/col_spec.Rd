@@ -45,16 +45,18 @@ Generate SQL, that can be used for column definitions in
 CREATE/ALTER TABLE statements.
 }
 \examples{
-col_spec(name = "foo", type = col_int())
-col_spec(name = "foo", type = col_int(unsigned = TRUE))
+\dontrun{
+  col_spec(name = "foo", type = col_int())
+  col_spec(name = "foo", type = col_int(unsigned = TRUE))
 
-col_spec(name = "foo", type = col_int)
-col_spec(name = "foo", type = col_int, unsigned = TRUE)
+  col_spec(name = "foo", type = col_int)
+  col_spec(name = "foo", type = col_int, unsigned = TRUE)
 
-col_spec(name = "foo", type = "integer")
-col_spec(name = "foo", type = "integer", unsigned = TRUE)
+  col_spec(name = "foo", type = "integer")
+  col_spec(name = "foo", type = "integer", unsigned = TRUE)
 
-col_spec(name = "foo", type = "int")
-col_spec(name = "foo", type = "int", unsigned = TRUE)
+  col_spec(name = "foo", type = "int")
+  col_spec(name = "foo", type = "int", unsigned = TRUE)
+}
 
 }
