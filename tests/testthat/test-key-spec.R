@@ -125,7 +125,7 @@ test_that("unique keys can be specified", {
 test_that("secondary keys can be specified", {
   expect_error(key_spec(con = mysql))
   expect_error(key_spec("foo", type = "bar", con = mysql))
-  expect_error(key_spec("foo", constr_name = 1L, con = mysql))
+  expect_error(key_spec("foo", index_name = 1L, con = mysql))
   expect_error(key_spec("foo", block_size = 1:2, con = mysql))
   expect_s4_class(key_spec("foo", con = mysql),
                   "SQL")
@@ -157,4 +157,45 @@ test_that("secondary keys can be specified", {
   expect_equal(as.character(key_spec("foo", "bar", comment = "foobar",
                                     con = mysql)),
                "KEY `bar` (`foo`) COMMENT 'foobar'")
+})
+
+test_that("fulltext keys can be specified", {
+  expect_error(ft_key_spec(con = mysql))
+  expect_error(ft_key_spec("foo", parser = 1L, con = mysql))
+  expect_error(ft_key_spec("foo", index_name = 1L, con = mysql))
+  expect_error(ft_key_spec("foo", comment = c("foo", "bar"), con = mysql))
+  expect_s4_class(ft_key_spec("foo", con = mysql),
+                  "SQL")
+  expect_equal(as.character(ft_key_spec("foo", con = mysql)),
+               "FULLTEXT KEY (`foo`)")
+  expect_equal(as.character(ft_key_spec(c("foo", "bar"), con = mysql)),
+               "FULLTEXT KEY (`foo`, `bar`)")
+  expect_equal(as.character(ft_key_spec("fo'o", con = mysql)),
+               "FULLTEXT KEY (`fo'o`)")
+  expect_equal(as.character(ft_key_spec("b\nar", con = mysql)),
+               "FULLTEXT KEY (`b\nar`)")
+  expect_equal(as.character(ft_key_spec("foo`bar", con = mysql)),
+               "FULLTEXT KEY (`foo``bar`)")
+  expect_equal(as.character(ft_key_spec("foo", parser = "bar", con = mysql)),
+               "FULLTEXT KEY (`foo`) WITH PARSER bar")
+  expect_equal(as.character(ft_key_spec("foo", comment = "foobar",
+                                        con = mysql)),
+               "FULLTEXT KEY (`foo`) COMMENT 'foobar'")
+  expect_equal(as.character(ft_key_spec("foo", comment = "fo`obar",
+                                        con = mysql)),
+               "FULLTEXT KEY (`foo`) COMMENT 'fo`obar'")
+  expect_equal(as.character(ft_key_spec("foo", comment = "fo\nobar",
+                                        con = mysql)),
+               "FULLTEXT KEY (`foo`) COMMENT 'fo\\nobar'")
+  expect_equal(as.character(ft_key_spec("foo", comment = "fo'obar",
+                                        con = mysql)),
+               "FULLTEXT KEY (`foo`) COMMENT 'fo\\'obar'")
+  expect_equal(as.character(ft_key_spec("foo", "bar", con = mysql)),
+               "FULLTEXT KEY `bar` (`foo`)")
+  expect_equal(as.character(ft_key_spec("foo", "bar", comment = "foobar",
+                                        con = mysql)),
+               "FULLTEXT KEY `bar` (`foo`) COMMENT 'foobar'")
+  expect_equal(as.character(ft_key_spec("foo", "bar", "baz", "foobar",
+                                        con = mysql)),
+               "FULLTEXT KEY `bar` (`foo`) WITH PARSER baz COMMENT 'foobar'")
 })

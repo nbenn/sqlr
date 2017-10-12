@@ -251,7 +251,7 @@ uk_spec.MariaDBConnection <- function(cols,
 #' 
 key_spec <- function(..., con = get_con()) UseMethod("key_spec", con)
 
-#' @inheritParams pk_spec
+#' @inheritParams uk_spec
 #' 
 #' @rdname key_spec
 #' 
@@ -283,6 +283,62 @@ key_spec.MariaDBConnection <- function(cols,
                   ")",
                   if (!is.na(block_size))
                     paste0(" KEY_BLOCK_SIZE = ", block_size),
+                  if (!is.na(comment))
+                    paste0(" COMMENT ", DBI::dbQuoteString(con, comment))))
+}
+
+#' @title Generate SQL for fulltext key definition
+#' 
+#' @description Generate SQL, that can be used for fulltext key definitions
+#' e.g. in CREATE/ALTER TABLE statements.
+#' 
+#' @name ft_key_spec
+#' 
+#' @param ... Arguments passed on to further methods.
+#' @param con Database connection object.
+#' 
+#' @return SQL to be used in a CREATE table statement
+#' 
+#' @section TODO: implement a function show_db_plugins that fetches SHOW
+#' PLUGINS and use the results for checking if the parser is listed as
+#' FTPARSER. Currently the parser is passed without being escaped!
+#' 
+#' @export
+#' 
+ft_key_spec <- function(..., con = get_con()) UseMethod("ft_key_spec", con)
+
+#' @inheritParams uk_spec
+#' @param parser Name of the full-text parser to be used in the index. Examples
+#' are \code{ngram}
+#' (\url{https://dev.mysql.com/doc/refman/5.7/en/fulltext-search-ngram.html})
+#' and \code{mecab}
+#' (\url{https://dev.mysql.com/doc/refman/5.7/en/fulltext-search-mecab.html}).
+#' 
+#' @rdname ft_key_spec
+#' 
+#' @export
+#' 
+ft_key_spec.MariaDBConnection <- function(cols,
+                                          index_name = NA_character_,
+                                          parser = NA_character_,
+                                          comment = NA_character_,
+                                          con = get_con(),
+                                          ...) {
+
+  stopifnot(is.character(cols), length(cols) >= 1,
+            is.character(index_name), length(index_name) == 1,
+            is.character(parser), length(parser) == 1,
+            is.character(comment), length(comment) == 1)
+
+  DBI::SQL(paste0("FULLTEXT KEY",
+                  if (!is.na(index_name))
+                    paste0(" ", DBI::dbQuoteIdentifier(con, index_name)),
+                  " (",
+                    paste(DBI::dbQuoteIdentifier(con, cols),
+                          collapse = ", "),
+                  ")",
+                  if (!is.na(parser))
+                    paste0(" WITH PARSER ", parser),
                   if (!is.na(comment))
                     paste0(" COMMENT ", DBI::dbQuoteString(con, comment))))
 }

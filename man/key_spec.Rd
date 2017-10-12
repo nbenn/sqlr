@@ -19,6 +19,8 @@ key_spec(..., con = get_con())
 \item{cols}{Character vector specifying the column(s) to be used for the
 key}
 
+\item{index_name}{(Optional) name of the index.}
+
 \item{type}{One of \code{NA}, \code{btree}, \code{hash}, specifying the
 type of the index. NA causes the USING clause to be omitted which will
 yield the default for the given storage engine, most likely BTREE.}
