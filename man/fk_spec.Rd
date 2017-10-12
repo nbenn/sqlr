@@ -8,7 +8,7 @@
 fk_spec(..., con = get_con())
 
 \method{fk_spec}{MariaDBConnection}(child_ind, parent_tbl, parent_ind,
-  constr_name = NA_character_, fk_name = NA_character_, match = c(NA,
+  constr_name = NA_character_, index_name = NA_character_, match = c(NA,
   "simple", "full", "partial"), on_del = "cascade", on_upd = "cascade",
   check = TRUE, con = get_con(), ...)
 }
@@ -27,7 +27,7 @@ to.}
 
 \item{constr_name}{(Optional) name of the constraint.}
 
-\item{fk_name}{(Optional) name of the foreign key.}
+\item{index_name}{(Optional) name of the foreign key.}
 
 \item{match}{One of \code{NA}, \code{simple}, \code{full}, \code{partial}.
 For MySQL, NA is recommended.}

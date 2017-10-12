@@ -80,5 +80,44 @@ test_that("primary keys can be specified", {
                "PRIMARY KEY (`foo`) COMMENT 'fo\\nobar'")
   expect_equal(as.character(pk_spec("foo", comment = "fo'obar", con = mysql)),
                "PRIMARY KEY (`foo`) COMMENT 'fo\\'obar'")
+})
 
+test_that("unique keys can be specified", {
+  expect_error(uk_spec(con = mysql))
+  expect_error(uk_spec("foo", type = "bar", con = mysql))
+  expect_error(uk_spec("foo", constr_name = 1L, con = mysql))
+  expect_error(uk_spec("foo", block_size = 1:2, con = mysql))
+  expect_s4_class(uk_spec("foo", con = mysql),
+                  "SQL")
+  expect_equal(as.character(uk_spec("foo", con = mysql)),
+               "UNIQUE KEY (`foo`)")
+  expect_equal(as.character(uk_spec(c("foo", "bar"), con = mysql)),
+               "UNIQUE KEY (`foo`, `bar`)")
+  expect_equal(as.character(uk_spec("fo'o", con = mysql)),
+               "UNIQUE KEY (`fo'o`)")
+  expect_equal(as.character(uk_spec("b\nar", con = mysql)),
+               "UNIQUE KEY (`b\nar`)")
+  expect_equal(as.character(uk_spec("foo`bar", con = mysql)),
+               "UNIQUE KEY (`foo``bar`)")
+  expect_equal(as.character(uk_spec("foo", type = "btree", con = mysql)),
+               "UNIQUE KEY USING BTREE (`foo`)")
+  expect_equal(as.character(uk_spec("foo", constr_name = "bar", con = mysql)),
+               "CONSTRAINT `bar` UNIQUE KEY (`foo`)")
+  expect_equal(as.character(uk_spec("foo", constr_name = "b`ar", con = mysql)),
+               "CONSTRAINT `b``ar` UNIQUE KEY (`foo`)")
+  expect_equal(as.character(uk_spec("foo", block_size = 4L, con = mysql)),
+               "UNIQUE KEY (`foo`) KEY_BLOCK_SIZE = 4")
+  expect_equal(as.character(uk_spec("foo", comment = "foobar", con = mysql)),
+               "UNIQUE KEY (`foo`) COMMENT 'foobar'")
+  expect_equal(as.character(uk_spec("foo", comment = "fo`obar", con = mysql)),
+               "UNIQUE KEY (`foo`) COMMENT 'fo`obar'")
+  expect_equal(as.character(uk_spec("foo", comment = "fo\nobar", con = mysql)),
+               "UNIQUE KEY (`foo`) COMMENT 'fo\\nobar'")
+  expect_equal(as.character(uk_spec("foo", comment = "fo'obar", con = mysql)),
+               "UNIQUE KEY (`foo`) COMMENT 'fo\\'obar'")
+  expect_equal(as.character(uk_spec("foo", "bar", "baz", con = mysql)),
+               "CONSTRAINT `bar` UNIQUE KEY `baz` (`foo`)")
+  expect_equal(as.character(uk_spec("foo", "bar", "baz", comment = "foobar",
+                                    con = mysql)),
+               "CONSTRAINT `bar` UNIQUE KEY `baz` (`foo`) COMMENT 'foobar'")
 })
