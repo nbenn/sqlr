@@ -199,3 +199,38 @@ test_that("fulltext keys can be specified", {
                                         con = mysql)),
                "FULLTEXT KEY `bar` (`foo`) WITH PARSER baz COMMENT 'foobar'")
 })
+
+test_that("spatial keys can be specified", {
+  expect_error(spat_key_spec(con = mysql))
+  expect_error(spat_key_spec("foo", index_name = 1L, con = mysql))
+  expect_error(spat_key_spec("foo", comment = c("foo", "bar"), con = mysql))
+  expect_s4_class(spat_key_spec("foo", con = mysql),
+                  "SQL")
+  expect_equal(as.character(spat_key_spec("foo", con = mysql)),
+               "SPATIAL KEY (`foo`)")
+  expect_equal(as.character(spat_key_spec(c("foo", "bar"), con = mysql)),
+               "SPATIAL KEY (`foo`, `bar`)")
+  expect_equal(as.character(spat_key_spec("fo'o", con = mysql)),
+               "SPATIAL KEY (`fo'o`)")
+  expect_equal(as.character(spat_key_spec("b\nar", con = mysql)),
+               "SPATIAL KEY (`b\nar`)")
+  expect_equal(as.character(spat_key_spec("foo`bar", con = mysql)),
+               "SPATIAL KEY (`foo``bar`)")
+  expect_equal(as.character(spat_key_spec("foo", comment = "foobar",
+                                          con = mysql)),
+               "SPATIAL KEY (`foo`) COMMENT 'foobar'")
+  expect_equal(as.character(spat_key_spec("foo", comment = "fo`obar",
+                                          con = mysql)),
+               "SPATIAL KEY (`foo`) COMMENT 'fo`obar'")
+  expect_equal(as.character(spat_key_spec("foo", comment = "fo\nobar",
+                                          con = mysql)),
+               "SPATIAL KEY (`foo`) COMMENT 'fo\\nobar'")
+  expect_equal(as.character(spat_key_spec("foo", comment = "fo'obar",
+                                          con = mysql)),
+               "SPATIAL KEY (`foo`) COMMENT 'fo\\'obar'")
+  expect_equal(as.character(spat_key_spec("foo", "bar", con = mysql)),
+               "SPATIAL KEY `bar` (`foo`)")
+  expect_equal(as.character(spat_key_spec("foo", "bar", comment = "foobar",
+                                          con = mysql)),
+               "SPATIAL KEY `bar` (`foo`) COMMENT 'foobar'")
+})

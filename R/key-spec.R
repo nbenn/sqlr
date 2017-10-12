@@ -342,3 +342,46 @@ ft_key_spec.MariaDBConnection <- function(cols,
                   if (!is.na(comment))
                     paste0(" COMMENT ", DBI::dbQuoteString(con, comment))))
 }
+
+#' @title Generate SQL for spatial key definition
+#' 
+#' @description Generate SQL, that can be used for spatial key definitions
+#' e.g. in CREATE/ALTER TABLE statements.
+#' 
+#' @name spat_key_spec
+#' 
+#' @param ... Arguments passed on to further methods.
+#' @param con Database connection object.
+#' 
+#' @return SQL to be used in a CREATE table statement
+#' 
+#' @export
+#' 
+spat_key_spec <- function(..., con = get_con()) UseMethod("spat_key_spec", con)
+
+#' @inheritParams uk_spec
+#' 
+#' @rdname spat_key_spec
+#' 
+#' @export
+#' 
+spat_key_spec.MariaDBConnection <- function(cols,
+                                            index_name = NA_character_,
+                                            comment = NA_character_,
+                                            con = get_con(),
+                                            ...) {
+
+  stopifnot(is.character(cols), length(cols) >= 1,
+            is.character(index_name), length(index_name) == 1,
+            is.character(comment), length(comment) == 1)
+
+  DBI::SQL(paste0("SPATIAL KEY",
+                  if (!is.na(index_name))
+                    paste0(" ", DBI::dbQuoteIdentifier(con, index_name)),
+                  " (",
+                    paste(DBI::dbQuoteIdentifier(con, cols),
+                          collapse = ", "),
+                  ")",
+                  if (!is.na(comment))
+                    paste0(" COMMENT ", DBI::dbQuoteString(con, comment))))
+}
