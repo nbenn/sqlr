@@ -263,6 +263,13 @@ col_chr <- function(..., con = get_con()) UseMethod("col_chr", con)
 #' 
 #' @rdname col_chr
 #' 
+#' @section TODO: implement a function show_db_charset that fetches SHOW
+#' CHARACTER SET and use the results for checking if the char_set is listed.
+#' Furthermore, SHOW COLLATION WHERE Charset = 'char_set' can be used to test
+#' whether the selected collation is allowed for the given charset. A warning
+#' could be generated if the user selects a charset with Maxlen > 1: max row
+#' size becomes smaller and char wastes space
+
 #' @export
 #' 
 col_chr.MariaDBConnection <- function(length = 255L,

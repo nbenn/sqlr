@@ -35,3 +35,12 @@ SQL to be used in a CREATE table statement
 Generate SQL, that can be used for string data type
 specifications in column definitions for CREATE/ALTER TABLE statements.
 }
+\section{TODO}{
+ implement a function show_db_charset that fetches SHOW
+CHARACTER SET and use the results for checking if the char_set is listed.
+Furthermore, SHOW COLLATION WHERE Charset = 'char_set' can be used to test
+whether the selected collation is allowed for the given charset. A warning
+could be generated if the user selects a charset with Maxlen > 1: max row
+size becomes smaller and char wastes space
+}
+

@@ -234,3 +234,5 @@ test_that("spatial keys can be specified", {
                                           con = mysql)),
                "SPATIAL KEY `bar` (`foo`) COMMENT 'foobar'")
 })
+
+rm_con()
