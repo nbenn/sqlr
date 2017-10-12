@@ -110,3 +110,68 @@ fk_spec.MariaDBConnection <- function(child_ind,
                   " ON DELETE ", ref_opts[[on_del]],
                   " ON UPDATE ", ref_opts[[on_upd]]))
 }
+
+
+#' @title Generate SQL for primary key definition
+#' 
+#' @description Generate SQL, that can be used for key definition definitions
+#' e.g. in CREATE/ALTER TABLE statements.
+#' 
+#' @name pk_spec
+#' 
+#' @param ... Arguments passed on to further methods.
+#' @param con Database connection object.
+#' 
+#' @return SQL to be used in a CREATE table statement
+#' 
+#' @export
+#' 
+pk_spec <- function(..., con = get_con()) UseMethod("pk_spec", con)
+
+#' @param cols Character vector specifying the column(s) to be used for the
+#' key
+#' @param constr_name (Optional) name of the constraint.
+#' @param type One of \code{NA}, \code{btree}, \code{hash}, specifying the
+#' type of the index. NA causes the USING clause to be omitted which will
+#' yield the default for the given storage engine, most likely BTREE.
+#' @param block_size An integer value that optionally specifies the size in
+#' bytes to use for index key blocks (MyISAM). For InnoDB, only A table-level
+#' KEY_BLOCK_SIZE value is permitted.
+#' @param comment Index definitions can include an optional comment of up to
+#' 1024 characters.
+#' 
+#' @rdname pk_spec
+#' 
+#' @export
+#' 
+pk_spec.MariaDBConnection <- function(cols,
+                                      constr_name = NA_character_,
+                                      type = c(NA, "btree", "hash"),
+                                      block_size = NA_integer_,
+                                      comment = NA_character_,
+                                      con = get_con(),
+                                      ...) {
+
+  stopifnot(is.character(cols), length(cols) >= 1,
+            is.character(constr_name), length(constr_name) == 1,
+            is.integer(block_size), length(block_size) == 1,
+            is.character(comment), length(comment) == 1)
+
+  type <- match.arg(type)
+
+  DBI::SQL(paste0(if (!is.na(constr_name))
+                    paste0("CONSTRAINT ",
+                           DBI::dbQuoteIdentifier(con, constr_name),
+                           " "),
+                  "PRIMARY KEY",
+                  if (!is.na(type))
+                    paste0(" USING ", toupper(type)),
+                  " (",
+                    paste(DBI::dbQuoteIdentifier(con, cols),
+                          collapse = ", "),
+                  ")",
+                  if (!is.na(block_size))
+                    paste0(" KEY_BLOCK_SIZE = ", block_size),
+                  if (!is.na(comment))
+                    paste0(" COMMENT ", DBI::dbQuoteString(con, comment))))
+}

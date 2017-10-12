@@ -46,3 +46,39 @@ test_that("references can be specified", {
                paste("FOREIGN KEY (`foo`) REFERENCES `bar` (`foobar`) ON",
                      "DELETE SET NULL ON UPDATE NO ACTION"))
 })
+
+test_that("primary keys can be specified", {
+  expect_error(pk_spec(con = mysql))
+  expect_error(pk_spec("foo", type = "bar", con = mysql))
+  expect_error(pk_spec("foo", constr_name = 1L, con = mysql))
+  expect_error(pk_spec("foo", block_size = 1:2, con = mysql))
+  expect_s4_class(pk_spec("foo", con = mysql),
+                  "SQL")
+  expect_equal(as.character(pk_spec("foo", con = mysql)),
+               "PRIMARY KEY (`foo`)")
+  expect_equal(as.character(pk_spec(c("foo", "bar"), con = mysql)),
+               "PRIMARY KEY (`foo`, `bar`)")
+  expect_equal(as.character(pk_spec("fo'o", con = mysql)),
+               "PRIMARY KEY (`fo'o`)")
+  expect_equal(as.character(pk_spec("b\nar", con = mysql)),
+               "PRIMARY KEY (`b\nar`)")
+  expect_equal(as.character(pk_spec("foo`bar", con = mysql)),
+               "PRIMARY KEY (`foo``bar`)")
+  expect_equal(as.character(pk_spec("foo", type = "btree", con = mysql)),
+               "PRIMARY KEY USING BTREE (`foo`)")
+  expect_equal(as.character(pk_spec("foo", constr_name = "bar", con = mysql)),
+               "CONSTRAINT `bar` PRIMARY KEY (`foo`)")
+  expect_equal(as.character(pk_spec("foo", constr_name = "b`ar", con = mysql)),
+               "CONSTRAINT `b``ar` PRIMARY KEY (`foo`)")
+  expect_equal(as.character(pk_spec("foo", block_size = 4L, con = mysql)),
+               "PRIMARY KEY (`foo`) KEY_BLOCK_SIZE = 4")
+  expect_equal(as.character(pk_spec("foo", comment = "foobar", con = mysql)),
+               "PRIMARY KEY (`foo`) COMMENT 'foobar'")
+  expect_equal(as.character(pk_spec("foo", comment = "fo`obar", con = mysql)),
+               "PRIMARY KEY (`foo`) COMMENT 'fo`obar'")
+  expect_equal(as.character(pk_spec("foo", comment = "fo\nobar", con = mysql)),
+               "PRIMARY KEY (`foo`) COMMENT 'fo\\nobar'")
+  expect_equal(as.character(pk_spec("foo", comment = "fo'obar", con = mysql)),
+               "PRIMARY KEY (`foo`) COMMENT 'fo\\'obar'")
+
+})
