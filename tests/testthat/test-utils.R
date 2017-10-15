@@ -21,12 +21,13 @@ test_that("argument checking works for integer", {
   expect_false(is_int(list(1L)))
   expect_false(is_int(1L, n_elem = eq(2L)))
   expect_true(is_int(c(1L, 2L), n_elem = eq(2L)))
-  expect_false(is_int(c(1L, 2L), names = TRUE))
-  expect_true(is_int(setNames(c(1L, 2L), c("a", "b")), names = TRUE))
-  expect_true(is_int(setNames(c(1L, 2L), c("a", "b")), names = c("b", "a")))
-  expect_false(is_int(setNames(c(1L, 2L), c("a", "b")), names = c("a", "c")))
-  expect_true(is_int(setNames(c(1L, 2L), c("a", "b"))))
-  expect_error(is_int(setNames(c(1L, 2L), c("a", "b")), names = NULL))
+  expect_true(is_int(2147483647L))
+  expect_false(is_int(2147483648L))
+  expect_false(is_int(2147483648))
+  expect_true(is_int(2147483648, strict = FALSE))
+  expect_true(is_int(4294967296, strict = FALSE))
+  expect_true(is_int(bit64::as.integer64(2147483648), strict = FALSE))
+  expect_true(is_int(bit64::as.integer64(2147483648)))
 })
 
 test_that("argument checking works for numeric", {
@@ -64,6 +65,15 @@ test_that("argument checking works for logical", {
   expect_false(is_lgl(TRUE, n_elem = eq(2L)))
   expect_true(is_lgl(c(TRUE, TRUE), n_elem = eq(2L)))
   expect_false(is_lgl(c(TRUE, TRUE), n_elem = gt(2L)))
+  expect_false(is_lgl(c(TRUE, FALSE), names = TRUE))
+  expect_true(is_lgl(setNames(c(TRUE, FALSE), c("a", "b")),
+                     names = TRUE))
+  expect_true(is_lgl(setNames(c(TRUE, FALSE), c("a", "b")),
+                     names = c("b", "a")))
+  expect_false(is_lgl(setNames(c(TRUE, FALSE), c("a", "b")),
+                      names = c("a", "c")))
+  expect_true(is_lgl(setNames(c(TRUE, FALSE), c("a", "b"))))
+  expect_error(is_lgl(setNames(c(TRUE, FALSE), c("a", "b")), names = NULL))
 })
 
 test_that("argument checking works for character", {
