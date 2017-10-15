@@ -21,6 +21,7 @@ test_that("argument checking works for logical", {
   expect_true(is_lgl(TRUE))
   expect_false(is_lgl(integer()))
   expect_false(is_lgl(logical()))
+  expect_error(is_lgl(TRUE, type = "int"))
   expect_true(is_lgl(logical(), n_elem = eq(0L)))
   expect_false(is_lgl(c(TRUE, NA)))
   expect_true(is_lgl(NA, allow_na = TRUE))
