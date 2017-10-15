@@ -4,15 +4,15 @@ is_int <- function(x,
                    allow_na = FALSE,
                    allow_null = FALSE) {
 
-  if (allow_null & is.null(x)) return(TRUE)
-  if (!is.vector(x)) return(FALSE)
-
-  n_elem <- n_elem(length(x))
-
-  if (!is.integer(x)) return(FALSE)
-  if (!allow_na & any(is.na(x))) return(FALSE)
-  if (!n_elem) return(FALSE)
-  TRUE
+  if (allow_null & is.null(x))
+    TRUE
+  else if ( !is.vector(x) ||
+            !is.integer(x) ||
+           (!allow_na & any(is.na(x))) ||
+           (!is.null(n_elem) && !n_elem(length(x))))
+    FALSE
+  else
+    TRUE
 }
 
 is_lgl <- function(x,
@@ -20,15 +20,15 @@ is_lgl <- function(x,
                    allow_na = FALSE,
                    allow_null = FALSE) {
 
-  if (allow_null & is.null(x)) return(TRUE)
-  if (!is.vector(x)) return(FALSE)
-
-  n_elem <- n_elem(length(x))
-
-  if (!is.logical(x)) return(FALSE)
-  if (!allow_na & any(is.na(x))) return(FALSE)
-  if (!n_elem) return(FALSE)
-  TRUE
+  if (allow_null & is.null(x))
+    TRUE
+  else if ( !is.vector(x) ||
+            !is.logical(x) ||
+           (!allow_na & any(is.na(x))) ||
+           (!is.null(n_elem) && !n_elem(length(x))))
+    FALSE
+  else
+    TRUE
 }
 
 is_chr <- function(x,
@@ -37,17 +37,16 @@ is_chr <- function(x,
                    allow_na = FALSE,
                    allow_null = FALSE) {
 
-  if (allow_null & is.null(x)) return(TRUE)
-  if (!is.vector(x)) return(FALSE)
-
-  n_char <- n_char(nchar(x[!is.na(x)]))
-  n_elem <- n_elem(length(x))
-
-  if (!is.character(x)) return(FALSE)
-  if (!allow_na & any(is.na(x))) return(FALSE)
-  if (!n_elem) return(FALSE)
-  if (length(nchar) > 0 && !all(n_char[!is.na(n_char)])) return(FALSE)
-  TRUE
+  if (allow_null & is.null(x))
+    TRUE
+  else if ( !is.vector(x) ||
+            !is.character(x) ||
+           (!allow_na & any(is.na(x))) ||
+           (!is.null(n_elem) && !n_elem(length(x))) ||
+           (!is.null(n_char) && !all(n_char(nchar(x[!is.na(x)])))))
+    FALSE
+  else
+    TRUE
 }
 
 lt  <- function(x) function(y) y <  x
