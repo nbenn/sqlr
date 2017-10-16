@@ -32,19 +32,39 @@ test_that("column types can be specified", {
   expect_equal(as.character(col_spec(name = "foo", auto_increment = TRUE,
                                      key = "primary", con = mysql)),
                "`foo` INT AUTO_INCREMENT PRIMARY KEY")
+  expect_error(col_spec(name = "foo", comment = "", con = mysql))
+  expect_equal(as.character(col_spec(name = "fo.o", con = mysql)),
+               "`fo.o` INT")
+  expect_equal(as.character(col_spec(name = "fo'o", con = mysql)),
+               "`fo'o` INT")
   expect_equal(as.character(col_spec(name = "bar", default = "fo'o",
                                      con = mysql)),
                "`bar` INT DEFAULT 'fo\\'o'")
   expect_equal(as.character(col_spec(name = "bar", default = "foo\n",
                                      con = mysql)),
                "`bar` INT DEFAULT 'foo\\n'")
+  expect_equal(as.character(col_spec(name = "foo", default = 1L, con = mysql)),
+               "`foo` INT DEFAULT 1")
+  expect_equal(as.character(col_spec(name = "foo", default = 1.5,
+                                     con = mysql)),
+               "`foo` INT DEFAULT 1.5")
+  expect_equal(as.character(col_spec(name = "foo", default = "bar",
+                                     con = mysql)),
+               "`foo` INT DEFAULT 'bar'")
   expect_equal(as.character(col_spec(name = "foo", default = "", con = mysql)),
                "`foo` INT DEFAULT ''")
-  expect_error(col_spec(name = "foo", comment = "", con = mysql))
-  expect_equal(as.character(col_spec(name = "fo.o", con = mysql)),
-               "`fo.o` INT")
-  expect_equal(as.character(col_spec(name = "fo'o", con = mysql)),
-               "`fo'o` INT")
+  expect_equal(as.character(col_spec(name = "foo", default = NULL,
+                                     con = mysql)),
+               "`foo` INT")
+  expect_equal(as.character(col_spec(name = "foo", default = NA,
+                                     con = mysql)),
+               "`foo` INT DEFAULT NULL")
+  expect_equal(as.character(col_spec(name = "foo", default = NA_character_,
+                                     con = mysql)),
+               "`foo` INT DEFAULT NULL")
+  expect_equal(as.character(col_spec(name = "foo", default = FALSE,
+                                     con = mysql)),
+               "`foo` INT DEFAULT 0")
 })
 
 test_that("integer data types can be specified", {

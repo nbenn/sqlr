@@ -136,4 +136,34 @@ test_that("date/tome column types can be specified", {
                "`foo` TIME")
 })
 
+test_that("column types can be specified for a data.frame", {
+  x <- data.frame(a = 1:3, b = letters[1:3])
+  expect_true(all(sapply(get_col_spec(x, con = mysql), inherits, "SQL")))
+  expect_type(get_col_spec(x, con = mysql), "list")
+  expect_named(get_col_spec(x, con = mysql), c("a", "b"))
+  expect_equal(as.character(get_col_spec(x, con = mysql)),
+               c("`a` TINYINT UNSIGNED", "`b` ENUM('a', 'b', 'c')"))
+  expect_equal(as.character(get_col_spec(x, nullable = FALSE, con = mysql)),
+               c("`a` TINYINT UNSIGNED NOT NULL",
+                 "`b` ENUM('a', 'b', 'c') NOT NULL"))
+  expect_equal(as.character(get_col_spec(x, nullable = c(TRUE, FALSE),
+                                         con = mysql)),
+               c("`a` TINYINT UNSIGNED",
+                 "`b` ENUM('a', 'b', 'c') NOT NULL"))
+  expect_equal(as.character(get_col_spec(x, nullable = list(TRUE, FALSE),
+                                         con = mysql)),
+               c("`a` TINYINT UNSIGNED",
+                 "`b` ENUM('a', 'b', 'c') NOT NULL"))
+  expect_error(get_col_spec(x, nullable = rep(TRUE, 3), con = mysql))
+  expect_equal(as.character(get_col_spec(x,
+                                         nullable = c(TRUE, FALSE),
+                                         default = list(1, "a"),
+                                         comment = "foo",
+                                         con = mysql)),
+               c("`a` TINYINT UNSIGNED DEFAULT 1 COMMENT 'foo'",
+                 "`b` ENUM('a', 'b', 'c') NOT NULL DEFAULT 'a' COMMENT 'foo'"))
+  expect_equal(as.character(get_col_spec(tibble::as_tibble(x), con = mysql)),
+               c("`a` TINYINT UNSIGNED", "`b` ENUM('a', 'b', 'c')"))
+})
+
 rm_con()

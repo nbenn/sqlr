@@ -54,3 +54,17 @@ get_col_spec.Date <- function(x, ...)
 #' @export
 get_col_spec.difftime <- function(x, ...)
   col_spec(..., type = col_dtm, class = "time")
+
+#' @export
+get_col_spec.data.frame <- function(x, ...) {
+
+  dots <- list(...)
+  stopifnot(all(sapply(dots, length) %in% c(1, ncol(x))))
+  single <- sapply(dots, length) == 1
+
+  do.call(function(x, ...)
+    mapply(function(dat, nme, ...)
+      get_col_spec(dat, name = nme, ...),
+      x, names(x), ..., MoreArgs = dots[single],  SIMPLIFY = FALSE),
+    c(list(x = x), dots[!single]))
+}

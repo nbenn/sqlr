@@ -62,8 +62,11 @@ col_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
   stopifnot(is_chr(name, n_elem = eq(1L)),
             is_lgl(nullable, n_elem = eq(1L)),
             is_lgl(auto_increment, n_elem = eq(1L)),
-            is_chr(default, n_elem = eq(1L), n_char = NULL, allow_null = TRUE),
+            is_vec(default, n_elem = eq(1L), allow_na = TRUE,
+                   allow_null = TRUE),
             is_chr(comment, n_elem = eq(1L), allow_null = TRUE))
+
+  if (!is.null(default) && is.na(default)) default <- NA_character_
 
   type_quo <- rlang::enquo(type)
 
@@ -114,8 +117,12 @@ col_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
                   " ", type,
                   if (!nullable)
                     " NOT NULL",
-                  if (!is.null(default))
-                    paste(" DEFAULT", DBI::dbQuoteString(con, default)),
+                  if (is_chr(default, n_char = NULL, allow_na = TRUE))
+                    paste(" DEFAULT", DBI::dbQuoteString(con, default))
+                  else if (is_num(default))
+                    paste(" DEFAULT", default)
+                  else if (is_lgl(default))
+                    paste(" DEFAULT", as.numeric(default)),
                   if (auto_increment)
                     " AUTO_INCREMENT",
                   if (!is.null(key))
