@@ -9,7 +9,7 @@ test_that("argument checking works for vector", {
   expect_false(is_vec(NULL))
   expect_true(is_vec(NULL, allow_null = TRUE))
   expect_false(is_vec(NA))
-  expect_true(is_vec(NA), allow_na = TRUE)
+  expect_true(is_vec(NA, allow_na = TRUE))
   expect_error(is_vec(1L, "foo"))
   expect_true(is_vec(1L, NULL))
   expect_error(is_vec(1L, extra_test = "foo"))
