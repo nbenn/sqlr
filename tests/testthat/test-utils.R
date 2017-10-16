@@ -1,5 +1,29 @@
 context("utils")
 
+test_that("argument checking works for vector", {
+  expect_true(is_vec(1L))
+  expect_true(is_vec(1L, type = "int"))
+  expect_true(is_vec(list(), n_elem = NULL))
+  expect_true(is_vec(list(), n_elem = gte(0L)))
+  expect_false(is_vec(matrix()))
+  expect_false(is_vec(NULL))
+  expect_true(is_vec(NULL, allow_null = TRUE))
+  expect_false(is_vec(NA))
+  expect_true(is_vec(NA), allow_na = TRUE)
+  expect_error(is_vec(1L, "foo"))
+  expect_true(is_vec(1L, NULL))
+  expect_error(is_vec(1L, extra_test = "foo"))
+  expect_false(is_vec(c(TRUE, FALSE), names = TRUE))
+  expect_true(is_vec(setNames(c(TRUE, FALSE), c("a", "b")),
+                     names = TRUE))
+  expect_true(is_vec(setNames(c(TRUE, FALSE), c("a", "b")),
+                     names = c("b", "a")))
+  expect_false(is_vec(setNames(c(TRUE, FALSE), c("a", "b")),
+                      names = c("a", "c")))
+  expect_true(is_vec(setNames(c(TRUE, FALSE), c("a", "b"))))
+  expect_error(is_vec(setNames(c(TRUE, FALSE), c("a", "b")), names = NULL))
+})
+
 test_that("argument checking works for integer", {
   expect_true(is_int(1L))
   expect_false(is_int(1))
@@ -64,15 +88,6 @@ test_that("argument checking works for logical", {
   expect_false(is_lgl(TRUE, n_elem = eq(2L)))
   expect_true(is_lgl(c(TRUE, TRUE), n_elem = eq(2L)))
   expect_false(is_lgl(c(TRUE, TRUE), n_elem = gt(2L)))
-  expect_false(is_lgl(c(TRUE, FALSE), names = TRUE))
-  expect_true(is_lgl(setNames(c(TRUE, FALSE), c("a", "b")),
-                     names = TRUE))
-  expect_true(is_lgl(setNames(c(TRUE, FALSE), c("a", "b")),
-                     names = c("b", "a")))
-  expect_false(is_lgl(setNames(c(TRUE, FALSE), c("a", "b")),
-                      names = c("a", "c")))
-  expect_true(is_lgl(setNames(c(TRUE, FALSE), c("a", "b"))))
-  expect_error(is_lgl(setNames(c(TRUE, FALSE), c("a", "b")), names = NULL))
 })
 
 test_that("argument checking works for character", {

@@ -27,7 +27,8 @@ is_vec <- function(x,
 
   if (allow_null & is.null(x))
     TRUE
-  else if ( !bit64::is.vector.integer64(x) ||
+  else if ( is.null(x) ||
+           (!is.vector(x) || bit64::is.vector.integer64(x)) ||
            (!is.null(type) && !type(x)) ||
            (check_names &
              (is.null(names(x)) || !setequal(names(x), names))) ||
@@ -41,13 +42,14 @@ is_vec <- function(x,
 
 is_lgl <- function(...) is_vec(..., type = "lgl")
 is_num <- function(...) is_vec(..., type = "num")
-is_int <- function(..., strict = TRUE)
+is_int <- function(..., strict = TRUE) {
   is_vec(..., type = if (strict) "int" else "num",
          extra_test = if (strict)
                         NULL
                       else
                         rlang::quo(all(floor(x) == ceiling(x), na.rm = TRUE))
          )
+}
 is_chr <- function(..., n_char = gte(1L)) {
   is_vec(..., type = "chr",
          extra_test = if (is.null(n_char))
