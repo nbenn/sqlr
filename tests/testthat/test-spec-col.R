@@ -200,12 +200,12 @@ test_that("enum data types can be specified", {
   expect_s4_class(col_fct(levels = letters[1:3], con = mysql),
                   "SQL")
   expect_error(col_fct(con = mysql))
-  expect_error(col_fct(levels = letters[1:3], type = "foo", con = mysql))
+  expect_error(col_fct(levels = letters[1:3], variant = "foo", con = mysql))
   expect_equal(as.character(col_fct(levels = letters[1:3], con = mysql)),
                "ENUM('a', 'b', 'c')")
   expect_equal(as.character(col_fct(levels = letters[c(1:3, 3)], con = mysql)),
                "ENUM('a', 'b', 'c')")
-  expect_equal(as.character(col_fct(levels = letters[1:3], type = "set",
+  expect_equal(as.character(col_fct(levels = letters[1:3], variant = "set",
                                     con = mysql)),
                "SET('a', 'b', 'c')")
   expect_error(col_fct(levels = NA_character_, con = mysql))
