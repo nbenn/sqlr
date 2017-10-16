@@ -7,7 +7,7 @@
 \usage{
 col_dtm(..., con = get_con())
 
-\method{col_dtm}{MariaDBConnection}(type = c("datetime", "date", "time",
+\method{col_dtm}{MariaDBConnection}(class = c("datetime", "date", "time",
   "year"), val = NULL, ...)
 }
 \arguments{
@@ -15,7 +15,7 @@ col_dtm(..., con = get_con())
 
 \item{con}{A connection used to determine the SQL dialect to be used}
 
-\item{type}{One of \code{datetime}, \code{date}, \code{time}, \code{year},
+\item{class}{One of \code{datetime}, \code{date}, \code{time}, \code{year},
 specifying the type of date/time of the column.}
 
 \item{val}{A value, the class of which is used for automatically inferring

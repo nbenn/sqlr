@@ -220,8 +220,8 @@ test_that("date/time data types can be specified", {
                   "SQL")
   expect_equal(as.character(col_dtm(con = mysql)),
                "DATETIME")
-  expect_warning(col_dtm(type = "datetime", val = 2001L, con = mysql),
-                 "param \"type\" will be ignored.")
+  expect_warning(col_dtm(class = "datetime", val = 2001L, con = mysql),
+                 "param \"class\" will be ignored.")
   expect_error(col_dtm(val = "foo", con = mysql))
   expect_error(col_dtm(val = 1L, con = mysql))
   expect_error(col_dtm(val = 12L, con = mysql))
@@ -229,7 +229,7 @@ test_that("date/time data types can be specified", {
   expect_equal(as.character(col_dtm(val = 1234L, con = mysql)),
                "YEAR")
   expect_error(col_dtm(val = 12345L, con = mysql))
-  expect_error(col_dtm(type = "foo", con = mysql))
+  expect_error(col_dtm(class = "foo", con = mysql))
   expect_equal(as.character(col_dtm(val = as.POSIXlt(Sys.time()))),
                "DATETIME")
   expect_equal(col_dtm(val = as.POSIXct(Sys.time())),

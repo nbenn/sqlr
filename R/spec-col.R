@@ -79,7 +79,7 @@ col_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
 
     stopifnot(rlang::is_function(type), length(type) == 1,
               rlang::quo_name(type_quo) %in% type_funs)
-    type <- do.call(type, c(..., con = con))
+    type <- do.call(type, c(list(...), con = con))
 
   } else {
 
@@ -421,7 +421,7 @@ col_lgl.MariaDBConnection <- function(...) DBI::SQL("BOOL")
 col_fct <- function(..., con = get_con()) UseMethod("col_fct", con)
 
 #' @param levels A character vector, specifying the factor levels.
-#' @param type One of \code{enum}, \code{set}.
+#' @param variant One of \code{enum}, \code{set}.
 #' @param char_set,collate The character set and collation used.
 #' 
 #' @rdname col_fct
@@ -429,7 +429,7 @@ col_fct <- function(..., con = get_con()) UseMethod("col_fct", con)
 #' @export
 #' 
 col_fct.MariaDBConnection <- function(levels,
-                                      type = c("enum", "set"),
+                                      variant = c("enum", "set"),
                                       char_set = NA_character_,
                                       collate = NA_character_,
                                       con = get_con(),
@@ -437,17 +437,17 @@ col_fct.MariaDBConnection <- function(levels,
 
   stopifnot(is_chr(levels, n_elem = gte(1L), n_char = NULL))
 
-  type <- match.arg(type)
+  variant <- match.arg(variant)
   levels <- unique(levels)
 
   levels <- DBI::dbQuoteString(con, levels)
 
-  type <- paste0(toupper(type),
+  variant <- paste0(toupper(variant),
                  "(",
                    paste(levels, collapse = ", "),
                  ")")
 
-  DBI::SQL(paste0(type,
+  DBI::SQL(paste0(variant,
                   if (!is.na(char_set) && nchar(char_set) > 0)
                     paste(" CHARACTER SET", DBI::dbQuoteString(con, char_set)),
                   if (!is.na(collate) && nchar(collate) > 0)
@@ -469,7 +469,7 @@ col_fct.MariaDBConnection <- function(levels,
 #' 
 col_dtm <- function(..., con = get_con()) UseMethod("col_dtm", con)
 
-#' @param type One of \code{datetime}, \code{date}, \code{time}, \code{year},
+#' @param class One of \code{datetime}, \code{date}, \code{time}, \code{year},
 #' specifying the type of date/time of the column.
 #' @param val A value, the class of which is used for automatically inferring
 #' type.
@@ -478,36 +478,36 @@ col_dtm <- function(..., con = get_con()) UseMethod("col_dtm", con)
 #' 
 #' @export
 #' 
-col_dtm.MariaDBConnection <- function(type = c("datetime", "date", "time",
-                                               "year"),
+col_dtm.MariaDBConnection <- function(class = c("datetime", "date", "time",
+                                                "year"),
                                       val = NULL,
                                       ...) {
 
   if (!is.null(val)) {
 
-    if (!missing(type)) warning("param \"type\" will be ignored.")
+    if (!missing(class)) warning("param \"class\" will be ignored.")
 
-    type <- class(val)
+    class <- class(val)
 
-    if ("POSIXt" %in% type)
-      type <- "datetime"
-    else if ("Date" %in% type)
-      type <- "date"
-    else if ("difftime" %in% type)
-      type <- "time"
-    else if ("numeric" %in% type | "integer" %in% type) {
+    if ("POSIXt" %in% class)
+      class <- "datetime"
+    else if ("Date" %in% class)
+      class <- "date"
+    else if ("difftime" %in% class)
+      class <- "time"
+    else if ("numeric" %in% class | "integer" %in% class) {
       val <- as.integer(val)
       if (length(val) == 0 || nchar(val) == 4)
-        type <- "year"
+        class <- "year"
       else
         stop("numbers are treated as years and only 4 digits are accepted")
     } else
-      stop("class ", type, " is not recognized for determining col_dtm")
+      stop("class ", class, " is not recognized for determining col_dtm")
 
   } else {
 
-    type <- match.arg(type)
+    class <- match.arg(class)
   }
 
-  DBI::SQL(toupper(type))
+  DBI::SQL(toupper(class))
 }

@@ -7,7 +7,7 @@
 \usage{
 col_fct(..., con = get_con())
 
-\method{col_fct}{MariaDBConnection}(levels, type = c("enum", "set"),
+\method{col_fct}{MariaDBConnection}(levels, variant = c("enum", "set"),
   char_set = NA_character_, collate = NA_character_, con = get_con(), ...)
 }
 \arguments{
@@ -17,7 +17,7 @@ col_fct(..., con = get_con())
 
 \item{levels}{A character vector, specifying the factor levels.}
 
-\item{type}{One of \code{enum}, \code{set}.}
+\item{variant}{One of \code{enum}, \code{set}.}
 
 \item{char_set, collate}{The character set and collation used.}
 }
