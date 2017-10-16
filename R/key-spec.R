@@ -51,14 +51,14 @@ fk_spec.MariaDBConnection <- function(child_ind,
                                       con = get_con(),
                                       ...) {
 
-  stopifnot(is.character(child_ind), length(child_ind) >= 1,
-            is.character(parent_tbl), length(parent_tbl) == 1,
-            is.character(parent_ind), length(parent_ind) >= 1,
-            is.character(constr_name), length(constr_name) == 1,
-            is.character(index_name), length(index_name) == 1,
-            is.character(on_del), length(on_del) == 1,
-            is.character(on_upd), length(on_upd) == 1,
-            is.logical(check), length(check) == 1)
+  stopifnot(is_chr(child_ind, n_elem = gte(1L)),
+            is_chr(parent_tbl, n_elem = eq(1L)),
+            is_chr(parent_ind, n_elem = gte(1L)),
+            is_chr(constr_name, n_elem = eq(1L), allow_na = TRUE),
+            is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
+            is_chr(on_del, n_elem = eq(1L)),
+            is_chr(on_upd, n_elem = eq(1L)),
+            is_lgl(check, n_elem = eq(1L)))
 
   match <- match.arg(match)
 
@@ -152,10 +152,11 @@ pk_spec.MariaDBConnection <- function(cols,
                                       con = get_con(),
                                       ...) {
 
-  stopifnot(is.character(cols), length(cols) >= 1,
-            is.character(constr_name), length(constr_name) == 1,
-            is.integer(block_size), length(block_size) == 1,
-            is.character(comment), length(comment) == 1)
+  stopifnot(is_chr(cols, n_elem = gte(1L)),
+            is_chr(constr_name, n_elem = eq(1L), allow_na = TRUE),
+            is_int(block_size, n_elem = eq(1L), strict = FALSE,
+                   allow_na = TRUE),
+            is_chr(comment, n_elem = eq(1L), allow_na = TRUE))
 
   type <- match.arg(type)
 
@@ -208,11 +209,11 @@ uk_spec.MariaDBConnection <- function(cols,
                                       con = get_con(),
                                       ...) {
 
-  stopifnot(is.character(cols), length(cols) >= 1,
-            is.character(constr_name), length(constr_name) == 1,
-            is.character(index_name), length(index_name) == 1,
-            is.integer(block_size), length(block_size) == 1,
-            is.character(comment), length(comment) == 1)
+  stopifnot(is_chr(cols, n_elem = gte(1L)),
+            is_chr(constr_name, n_elem = eq(1L), allow_na = TRUE),
+            is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
+            is_int(block_size, n_elem = eq(1L), allow_na = TRUE),
+            is_chr(comment, n_elem = eq(1L), allow_na = TRUE))
 
   type <- match.arg(type)
 
@@ -265,10 +266,10 @@ key_spec.MariaDBConnection <- function(cols,
                                        con = get_con(),
                                        ...) {
 
-  stopifnot(is.character(cols), length(cols) >= 1,
-            is.character(index_name), length(index_name) == 1,
-            is.integer(block_size), length(block_size) == 1,
-            is.character(comment), length(comment) == 1)
+  stopifnot(is_chr(cols, n_elem = gte(1L)),
+            is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
+            is_int(block_size, n_elem = eq(1L), allow_na = TRUE),
+            is_chr(comment, n_elem = eq(1L), allow_na = TRUE))
 
   type <- match.arg(type)
 
@@ -325,10 +326,10 @@ ft_key_spec.MariaDBConnection <- function(cols,
                                           con = get_con(),
                                           ...) {
 
-  stopifnot(is.character(cols), length(cols) >= 1,
-            is.character(index_name), length(index_name) == 1,
-            is.character(parser), length(parser) == 1,
-            is.character(comment), length(comment) == 1)
+  stopifnot(is_chr(cols, n_elem = gte(1L)),
+            is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
+            is_chr(parser, n_elem = eq(1L), allow_na = TRUE),
+            is_chr(comment, n_elem = eq(1L), allow_na = TRUE))
 
   DBI::SQL(paste0("FULLTEXT KEY",
                   if (!is.na(index_name))
@@ -371,9 +372,9 @@ spat_key_spec.MariaDBConnection <- function(cols,
                                             con = get_con(),
                                             ...) {
 
-  stopifnot(is.character(cols), length(cols) >= 1,
-            is.character(index_name), length(index_name) == 1,
-            is.character(comment), length(comment) == 1)
+  stopifnot(is_chr(cols, n_elem = gte(1L)),
+            is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
+            is_chr(comment, n_elem = eq(1L), allow_na = TRUE))
 
   DBI::SQL(paste0("SPATIAL KEY",
                   if (!is.na(index_name))

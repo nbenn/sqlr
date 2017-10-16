@@ -55,10 +55,9 @@ show_db_cols.MariaDBConnection <- function(tbls,
                                            con = get_con(),
                                            ...) {
 
-  stopifnot(is.character(tbls), length(tbls) >= 1,
-            is.logical(full), length(full) == 1)
-  if (!is.null(like))
-    stopifnot(is.character(like), length(like) == 1)
+  stopifnot(is_chr(tbls, n_elem = gte(1L)),
+            is_lgl(full, n_elem = eq(1L)),
+            is_chr(like, n_elem = eq(1L), allow_null = TRUE))
   if (!is.null(where))
     stopifnot(inherits(where, "SQL"), length(where) == 1)
 

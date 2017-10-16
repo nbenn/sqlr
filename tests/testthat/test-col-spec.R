@@ -40,8 +40,7 @@ test_that("column types can be specified", {
                "`bar` INT DEFAULT 'foo\\n'")
   expect_equal(as.character(col_spec(name = "foo", default = "", con = mysql)),
                "`foo` INT DEFAULT ''")
-  expect_equal(as.character(col_spec(name = "foo", comment = "", con = mysql)),
-               "`foo` INT")
+  expect_error(col_spec(name = "foo", comment = "", con = mysql))
   expect_equal(as.character(col_spec(name = "fo.o", con = mysql)),
                "`fo.o` INT")
   expect_equal(as.character(col_spec(name = "fo'o", con = mysql)),
@@ -138,8 +137,7 @@ test_that("string data types can be specified", {
                "VARCHAR(255) CHARACTER SET 'fo\\'o'")
   expect_equal(as.character(col_chr(char_set = "foo\n", con = mysql)),
                "VARCHAR(255) CHARACTER SET 'foo\\n'")
-  expect_equal(as.character(col_chr(char_set = "", con = mysql)),
-               "VARCHAR(255)")
+  expect_error(col_chr(char_set = "", con = mysql))
 })
 
 test_that("binary data types can be specified", {

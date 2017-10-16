@@ -62,14 +62,15 @@ tbl_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
                                        con = get_con(),
                                        ...) {
 
-  stopifnot(is.character(name), length(name) == 1, nchar(name) >= 1,
-            is.logical(temp), length(temp) == 1,
-            is.logical(force), length(force) == 1,
-            is.integer(auto_incr), length(auto_incr) == 1,
-            is.character(char_set), length(char_set) == 1,
-            is.character(collate), length(collate) == 1,
-            is.character(comment), length(comment) == 1,
-            is.character(engine), length(engine) == 1)
+  stopifnot(is_chr(name, n_elem = eq(1L)),
+            is_lgl(temp, n_elem = eq(1L)),
+            is_lgl(force, n_elem = eq(1L)),
+            is_int(auto_incr, n_elem = eq(1L), allow_na = TRUE,
+                   strict = FALSE),
+            is_chr(char_set, n_elem = eq(1L), allow_na = TRUE),
+            is_chr(collate, n_elem = eq(1L), allow_na = TRUE),
+            is_chr(comment, n_elem = eq(1L), allow_na = TRUE),
+            is_chr(engine, n_elem = eq(1L)))
 
   if (!is.null(table_options))
     stopifnot(inherits(table_options, "SQL"), length(table_options) >= 1)

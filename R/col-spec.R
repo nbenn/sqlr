@@ -59,13 +59,11 @@ col_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
                                        con = get_con(),
                                        ...) {
 
-  stopifnot(is.character(name), length(name) == 1, nchar(name) >= 1,
-            is.logical(nullable), length(nullable) == 1,
-            is.logical(auto_increment), length(auto_increment) == 1)
-  if (!is.null(default))
-    stopifnot(is.character(default), length(default) == 1)
-  if (!is.null(comment))
-    stopifnot(is.character(comment), length(comment) == 1)
+  stopifnot(is_chr(name, n_elem = eq(1L)),
+            is_lgl(nullable, n_elem = eq(1L)),
+            is_lgl(auto_increment, n_elem = eq(1L)),
+            is_chr(default, n_elem = eq(1L), n_char = NULL, allow_null = TRUE),
+            is_chr(comment, n_elem = eq(1L), allow_null = TRUE))
 
   type_quo <- rlang::enquo(type)
 
@@ -85,7 +83,7 @@ col_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
 
   } else {
 
-    stopifnot(is.character(type), length(type) == 1)
+    stopifnot(is_chr(type, n_elem = eq(1L)))
     if (!type %in% type_funs) {
       type <- switch(type,
                      integer = col_int,
@@ -161,9 +159,11 @@ col_int.MariaDBConnection <- function(type = "int",
   if (!is.na(min) | !is.na(max)) {
 
     if (is.na(min)) min <- bit64::as.integer64(-2147483648)
-    else            stopifnot(is.numeric(min), length(min) == 1L)
+    else            stopifnot(is_int(min, n_elem = eq(1L), strict = FALSE))
     if (is.na(max)) max <- 2147483647L
-    else            stopifnot(is.numeric(max), length(max) == 1L)
+    else            stopifnot(is_int(max, n_elem = eq(1L), strict = FALSE))
+
+    stopifnot(min <= max)
 
     if (!missing(type)) warning("param \"type\" will be ignored.")
     if (!missing(unsigned)) warning("param \"unsigned\" will be ignored.")
@@ -184,9 +184,9 @@ col_int.MariaDBConnection <- function(type = "int",
 
   } else {
 
-    stopifnot(length(type) == 1L,
+    stopifnot(is_chr(type, n_elem = eq(1L)),
               any(c("tiny", "small", "medium", "int", "big") %in% type),
-              is.logical(unsigned), length(unsigned) == 1L)
+              is_lgl(unsigned, n_elem = eq(1L)))
   }
 
   type <- switch(type,
@@ -227,8 +227,9 @@ col_dbl.MariaDBConnection <- function(prec = "double",
                                       unsigned = FALSE,
                                       ...) {
 
-  stopifnot(length(prec) == 1L, any(c("single", "double") %in% prec),
-            length(unsigned) == 1L, is.logical(unsigned))
+  stopifnot(is_chr(prec, n_elem = eq(1L)),
+            any(c("single", "double") %in% prec),
+            is_lgl(unsigned, n_elem = eq(1L)))
 
   prec <- switch(prec,
                  single = "FLOAT",
@@ -280,11 +281,11 @@ col_chr.MariaDBConnection <- function(length = 255L,
                                       con = get_con(),
                                       ...) {
 
-  stopifnot(is.numeric(length), length(length) == 1L, length > 0L,
-            is.logical(fixed), length(fixed) == 1L,
-            is.logical(force_text), length(force_text) == 1L,
-            is.character(char_set), length(char_set) == 1L,
-            is.character(collate), length(collate) == 1L,
+  stopifnot(is_int(length, n_elem = eq(1L), strict = FALSE), length > 0L,
+            is_lgl(fixed, n_elem = eq(1L)),
+            is_lgl(force_text, n_elem = eq(1L)),
+            is_chr(char_set, n_elem = eq(1L), allow_na = TRUE),
+            is_chr(collate, n_elem = eq(1L), allow_na = TRUE),
             !all(c(fixed, force_text)))
   if (fixed) stopifnot(length < 256L)
 
@@ -316,9 +317,9 @@ col_chr.MariaDBConnection <- function(length = 255L,
     type <- "LONGTEXT"
 
   DBI::SQL(paste0(type,
-                  if (!is.na(char_set) && nchar(char_set) > 0)
+                  if (!is.na(char_set))
                     paste(" CHARACTER SET", DBI::dbQuoteString(con, char_set)),
-                  if (!is.na(collate) && nchar(collate) > 0)
+                  if (!is.na(collate))
                     paste(" COLLATE", DBI::dbQuoteString(con, collate))))
 }
 
@@ -354,9 +355,9 @@ col_raw.MariaDBConnection <- function(length = 255L,
                                       force_blob = length >= 16384L,
                                       ...) {
 
-  stopifnot(is.numeric(length), length(length) == 1L, length > 0L,
-            is.logical(fixed), length(fixed) == 1L,
-            is.logical(force_blob), length(force_blob) == 1L,
+  stopifnot(is_int(length, n_elem = eq(1L), strict = FALSE), length > 0L,
+            is_lgl(fixed, n_elem = eq(1L)),
+            is_lgl(force_blob, n_elem = eq(1L)),
             !all(c(fixed, force_blob)))
   if (fixed) stopifnot(length < 256L)
 
@@ -434,8 +435,7 @@ col_fct.MariaDBConnection <- function(levels,
                                       con = get_con(),
                                       ...) {
 
-  stopifnot(!missing(levels),
-            is.character(levels), length(levels) >= 1, !any(is.na(levels)))
+  stopifnot(is_chr(levels, n_elem = gte(1L), n_char = NULL))
 
   type <- match.arg(type)
   levels <- unique(levels)
