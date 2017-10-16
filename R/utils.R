@@ -22,11 +22,6 @@
 #' \code{names}.
 #' @param allow_na A logical, specifying whether NA is allowed in x.
 #' @param allow_null A logical, specifying whether x may be NULL.
-#' @param extra_test Used by other functions, such as \code{is_int} and
-#' \code{is_chr}, this injects a further test, that if it evaluates to FALSE,
-#' \code{is_vec} will return FALSE. Only a quosure is accepted and it will
-#' be evaluated in the context of this functions and not where it was
-#' originally called.
 #' 
 #' @return A single logical, indicating whether all conditions are met.
 #' 
@@ -37,10 +32,7 @@ is_vec <- function(x,
                    n_elem = gte(1L),
                    names = FALSE,
                    allow_na = FALSE,
-                   allow_null = FALSE,
-                   extra_test = NULL) {
-
-  if (!is.null(extra_test)) stopifnot(rlang::is_quosure(extra_test))
+                   allow_null = FALSE) {
 
   if (is.logical(names) & length(names) == 1) {
     check_names <- names
@@ -51,6 +43,9 @@ is_vec <- function(x,
   } else if (is.character(names))
     check_names <- TRUE
   else stop("names is expected to either be logical or character")
+
+  stopifnot(is.logical(allow_na), length(allow_na) == 1)
+  stopifnot(is.logical(allow_null), length(allow_null) == 1)
 
   type <- switch(match.arg(type),
                  int = function(x) is.integer(x) | bit64::is.integer64(x),
@@ -65,8 +60,7 @@ is_vec <- function(x,
       (!is.null(type) && !type(x)) ||
       (check_names & (is.null(names(x)) || !setequal(names(x), names))) ||
       (!allow_na & any(is.na(x))) ||
-      (!is.null(n_elem) && !n_elem(length(x))) ||
-      (!is.null(extra_test) && !rlang::eval_tidy(rlang::UQE(extra_test)))
+      (!is.null(n_elem) && !n_elem(length(x)))
     )
   )
 }
@@ -92,13 +86,12 @@ is_num <- function(...) is_vec(..., type = "num")
 #' 
 #' @export
 #' 
-is_int <- function(..., strict = TRUE) {
-  is_vec(..., type = if (strict) "int" else "num",
-         extra_test = if (strict)
-                        NULL
-                      else
-                        rlang::quo(all(floor(x) == ceiling(x), na.rm = TRUE))
-         )
+is_int <- function(x, ..., strict = TRUE) {
+  res <- is_vec(x, ..., type = if (strict) "int" else "num")
+  if (!strict & !is.null(x))
+    res && all(floor(x) == ceiling(x), na.rm = TRUE)
+  else
+    res
 }
 
 #' @param n_char Behaves analogously to \code{n_elem}, with \code{nchar(x)} on
@@ -108,14 +101,12 @@ is_int <- function(..., strict = TRUE) {
 #' 
 #' @export
 #' 
-is_chr <- function(..., n_char = gte(1L)) {
-  is_vec(..., type = "chr",
-         extra_test = if (is.null(n_char))
-                        NULL
-                      else
-                        rlang::quo(all(rlang::UQ(n_char)(
-                          nchar(x[!is.na(x)]))))
-         )
+is_chr <- function(x, ..., n_char = gte(1L)) {
+  res <- is_vec(x, ..., type = "chr")
+  if (!is.null(n_char) & !is.null(x))
+    res && all(n_char(nchar(x[!is.na(x)])))
+  else
+    res
 }
 
 #' @param b The rhs of the comparison.
@@ -124,7 +115,7 @@ is_chr <- function(..., n_char = gte(1L)) {
 #' 
 #' @export
 #' 
-lt  <- function(b) function(a) a <  b
+lt  <- function(b) function(a) a < b
 
 #' @rdname is_vec
 #' 
@@ -136,7 +127,7 @@ lte <- function(b) function(a) a <= b
 #' 
 #' @export
 #' 
-gt  <- function(b) function(a) a >  b
+gt  <- function(b) function(a) a > b
 
 #' @rdname is_vec
 #' 

@@ -14,16 +14,15 @@
 \title{Test if an object is a vector}
 \usage{
 is_vec(x, type = c(NA, "int", "num", "lgl", "chr"), n_elem = gte(1L),
-  names = FALSE, allow_na = FALSE, allow_null = FALSE,
-  extra_test = NULL)
+  names = FALSE, allow_na = FALSE, allow_null = FALSE)
 
 is_lgl(...)
 
 is_num(...)
 
-is_int(..., strict = TRUE)
+is_int(x, ..., strict = TRUE)
 
-is_chr(..., n_char = gte(1L))
+is_chr(x, ..., n_char = gte(1L))
 
 lt(b)
 
@@ -54,12 +53,6 @@ or a character vector used to test for setequal of \code{names(x)} and
 \item{allow_na}{A logical, specifying whether NA is allowed in x.}
 
 \item{allow_null}{A logical, specifying whether x may be NULL.}
-
-\item{extra_test}{Used by other functions, such as \code{is_int} and
-\code{is_chr}, this injects a further test, that if it evaluates to FALSE,
-\code{is_vec} will return FALSE. Only a quosure is accepted and it will
-be evaluated in the context of this functions and not where it was
-originally called.}
 
 \item{...}{Arguments passed to \code{is_vec}.}
 
