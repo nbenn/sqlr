@@ -130,4 +130,8 @@ test_that("argument checking works for list", {
   expect_true(is_lst(list(a = 1, b = "c"), names = TRUE))
   expect_false(is_lst(list(1, "c"), names = TRUE))
   expect_true(is_lst(list(a = 1, b = "c"), names = c("b", "a")))
+  expect_false(is_lst(NULL))
+  expect_true(is_lst(NULL, allow_null = TRUE))
+  expect_true(is_lst(NULL, names = TRUE, allow_null = TRUE))
+  expect_false(is_lst(list(NULL), names = TRUE, allow_null = TRUE))
 })
