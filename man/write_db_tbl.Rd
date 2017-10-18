@@ -53,3 +53,7 @@ Add data contained in a \code{data.frame} to database. In case
 the table does not exist, it will be created by [create_db_tbl], using
 the arguments passed as \code{...}.
 }
+\section{TODO}{
+ Also add LOAD DATA INFILE as option for bulk loading
+}
+
