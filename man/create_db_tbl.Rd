@@ -16,7 +16,8 @@ of a call to \code{tbl_spec}}
 \item{con}{A connection used to determine the SQL dialect to be used}
 }
 \value{
-SQL to be used in a CREATE table statement
+A single logical value, indicating whether the statement completed
+successfully (invisibly).
 }
 \description{
 All arguments are passed to \code{tbl_spec} which generates
