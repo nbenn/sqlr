@@ -6,6 +6,7 @@
 \alias{is_num}
 \alias{is_int}
 \alias{is_chr}
+\alias{is_lst}
 \alias{lt}
 \alias{lte}
 \alias{gt}
@@ -13,7 +14,7 @@
 \alias{eq}
 \title{Test if an object is a vector}
 \usage{
-is_vec(x, type = c(NA, "int", "num", "lgl", "chr"), n_elem = gte(1L),
+is_vec(x, type = c(NA, "int", "num", "lgl", "chr", "lst"), n_elem = gte(1L),
   names = FALSE, allow_na = FALSE, allow_null = FALSE)
 
 is_lgl(...)
@@ -23,6 +24,8 @@ is_num(...)
 is_int(x, ..., strict = TRUE)
 
 is_chr(x, ..., n_char = gte(1L))
+
+is_lst(...)
 
 lt(b)
 
