@@ -28,7 +28,7 @@
 #' @export
 #' 
 is_vec <- function(x,
-                   type = c(NA, "int", "num", "lgl", "chr"),
+                   type = c(NA, "int", "num", "lgl", "chr", "lst"),
                    n_elem = gte(1L),
                    names = FALSE,
                    allow_na = FALSE,
@@ -48,21 +48,28 @@ is_vec <- function(x,
   stopifnot(is.logical(allow_null), length(allow_null) == 1)
 
   type <- switch(match.arg(type),
-                 int = function(x) is.integer(x) | bit64::is.integer64(x),
-                 num = is.numeric,
-                 lgl = is.logical,
-                 chr = is.character)
+                 `NA` = function(x) TRUE,
+                 int  = function(x) is.integer(x) | bit64::is.integer64(x),
+                 num  = is.numeric,
+                 lgl  = is.logical,
+                 chr  = is.character,
+                 lst  = is.list)
 
-  !(
-    (is.null(x) & !allow_null) ||
+  res <- !(
+    (is.null(x) && !allow_null) ||
     !is.null(x) && (
       (!bit64::is.vector.integer64(x)) ||
       (!is.null(type) && !type(x)) ||
-      (check_names & (is.null(names(x)) || !setequal(names(x), names))) ||
-      (!allow_na & any(is.na(x))) ||
+      (check_names && (is.null(names(x)) || !setequal(names(x), names))) ||
+      (!allow_null && any(sapply(x, is.null))) ||
+      (!allow_na && anyNA(x, recursive = TRUE)) ||
       (!is.null(n_elem) && !n_elem(length(x)))
     )
   )
+
+  stopifnot(is.logical(res), length(res) == 1, !is.na(res))
+
+  res
 }
 
 #' @param ... Arguments passed to \code{is_vec}.
@@ -108,6 +115,12 @@ is_chr <- function(x, ..., n_char = gte(1L)) {
   else
     res
 }
+
+#' @rdname is_vec
+#' 
+#' @export
+#' 
+is_lst <- function(...) is_vec(..., type = "lst")
 
 #' @param b The rhs of the comparison.
 #' 

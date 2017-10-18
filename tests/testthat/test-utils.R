@@ -111,3 +111,23 @@ test_that("argument checking works for character", {
   expect_true(is_chr(c("a", "b"), n_elem = eq(2L)))
   expect_false(is_chr(c("a", "b"), n_elem = gt(2L)))
 })
+
+test_that("argument checking works for list", {
+  expect_true(is_lst(list(1L)))
+  expect_false(is_lst(list(NULL)))
+  expect_true(is_lst(list(NULL), allow_null = TRUE))
+  expect_true(is_lst(list(a = 1, b = "c")))
+  expect_false(is_lst(list(a = 1, b = "c", d = NULL)))
+  expect_true(is_lst(list(a = 1, b = "c", d = NULL), allow_null = TRUE))
+  expect_false(is_lst(list(a = NA, b = "c", d = NULL), allow_null = TRUE))
+  expect_true(is_lst(list(a = NA, b = "c", d = NULL), allow_null = TRUE,
+                     allow_na = TRUE))
+  expect_false(is_lst(list(a = c(1, NA))))
+  expect_true(is_lst(list(a = c(1, NA)), allow_na = TRUE))
+  expect_false(is_lst(list(a = list(x = 1, y = NA))))
+  expect_true(is_lst(list(a = list(x = 1, y = NA)), allow_na = TRUE))
+  expect_true(is_lst(list(a = list(x = 1, y = NULL))))
+  expect_true(is_lst(list(a = 1, b = "c"), names = TRUE))
+  expect_false(is_lst(list(1, "c"), names = TRUE))
+  expect_true(is_lst(list(a = 1, b = "c"), names = c("b", "a")))
+})
