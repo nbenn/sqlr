@@ -67,6 +67,8 @@ write_db_tbl.MariaDBConnection <- function(name,
               all(names(on_dupl_key) %in% names(data)))
   if (!is.null(partition)) stop("this is not implemented yet.")
 
+  mode <- match.arg(mode)
+
   if (mode == "replace") {
     stopifnot(!is.null(on_dupl_key))
     if (!is.na(priority)) stopifnot(priority == "high")
@@ -76,7 +78,6 @@ write_db_tbl.MariaDBConnection <- function(name,
                      low = "LOW_PRIORITY",
                      high = "HIGH_PRIORITY",
                      delayed = "DELAYED")
-  mode <- match.arg(mode)
 
   if (!DBI::dbExistsTable(con, name)) {
     if ("cols" %in% names(list(...)))
@@ -115,6 +116,10 @@ write_db_tbl.MariaDBConnection <- function(name,
   rows_added <- tryCatch({
     DBI::dbBind(rs, stats::setNames(data, NULL))
     DBI::dbGetRowsAffected(rs)
+  },
+    warning = function(w) {
+      if (!grepl("Factors converted to character", w))
+        warning(w)
   },
     finally = DBI::dbClearResult(rs)
   )
