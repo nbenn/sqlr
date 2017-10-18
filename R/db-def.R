@@ -57,7 +57,8 @@ drop_db_tbl <- function(..., con = get_con()) UseMethod("drop_db_tbl", con)
 drop_db_tbl.MariaDBConnection <- function(tbls,
                                           temporary = FALSE,
                                           force = FALSE,
-                                          con = get_con()) {
+                                          con = get_con(),
+                                          ...) {
 
   stopifnot(is_chr(tbls),
             is_lgl(temporary, n_elem = eq(1L)),

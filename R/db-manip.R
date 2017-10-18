@@ -113,7 +113,7 @@ write_db_tbl.MariaDBConnection <- function(name,
   rs <- DBI::dbSendStatement(con, insert)
 
   rows_added <- tryCatch({
-    DBI::dbBind(rs, setNames(data, NULL))
+    DBI::dbBind(rs, stats::setNames(data, NULL))
     DBI::dbGetRowsAffected(rs)
   },
     finally = DBI::dbClearResult(rs)

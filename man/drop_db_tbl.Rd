@@ -8,7 +8,7 @@
 drop_db_tbl(..., con = get_con())
 
 \method{drop_db_tbl}{MariaDBConnection}(tbls, temporary = FALSE,
-  force = FALSE, con = get_con())
+  force = FALSE, con = get_con(), ...)
 }
 \arguments{
 \item{...}{Arguments passed to the S3 methods}
