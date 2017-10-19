@@ -113,15 +113,18 @@ write_db_tbl.MariaDBConnection <- function(name,
 
   rs <- DBI::dbSendStatement(con, insert)
 
-  rows_added <- tryCatch({
-    DBI::dbBind(rs, stats::setNames(data, NULL))
-    DBI::dbGetRowsAffected(rs)
-  },
-    warning = function(w) {
-      if (!grepl("Factors converted to character", w))
+  rows_added <- withCallingHandlers(
+    tryCatch({
+      DBI::dbBind(rs, stats::setNames(data, NULL))
+      DBI::dbGetRowsAffected(rs)
+    },
+      finally = DBI::dbClearResult(rs)
+    ), warning = function(w) {
+      if (grepl("^Factors converted to character$", conditionMessage(w)))
+        invokeRestart("muffleWarning")
+      else
         warning(w)
-  },
-    finally = DBI::dbClearResult(rs)
+    }
   )
 
   DBI::dbCommit(con)
