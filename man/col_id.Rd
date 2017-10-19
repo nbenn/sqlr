@@ -8,7 +8,8 @@
 col_id(..., con = get_con())
 
 \method{col_id}{MariaDBConnection}(name = "id", type = "int",
-  unsigned = TRUE, auto_increment = TRUE, key = "primary", ...)
+  unsigned = TRUE, auto_increment = TRUE, key = "primary",
+  as_lst = FALSE, ...)
 }
 \arguments{
 \item{...}{Arguments passed to the S3 methods}
@@ -30,6 +31,9 @@ incrementing.}
 
 \item{key}{One of \code{NA}, \code{unique}, \code{primary}, \code{key},
 specifying if and what type of index the column represents.}
+
+\item{as_lst}{Logical switch for returning the col_spec as a list entry for
+easier c'ing with col_specs from a data.frame}
 }
 \value{
 SQL to be used in a CREATE table statement

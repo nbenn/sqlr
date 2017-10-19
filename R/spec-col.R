@@ -537,6 +537,8 @@ col_id <- function(..., con = get_con()) UseMethod("col_id", con)
 
 #' @inheritParams col_spec
 #' @inheritParams col_int
+#' @param as_lst Logical switch for returning the col_spec as a list entry for
+#' easier c'ing with col_specs from a data.frame
 #' 
 #' @rdname col_id
 #' 
@@ -547,8 +549,14 @@ col_id.MariaDBConnection <- function(name = "id",
                                      unsigned = TRUE,
                                      auto_increment = TRUE,
                                      key = "primary",
+                                     as_lst = FALSE,
                                      ...) {
 
-  col_spec(name = name, type = type, unsigned = unsigned,
-           auto_increment = auto_increment, key = key, ...)
-}
+  spec <- col_spec(name = name, type = type, unsigned = unsigned,
+                   auto_increment = auto_increment, key = key, ...)
+
+  if (as_lst)
+    stats::setNames(list(spec), name)
+  else
+    spec
+  }

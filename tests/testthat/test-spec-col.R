@@ -256,6 +256,10 @@ test_that("id column can be specified", {
                "`id` INT UNSIGNED AUTO_INCREMENT")
   expect_equal(as.character(col_id(type = "int", size = "big")),
                "`id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY")
+  expect_type(col_id(as_lst = TRUE), "list")
+  expect_named(col_id(as_lst = TRUE), "id")
+  expect_equal(col_id(),
+               col_id(as_lst = TRUE)[[1]])
 })
 
 rm_con()
