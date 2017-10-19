@@ -158,6 +158,7 @@
 #'                                         ":00")),
 #'                                  format = "%Y-%m-%d %H:%M",
 #'                                  tz = "America/New_York")
+#'   weather <- weather[!is.na(weather$ts), ]
 #'   weather[, c("temp", "dewp", "humid", "precip", "pressure")] <- lapply(
 #'     weather[, c("temp", "dewp", "humid", "precip", "pressure")], as.single)
 #'   weather$wind_dir <- as.integer(weather$wind_dir)
