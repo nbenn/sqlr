@@ -164,7 +164,8 @@
 #'   weather$visib <- factor(ceiling(weather$visib), levels = 0:10,
 #'                           ordered = TRUE)
 #'   weather <- weather[, c("origin", "ts", "temp", "dewp", "humid",
-#'                          "wind_dir", "precip", "pressure", "visib")]
+#'                          "wind_dir", "wind_gust", "wind_speed", "precip",
+#'                          "pressure", "visib")]
 #'   save(weather, file = "data/weather.rda", compress = "xz")
 #' }
 #' 
