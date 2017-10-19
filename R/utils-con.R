@@ -14,14 +14,27 @@ config <- new.env()
 #' @param file_name The file name of the config file. If no value is supplied,
 #' the current wd is searched for files ending in '.yaml' or '.yml', followed
 #' by the extdata dir in the package installation.
+#' @param section A list node to be returned instead of the whole config list.
+#' If multiple nodes match, the last match (the list is traversed recursively)
+#' will be returned
 #' 
 #' @return The database configuration as a list.
 #'
-load_config <- function(file_name = NULL) {
+load_config <- function(file_name = NULL,
+                        section = NULL) {
 
   find_yml <- function(dir) {
     list.files(dir, pattern = "\\.ya?ml$", full.names = TRUE)[1]
   }
+
+  find_section <- function(lst, sec) {
+    if (!is.list(lst)) NULL
+    else if (sec %in% names(lst)) section <<- lst[[sec]]
+    else lapply(lst, find_section, sec)
+  }
+
+  stopifnot(is_chr(file_name, n_elem = eq(1L), allow_null = TRUE),
+            is_chr(section, n_elem = eq(1L), allow_null = TRUE))
 
   if (is.null(file_name)) {
 
@@ -36,48 +49,54 @@ load_config <- function(file_name = NULL) {
 
   } else stopifnot(file.exists(file_name))
 
-  yaml::yaml.load_file(file_name)
+  cfg <- yaml::yaml.load_file(file_name)
+
+  if (!is.null(section)) {
+    if (is.null(unlist(find_section(cfg, section))))
+      stop("section ", section, " not found in ", file_name)
+    section
+  } else
+    cfg
 }
 
-#' @title Load config list
-#' 
-#' @description In order not to constantly have to read the config file, it is
-#' read once and then saved to the config environment.
-#' 
-#' @inheritParams load_config
-#' @param update Logical, whether to force reading the config again from file.
-#' @param section Name of the top-level config file section to return
-#' 
-#' @return The database configuration as a list.
-#'
-get_cfg <- function(file_name = NULL,
-                    update = FALSE,
-                    section = NULL) {
-
-  if (is.null(config$cfg) || update)
-    config$cfg <- load_config(file_name)
-
-  if (!is.null(section)) config$cfg[[section]]
-  else config$cfg
-}
-
-#' @title Get the database connection
+#' @title Set the database connection
 #' 
 #' @description Using the information from the yml config file, generate a
 #' data base connection object and store it alongside the config information
 #' in the config environment.
 #' 
-#' @inheritParams get_cfg
+#' @inheritParams load_config
+#' @param update Logical switch for forcing a reset to the con object despite
+#' it being present and valid.
+#' 
+#' @return TRUE if the con object was set, FALSE if not.
+#'
+#' @export
+#' 
+set_con <- function(file_name = NULL,
+                    section = "db_setup",
+                    update = FALSE) {
+
+  stopifnot(is_lgl(update, n_elem = eq(1L)))
+
+  if (is.null(config$con) || !DBI::dbIsValid(config$con) || update) {
+    config$con <- connect_db(load_config(file_name, section))
+    invisible(TRUE)
+  } else
+    invisible(FALSE)
+}
+
+#' @title Get the database connection
+#' 
+#' @description Fetch the database connection stored in the config environment.
+#' If no valid con object is present, it will be created using [set_con()].
+#' 
+#' @param ... Arguments passed to [set_con].
 #' 
 #' @return The database connection object.
 #'
-get_con <- function(file_name = NULL,
-                    update = FALSE,
-                    section = "db_setup") {
-
-  if (is.null(config$con) || !DBI::dbIsValid(config$con) || update)
-    config$con <- connect_db(get_cfg(file_name, section = section))
-
+get_con <- function(...) {
+  set_con(...)
   config$con
 }
 
@@ -89,11 +108,10 @@ get_con <- function(file_name = NULL,
 #' 
 #' @return NULL (invisibly)
 #'
+#' @export
+#' 
 rm_con <- function() {
-
-  if (!is.null(config$con))
-    config$con <- NULL
-
+  config$con <- NULL
   invisible(NULL)
 }
 
@@ -133,10 +151,9 @@ connect_mysql <- function(...) {
   con <- tryCatch(
     do.call(DBI::dbConnect, c(RMariaDB::MariaDB(), dots)),
     error = function(e) {
-
+      # nocov start
       if (interactive()) {
 
-        # nocov start
         message(paste(strwrap(
           paste0("in order to set up the database ", dots$dbname, ", the ",
                  "credentials of an account with CREATE and GRANT privileges ",
@@ -172,11 +189,9 @@ connect_mysql <- function(...) {
                                   DBI::dbQuoteString(root_con, dots$password))
                           ))))
         do.call(DBI::dbConnect, c(RMariaDB::MariaDB(), dots))
-        # nocov end
 
-      } else
-
-      stop(e)
+      } else stop(e)
+      # nocov end
     }
   )
 
