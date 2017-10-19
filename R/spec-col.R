@@ -78,10 +78,9 @@ col_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
     type <- rlang::lang_modify(type_quo, con = con)
     type <- rlang::eval_tidy(type)
 
-  } else if (rlang::quo_is_symbolic(type_quo)) {
+  } else if (rlang::quo_is_symbolic(type_quo) && rlang::is_function(type)) {
 
-    stopifnot(rlang::is_function(type), length(type) == 1,
-              rlang::quo_name(type_quo) %in% type_funs)
+    stopifnot(rlang::quo_name(type_quo) %in% type_funs, length(type) == 1)
     type <- do.call(type, c(list(...), con = con))
 
   } else {
@@ -146,18 +145,18 @@ col_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
 #' 
 col_int <- function(..., con = get_con()) UseMethod("col_int", con)
 
-#' @param type One of \code{tiny}, \code{small}, \code{medium}, \code{int},
-#' \code{big}, specifying the type of integer.
+#' @param size One of \code{tiny}, \code{small}, \code{medium}, \code{int},
+#' \code{big}, specifying the size of integer.
 #' @param unsigned Logical switch specifying whether the integer is singed or
 #' unsigned.
 #' @param min,max The minimum/maximum values the integer column has to be able
-#' to hold. This can be used for inferring type and signedness automatically.
+#' to hold. This can be used for inferring size and signedness automatically.
 #' 
 #' @rdname col_int
 #' 
 #' @export
 #' 
-col_int.MariaDBConnection <- function(type = "int",
+col_int.MariaDBConnection <- function(size = "int",
                                       unsigned = FALSE,
                                       min = NA,
                                       max = NA,
@@ -172,38 +171,38 @@ col_int.MariaDBConnection <- function(type = "int",
 
     stopifnot(min <= max)
 
-    if (!missing(type)) warning("param \"type\" will be ignored.")
+    if (!missing(size)) warning("param \"size\" will be ignored.")
     if (!missing(unsigned)) warning("param \"unsigned\" will be ignored.")
 
     unsigned <- min >= 0
 
     if      ( (min >=     -128L & max <      128L) |
-              (min >=        0L & max <      256L) ) type <- "tiny"
+              (min >=        0L & max <      256L) ) size <- "tiny"
     else if ( (min >=   -32768L & max <    32768L) |
-              (min >=        0L & max <    65536L) ) type <- "small"
+              (min >=        0L & max <    65536L) ) size <- "small"
     else if ( (min >= -8388608L & max <  8388608L) |
-              (min >=        0L & max < 16777216L) ) type <- "medium"
+              (min >=        0L & max < 16777216L) ) size <- "medium"
     else if ( (min >= bit64::as.integer64(-2147483648) &
                max <  bit64::as.integer64(2147483648)) |
               (min >= 0L        &
-               max <  bit64::as.integer64(4294967296))) type <- "int"
-    else type <- "big"
+               max <  bit64::as.integer64(4294967296))) size <- "int"
+    else size <- "big"
 
   } else {
 
-    stopifnot(is_chr(type, n_elem = eq(1L)),
-              any(c("tiny", "small", "medium", "int", "big") %in% type),
+    stopifnot(is_chr(size, n_elem = eq(1L)),
+              any(c("tiny", "small", "medium", "int", "big") %in% size),
               is_lgl(unsigned, n_elem = eq(1L)))
   }
 
-  type <- switch(type,
+  size <- switch(size,
                  tiny   = "TINYINT",
                  small  = "SMALLINT",
                  medium = "MEDIUMINT",
                  int    = "INT",
                  big    = "BIGINT")
 
-  DBI::SQL(paste0(type, if (unsigned) " UNSIGNED"))
+  DBI::SQL(paste0(size, if (unsigned) " UNSIGNED"))
 }
 
 #' @title Generate SQL for floating point data type definition
@@ -517,4 +516,39 @@ col_dtm.MariaDBConnection <- function(class = c("datetime", "date", "time",
   }
 
   DBI::SQL(toupper(class))
+}
+
+#' @title Generate SQL for an id column
+#' 
+#' @description Generate SQL, that can be used for an id column specification
+#' (typically an auto incrementing, unsigned integer type primary key column),
+#' in column definitions for CREATE/ALTER TABLE statements.
+#' 
+#' @name col_id 
+#'
+#' @param ... Arguments passed to the S3 methods
+#' @param con A connection used to determine the SQL dialect to be used
+#' 
+#' @return SQL to be used in a CREATE table statement
+#' 
+#' @export
+#' 
+col_id <- function(..., con = get_con()) UseMethod("col_id", con)
+
+#' @inheritParams col_spec
+#' @inheritParams col_int
+#' 
+#' @rdname col_id
+#' 
+#' @export
+#' 
+col_id.MariaDBConnection <- function(name = "id",
+                                     type = "int",
+                                     unsigned = TRUE,
+                                     auto_increment = TRUE,
+                                     key = "primary",
+                                     ...) {
+
+  col_spec(name = name, type = type, unsigned = unsigned,
+           auto_increment = auto_increment, key = key, ...)
 }

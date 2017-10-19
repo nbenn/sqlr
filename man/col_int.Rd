@@ -7,7 +7,7 @@
 \usage{
 col_int(..., con = get_con())
 
-\method{col_int}{MariaDBConnection}(type = "int", unsigned = FALSE,
+\method{col_int}{MariaDBConnection}(size = "int", unsigned = FALSE,
   min = NA, max = NA, ...)
 }
 \arguments{
@@ -15,14 +15,14 @@ col_int(..., con = get_con())
 
 \item{con}{A connection used to determine the SQL dialect to be used}
 
-\item{type}{One of \code{tiny}, \code{small}, \code{medium}, \code{int},
-\code{big}, specifying the type of integer.}
+\item{size}{One of \code{tiny}, \code{small}, \code{medium}, \code{int},
+\code{big}, specifying the size of integer.}
 
 \item{unsigned}{Logical switch specifying whether the integer is singed or
 unsigned.}
 
 \item{min, max}{The minimum/maximum values the integer column has to be able
-to hold. This can be used for inferring type and signedness automatically.}
+to hold. This can be used for inferring size and signedness automatically.}
 }
 \value{
 SQL to be used in a CREATE table statement

@@ -61,27 +61,27 @@ test_that("column types can be specified", {
 test_that("integer data types can be specified", {
   expect_s4_class(col_int(),
                   "SQL")
-  expect_error(col_int(type = "foo"))
+  expect_error(col_int(size = "foo"))
   expect_error(col_int(unsigned = "foo"))
   expect_error(col_int(min = "foo"))
   expect_warning(col_int(unsigned = TRUE, min = -1L),
                  "param \"unsigned\" will be ignored.")
-  expect_warning(col_int(type = "tiny", max = 1L),
-                 "param \"type\" will be ignored.")
+  expect_warning(col_int(size = "tiny", max = 1L),
+                 "param \"size\" will be ignored.")
   expect_equal(col_int(min = -1L, max = 1L),
-               col_int(type = "tiny"))
+               col_int(size = "tiny"))
   expect_equal(col_int(min = -128L, max = 127L),
-               col_int(type = "tiny"))
+               col_int(size = "tiny"))
   expect_equal(col_int(min = 0L, max = 255L),
-               col_int(type = "tiny", unsigned = TRUE))
+               col_int(size = "tiny", unsigned = TRUE))
   expect_equal(col_int(min = 0L, max = 256L),
-               col_int(type = "small", unsigned = TRUE))
+               col_int(size = "small", unsigned = TRUE))
   expect_equal(col_int(min = 0L, max = 65535L),
-               col_int(type = "small", unsigned = TRUE))
+               col_int(size = "small", unsigned = TRUE))
   expect_equal(col_int(min = -1L, max = 65535L),
-               col_int(type = "medium"))
+               col_int(size = "medium"))
   expect_equal(col_int(min = 0L, max = 16777215L),
-               col_int(type = "medium", unsigned = TRUE))
+               col_int(size = "medium", unsigned = TRUE))
   expect_equal(col_int(min = bit64::as.integer64(-2147483648),
                        max = 2147483647L),
                col_int())
@@ -90,10 +90,10 @@ test_that("integer data types can be specified", {
                col_int(unsigned = TRUE))
   expect_equal(col_int(min = 0L,
                        max = bit64::as.integer64(4294967296)),
-               col_int(type = "big", unsigned = TRUE))
+               col_int(size = "big", unsigned = TRUE))
   expect_equal(col_int(min = -1L,
                        max = bit64::as.integer64(4294967296)),
-               col_int(type = "big"))
+               col_int(size = "big"))
 })
 
 test_that("floating point data types can be specified", {
@@ -244,6 +244,18 @@ test_that("date/time data types can be specified", {
                "DATE")
   expect_equal(as.character(col_dtm(val = difftime(Sys.time(), Sys.Date()))),
                "TIME")
+})
+
+test_that("id column can be specified", {
+  expect_s4_class(col_id(),
+                  "SQL")
+  expect_equal(col_id(),
+               col_spec(name = "id", type = "int", unsigned = TRUE,
+                        auto_increment = TRUE, key = "primary"))
+  expect_equal(as.character(col_id(key = NULL)),
+               "`id` INT UNSIGNED AUTO_INCREMENT")
+  expect_equal(as.character(col_id(type = "int", size = "big")),
+               "`id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY")
 })
 
 rm_con()
