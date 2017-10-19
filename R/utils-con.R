@@ -127,7 +127,9 @@ rm_con <- function() {
 #' @return A connection object that can be used for further database access.
 #' 
 connect_db <- function(config) {
+
   dbtype <- match.arg(config$dbtype, "mysql")
+
   switch(dbtype,
          mysql = do.call(connect_mysql, config[names(config) != "dbtype"]))
 }

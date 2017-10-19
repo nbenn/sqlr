@@ -2,7 +2,7 @@ db_setup:
   dbtype: mysql
   dbname: test
   username: test
-  password: test123
+  password: !expr readline("enter db password ")
 
 mysql_unittest:
   dbtype: mysql
