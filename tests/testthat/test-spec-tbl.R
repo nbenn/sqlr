@@ -26,8 +26,8 @@ test_that("tables can be specified", {
                paste("CREATE TABLE IF NOT EXISTS `foo` (`id` INT UNSIGNED NOT",
                      "NULL AUTO_INCREMENT PRIMARY KEY) ENGINE = 'InnoDB'"))
   expect_equal(as.character(tbl_spec("foo",
-                                     spec_lst(col_spec("bar"),
-                                              col_spec("baz", col_int())))),
+                                     list(col_spec("bar"),
+                                          col_spec("baz", col_int())))),
                paste("CREATE TABLE `foo` (`bar` INT, `baz` INT)",
                      "ENGINE = 'InnoDB'"))
   expect_equal(as.character(tbl_spec("foo", auto_incr = 5L)),
@@ -42,7 +42,7 @@ test_that("tables can be specified", {
                paste("CREATE TABLE `foo` (`id` INT, PRIMARY KEY (`id`))",
                      "ENGINE = 'InnoDB'"))
   expect_equal(as.character(tbl_spec("foo", col_spec("id"),
-                                     spec_lst(key_spec("id"), uk_spec("id")))),
+                                     list(key_spec("id"), uk_spec("id")))),
                paste("CREATE TABLE `foo` (`id` INT, KEY (`id`), UNIQUE KEY",
                      "(`id`)) ENGINE = 'InnoDB'"))
 })
