@@ -76,24 +76,10 @@ tbl_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
     stopifnot(inherits(table_options, "SQL"), length(table_options) >= 1)
   if (!is.null(partition)) stop("not implemented yet.")
 
-  col_quos <- rlang::enquo(cols)
-  stopifnot(rlang::quo_is_lang(col_quos))
-
-  cols <- rlang::lang_modify(col_quos, con = con)
-  cols <- rlang::eval_tidy(cols)
-
   if (!is.list(cols)) cols <- list(cols)
   stopifnot(all(sapply(cols, inherits, "SQL"), length(cols) >= 1))
 
-  key_quos <- rlang::enquo(keys)
-
-  if (!rlang::quo_is_null(key_quos)) {
-
-    stopifnot(rlang::quo_is_lang(key_quos))
-
-    keys <- rlang::lang_modify(key_quos, con = con)
-    keys <- rlang::eval_tidy(keys)
-
+  if (!is.null(keys)) {
     if (!is.list(keys)) keys <- list(keys)
     stopifnot(all(sapply(keys, inherits, "SQL")), length(keys) >= 1)
   }
