@@ -553,7 +553,8 @@ col_id.MariaDBConnection <- function(name = "id",
                                      ...) {
 
   spec <- col_spec(name = name, type = type, unsigned = unsigned,
-                   auto_increment = auto_increment, key = key, ...)
+                   nullable = FALSE, auto_increment = auto_increment,
+                   key = key, ...)
 
   if (as_lst)
     stats::setNames(list(spec), name)

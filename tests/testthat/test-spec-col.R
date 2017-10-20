@@ -251,11 +251,12 @@ test_that("id column can be specified", {
                   "SQL")
   expect_equal(col_id(),
                col_spec(name = "id", type = "int", unsigned = TRUE,
-                        auto_increment = TRUE, key = "primary"))
+                        nullable = FALSE, auto_increment = TRUE,
+                        key = "primary"))
   expect_equal(as.character(col_id(key = NULL)),
-               "`id` INT UNSIGNED AUTO_INCREMENT")
+               "`id` INT UNSIGNED NOT NULL AUTO_INCREMENT")
   expect_equal(as.character(col_id(type = "int", size = "big")),
-               "`id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY")
+               "`id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY")
   expect_type(col_id(as_lst = TRUE), "list")
   expect_named(col_id(as_lst = TRUE), "id")
   expect_equal(col_id(),
