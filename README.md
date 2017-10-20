@@ -133,3 +133,4 @@ CREATE TABLE `flight` (
     ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=80790 DEFAULT CHARSET=ascii;
 ```
+Finally, the database connection has to be closed manually when no longer needed (it was opened automatically). For this, run `rm_con()`.
