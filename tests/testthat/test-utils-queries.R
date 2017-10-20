@@ -1,8 +1,7 @@
 context("utils: test query utils")
 
 set_con(section = "mysql_unittest")
-drop_db_tbl(c("plane", "airport"), force = TRUE)
-write_db_tbl("airport", airports, keys = pk_spec("faa"), char_set = "ascii")
+drop_db_tbl(c("plane"), force = TRUE)
 write_db_tbl("plane", planes, keys = pk_spec("tailnum"), char_set = "ascii")
 
 test_that("columns can be listed", {
@@ -38,5 +37,5 @@ test_that("columns can be listed", {
   expect_is(show_db_cols("plane", parse = TRUE)$Null, "logical")
 })
 
-drop_db_tbl(c("plane", "airport"), force = TRUE)
+drop_db_tbl(c("plane"), force = TRUE)
 rm_con()
