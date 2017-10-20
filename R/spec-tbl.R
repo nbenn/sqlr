@@ -43,12 +43,7 @@ tbl_spec <- function(..., con = get_con()) UseMethod("tbl_spec", con)
 #' 
 tbl_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
                                                     collapse = ""),
-                                       cols = col_spec(
-                                                name = "id", type = "int",
-                                                nullable = FALSE,
-                                                auto_increment = TRUE,
-                                                key = "primary",
-                                                unsigned = TRUE),
+                                       cols = col_id(),
                                        keys = NULL,
                                        temp = FALSE,
                                        force = FALSE,
