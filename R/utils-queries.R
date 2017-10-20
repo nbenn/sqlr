@@ -1,7 +1,7 @@
 
 #' @title Show columns of db table(s)
 #' 
-#' @description Display information about the columns in a/the given table(s).
+#' @description Display information about the columns in a given table.
 #' The result may be limited using the arguments \code{like}/\code{where}
 #' and more complete information can be requested using the switch \code{full}.
 #' The returned tibble holds the following values for each table column (see
@@ -38,43 +38,65 @@
 #' 
 show_db_cols <- function(..., con = get_con()) UseMethod("show_db_cols", con)
 
-#' @param tbls The table name(s).
+#' @param tbl The table name.
 #' @param like A string, specifying a pattern to match column names against.
 #' @param where An SQL expression used to filter results.
 #' @param full A logical switch used to request additional information on each
 #' of the returned columns.
+#' @param parse Logical switch for turning the results into a SequelPro
+#' inspired "Structure" view.
 #' 
 #' @rdname show_db_cols
 #' 
 #' @export
 #' 
-show_db_cols.MariaDBConnection <- function(tbls,
+show_db_cols.MariaDBConnection <- function(tbl,
                                            like = NULL,
                                            where = NULL,
                                            full = FALSE,
+                                           parse = FALSE,
                                            con = get_con(),
                                            ...) {
 
-  stopifnot(is_chr(tbls, n_elem = gte(1L)),
+  stopifnot(is_chr(tbl, n_elem = eq(1L)),
+            is_chr(like, n_elem = eq(1L), allow_null = TRUE),
             is_lgl(full, n_elem = eq(1L)),
-            is_chr(like, n_elem = eq(1L), allow_null = TRUE))
+            is_lgl(parse, n_elem = eq(1L)))
   if (!is.null(where))
     stopifnot(inherits(where, "SQL"), length(where) == 1)
 
-  stopifnot(all(sapply(tbls, function(tbl) DBI::dbExistsTable(con, tbl))))
+  stopifnot(DBI::dbExistsTable(con, tbl))
 
-  query <- DBI::SQL(paste0("SHOW",
-                           if (full) " FULL",
-                           " COLUMNS",
-                           if (length(tbls) == 1)
-                             paste(" FROM", DBI::dbQuoteIdentifier(con, tbls))
-                           else
-                             paste(" IN", DBI::dbQuoteIdentifier(con, tbls)),
-                           if (!is.null(like) && nchar(like) > 0)
-                             paste(" LIKE", DBI::dbQuoteString(con, like)),
-                           if (!is.null(where) && nchar(where) > 0)
-                             paste(" WHERE", where)
-                           ))
+  query <- DBI::SQL(paste0(
+    "SHOW",
+   if (full) " FULL",
+   " COLUMNS",
+   paste(" FROM", DBI::dbQuoteIdentifier(con, tbl)),
+   if (!is.null(like))
+     paste(" LIKE", DBI::dbQuoteString(con, like)),
+   if (!is.null(where) && nchar(where) > 0)
+     paste(" WHERE", where)
+   ))
 
-  tibble::as_tibble(DBI::dbGetQuery(con, query))
+  res <- tibble::as_tibble(DBI::dbGetQuery(con, query))
+
+  if (parse) {
+
+    tmp <- parse_col_def(res$Type, name = FALSE)
+    res <- tibble::as_tibble(cbind(res[, "Field"],
+                                   tmp[, c("Type", "Length", "Unsigned")],
+                                   res[, !names(res) %in% c("Field", "Type")]))
+
+    if (!is.logical(res$Null))
+      res$Null <- grepl("yes", res$Null, ignore.case = TRUE)
+
+    if ("Collation" %in% names(res)) {
+      res <- tibble::add_column(res,
+                                Charset = sapply(strsplit(res$Collation, "_"),
+                                                 `[`, 1L),
+                                .before = "Collation")
+    }
+  }
+
+  res
 }

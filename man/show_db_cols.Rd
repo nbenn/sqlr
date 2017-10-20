@@ -7,15 +7,15 @@
 \usage{
 show_db_cols(..., con = get_con())
 
-\method{show_db_cols}{MariaDBConnection}(tbls, like = NULL, where = NULL,
-  full = FALSE, con = get_con(), ...)
+\method{show_db_cols}{MariaDBConnection}(tbl, like = NULL, where = NULL,
+  full = FALSE, parse = FALSE, con = get_con(), ...)
 }
 \arguments{
 \item{...}{Arguments passed on to further methods.}
 
 \item{con}{A connection object to connect to the db.}
 
-\item{tbls}{The table name(s).}
+\item{tbl}{The table name.}
 
 \item{like}{A string, specifying a pattern to match column names against.}
 
@@ -23,12 +23,15 @@ show_db_cols(..., con = get_con())
 
 \item{full}{A logical switch used to request additional information on each
 of the returned columns.}
+
+\item{parse}{Logical switch for turning the results into a SequelPro
+inspired "Structure" view.}
 }
 \value{
 A tibble.
 }
 \description{
-Display information about the columns in a/the given table(s).
+Display information about the columns in a given table.
 The result may be limited using the arguments \code{like}/\code{where}
 and more complete information can be requested using the switch \code{full}.
 The returned tibble holds the following values for each table column (see
