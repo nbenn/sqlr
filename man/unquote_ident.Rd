@@ -7,7 +7,7 @@
 \usage{
 unquote_ident(..., con = get_con())
 
-\method{unquote_ident}{MariaDBConnection}(x, con = get_con())
+\method{unquote_ident}{MariaDBConnection}(x, con = get_con(), ...)
 }
 \arguments{
 \item{...}{Arguments passed to the S3 methods}

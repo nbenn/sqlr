@@ -22,7 +22,7 @@ unquote_ident <- function(..., con = get_con()) UseMethod("unquote_ident", con)
 #' 
 #' @export
 #' 
-unquote_ident.MariaDBConnection <- function(x, con = get_con()) {
+unquote_ident.MariaDBConnection <- function(x, con = get_con(), ...) {
   as.character(sub("^`", "", sub("`$", "", gsub("``", "`", x))))
 }
 
