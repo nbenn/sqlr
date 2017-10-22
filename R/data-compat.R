@@ -26,26 +26,73 @@ unquote_ident.MariaDBConnection <- function(x, con = get_con(), ...) {
   as.character(sub("^`", "", sub("`$", "", gsub("``", "`", x))))
 }
 
-parse_col_def <- function(x, name = TRUE) {
+#' @title Unquote identifiers
+#' 
+#' @description Quoted identifiers such as produced by
+#' \code{DBI::dbQuoteIdentifier(con, "foo")} are unquoted and stripped of their
+#' \code{SQL} class, yielding the original character vector (here "foo").
+#' 
+#' @name parse_col_def
+#' 
+#' @param ... Arguments passed to the S3 methods
+#' @param con A connection used to determine the SQL dialect to be used
+#' 
+#' @return Character vector.
+#' 
+#' @section TODO: what about character encoding? ie if UTF chars are to be
+#' written to an ascii column: catch that as well?
+#' 
+#' @export
+#' 
+parse_col_def <- function(..., con = get_con()) UseMethod("parse_col_def", con)
+
+#' @rdname parse_col_def
+#' 
+#' @param x Character vector to be parsed.
+#' 
+#' @export
+#' 
+parse_col_def.MariaDBConnection <- function(x,
+                                            con = get_con(),
+                                            ...) {
 
   get_first <- function(...) sapply(strsplit(...), `[`, 1L)
 
-  if (name) {
-    field <- get_first(x, "\\s")
-    tmp <- sub(paste0(field, " "), "", x)
-  } else {
-    field <- NA
-    tmp <- x
-  }
+  x <- sub("^\\s", "", gsub("\\s+", " ", x))
 
-  parens <- substr(tmp, regexpr("\\(", tmp), regexpr("\\)", tmp))
-  parens <- sub("^\\(", "", sub("\\)$", "", parens))
+  has_name <- get_first(x, "\\s") != unquote_ident(get_first(x, "\\s"))
 
-  tmp <- mapply(sub, pattern = parens, x = tmp,
+  field <- get_first(x, "\\s")
+  field[!has_name] <- NA
+
+  tmp <- mapply(sub, pattern = paste0(field, " "), x = x,
+                MoreArgs = list(replacement = ""))
+  tmp[!has_name] <- x[!has_name]
+
+  len <- substr(tmp, regexpr("\\(", tmp), regexpr("\\)", tmp))
+  len <- sub("^\\(", "", sub("\\)$", "", len))
+  names(len) <- NULL
+
+  tmp <- mapply(sub, pattern = len, x = tmp,
                 MoreArgs = list(replacement = ""))
   tmp <- sub("\\(\\)", "", tmp)
 
-  tibble::tibble(Field = field, Type = get_first(tmp, "\\s"), Length = parens,
+  len[len == ""] <- NA
+  len <- tryCatch({
+    as.integer(len)
+  }, warning = function(w) {
+    if (grepl("^NAs introduced by coercion$", conditionMessage(w)))
+      len
+    else
+      warning(w)
+  })
+
+  parse <- !is.integer(len) & !is.null(len)
+  len[parse] <- sapply(len[parse], strsplit, ",\\s*", USE.NAMES = FALSE)
+
+  tibble::tibble(Field = unquote_ident(field),
+                 Type = as.character(get_first(tmp, "\\s")),
+                 Length = len,
                  Unsigned = grepl("UNSIGNED", x, ignore.case = TRUE),
                  Null = !grepl("NOT NULL", x, ignore.case = TRUE))
 }
