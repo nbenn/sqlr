@@ -28,6 +28,56 @@ test_that("mysql identifiers can be unqouted", {
                "fo-$!o")
 })
 
+test_that("mysql strings can be unqouted", {
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), "foo")),
+               "foo")
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(),
+                                                 c("foo", "bar"))),
+               c("foo", "bar"))
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), "fo'o")),
+               "fo'o")
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), "fo''o")),
+               "fo''o")
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), "'fo''o")),
+               "'fo''o")
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), "fo`o")),
+               "fo`o")
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), "`foo")),
+               "`foo")
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), "fo``o")),
+               "fo``o")
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), "fo```o")),
+               "fo```o")
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), "fo\no")),
+               "fo\no")
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), "fo\ro")),
+               "fo\ro")
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), "fo\to")),
+               "fo\to")
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), "fo\\o")),
+               "fo\\o")
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), "fo\\\\o")),
+               "fo\\\\o")
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), 'fo"o')),
+               'fo"o')
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), '"fo"o')),
+               '"fo"o')
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), "fo\"o")),
+               'fo"o')
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), "fo\"o")),
+               "fo\"o")
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), "fo\x1ao")),
+               "fo\x1ao")
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), "fo\032o")),
+               "fo\032o")
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), "fo-$!o")),
+               "fo-$!o")
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), "öääü")),
+               "öääü")
+  expect_equal(unquote_string(DBI::dbQuoteString(sqlr:::get_con(), "@ª]|{")),
+               "@ª]|{")
+})
+
 test_that("column definitions can be parsed", {
   expect_is(parse_col_def(col_spec()), "tbl_df")
   expect_equal(nrow(parse_col_def(col_spec())), 1L)

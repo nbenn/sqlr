@@ -26,6 +26,37 @@ unquote_ident.MariaDBConnection <- function(x, con = get_con(), ...) {
   as.character(sub("^`", "", sub("`$", "", gsub("``", "`", x))))
 }
 
+
+#' @title Unquote strings
+#' 
+#' @description Quoted strings such as produced by
+#' \code{DBI::dbQuoteString(con, "foo")} are unquoted and stripped of their
+#' \code{SQL} class, yielding the original character vector (here "foo").
+#' 
+#' @name unquote_str
+#' 
+#' @param ... Arguments passed to the S3 methods
+#' @param con A connection used to determine the SQL dialect to be used
+#' 
+#' @return Character vector.
+#' 
+#' @export
+#' 
+unquote_str <- function(..., con = get_con()) UseMethod("unquote_str", con)
+
+#' @rdname unquote_str
+#' 
+#' @param x Character vector to be unquoted.
+#' 
+#' @export
+#' 
+unquote_str.MariaDBConnection <- function(x, con = get_con(), ...) {
+  patt <- c("\\\\'", "\\\\\"", "\\\\n", "\\\\r", "\\\\\\\\", "\\\\Z")
+  repl <- c("'", "\"", "\n", "\r", "\\\\", "\x1a")
+  for (i in seq_along(patt)) x <- gsub(patt[i], repl[i], x)
+  as.character(sub("^'", "", sub("'$", "", x)))
+}
+
 #' @title Unquote identifiers
 #' 
 #' @description Quoted identifiers such as produced by
@@ -79,9 +110,7 @@ parse_col_def.MariaDBConnection <- function(x,
   tmp <- sub("\\(\\)", "", tmp)
 
   len[len == ""] <- NA
-  len <- tryCatch({
-    as.integer(len)
-  }, warning = function(w) {
+  len <- tryCatch(as.integer(len), warning = function(w) {
     if (grepl("^NAs introduced by coercion$", conditionMessage(w)))
       len
     else
