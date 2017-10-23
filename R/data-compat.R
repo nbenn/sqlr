@@ -89,46 +89,70 @@ parse_col_def.MariaDBConnection <- function(x,
 
   get_first <- function(...) sapply(strsplit(...), `[`, 1L)
 
+  # if the first element is a quoted identifier, split it away, else name <- NA
+  split_name <- function(str) {
+    has_name <- get_first(str, "\\s") != unquote_ident(get_first(str, "\\s"))
+
+    nme <- get_first(str, "\\s")
+    nme[!has_name] <- NA
+
+    str <- mapply(sub, pattern = paste0(nme, " "), x = str,
+                  MoreArgs = list(replacement = "", fixed = TRUE))
+    str[!has_name] <- str[!has_name]
+
+    list(name = unquote_ident(nme),
+         rest = str)
+  }
+
+  # split into type, everything in parentheses, rest
+  split_type <- function(str) {
+    # extract everything from first "(" to last ")"
+    len <- substr(str, attr(regexpr("^(.+?)\\(", str), "match.length"),
+                  attr(regexpr("^(.+)\\)", str), "match.length"))
+    len[len == ""] <- " "
+    names(len) <- NULL
+
+    typ <- get_first(str, len, fixed = TRUE)
+    len[len == " "] <- ""
+
+    str <- mapply(sub, pattern = paste0(typ, len, " "), x = str,
+                  MoreArgs = list(replacement = "", fixed = TRUE))
+    len[len == ""] <- NA
+
+    list(type = toupper(typ),
+         length = sub("^\\(", "", sub("\\)$", "", len)),
+         rest = str)
+  }
+
+  # coerce to integer or split ENUM/SET into levels
+  parse_length <- function(str) {
+    str <- tryCatch(as.integer(str), warning = function(w) {
+      if (grepl("^NAs introduced by coercion$", conditionMessage(w)))
+        str
+      else
+        warning(w)
+    })
+
+    to_parse <- !is.integer(str) & !is.null(str) & !is.na(str)
+    if (length(str[to_parse]) > 0) {
+      str[to_parse] <- lapply(strsplit(str[to_parse], "',\\s*'"), unquote_str,
+                              USE.NAMES = FALSE)
+      if (all(sapply(str, length) == 1L)) str <- unlist(str)
+    }
+
+    str
+  }
+
   # replace multiple whitespace with single and remove leading whitespace
   x <- sub("^\\s", "", gsub("\\s+", " ", x))
 
-  has_name <- get_first(x, "\\s") != unquote_ident(get_first(x, "\\s"))
+  field <- split_name(x)
 
-  field <- get_first(x, "\\s")
-  field[!has_name] <- NA
+  type <- split_type(field$rest)
 
-  tmp <- mapply(sub, pattern = paste0(field, " "), x = x,
-                MoreArgs = list(replacement = "", fixed = TRUE))
-  tmp[!has_name] <- x[!has_name]
-
-  # extract everything from first "(" to last ")"
-  len <- substr(tmp, attr(regexpr("^(.+?)\\(", tmp), "match.length"),
-                attr(regexpr("^(.+)\\)", tmp), "match.length"))
-  len <- sub("^\\(", "", sub("\\)$", "", len))
-  names(len) <- NULL
-
-  tmp <- mapply(sub, pattern = len, x = tmp, fixed = len != "",
-                MoreArgs = list(replacement = ""))
-  tmp <- sub("\\(\\)", "", tmp)
-
-  len[len == ""] <- NA
-  len <- tryCatch(as.integer(len), warning = function(w) {
-    if (grepl("^NAs introduced by coercion$", conditionMessage(w)))
-      len
-    else
-      warning(w)
-  })
-
-  parse <- !is.integer(len) & !is.null(len)
-  if (length(len[parse]) > 0) {
-    len[parse] <- lapply(strsplit(len[parse], "',\\s*'"), unquote_str,
-                         USE.NAMES = FALSE)
-    if (all(sapply(len, length) == 1L)) len <- unlist(len)
-  }
-
-  tibble::tibble(Field = unquote_ident(field),
-                 Type = toupper(as.character(get_first(tmp, "\\s"))),
-                 Length = len,
+  tibble::tibble(Field = field$name,
+                 Type = type$type,
+                 Length = parse_length(type$length),
                  Unsigned = grepl("UNSIGNED", x, ignore.case = TRUE),
                  Null = !grepl("NOT NULL", x, ignore.case = TRUE))
 }
