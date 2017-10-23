@@ -57,21 +57,28 @@ unquote_str.MariaDBConnection <- function(x, con = get_con(), ...) {
   as.character(sub("^'", "", sub("'$", "", x)))
 }
 
-#' @title Unquote identifiers
+#' @title Parse SQL column definitions
 #' 
-#' @description Quoted identifiers such as produced by
-#' \code{DBI::dbQuoteIdentifier(con, "foo")} are unquoted and stripped of their
-#' \code{SQL} class, yielding the original character vector (here "foo").
+#' @description Split and parse SQL column definitions, such as created by
+#' [tbl_spec].
+#' 
+#' \describe{
+#'   \item{Field}{The column name.}
+#'   \item{Type}{The column data type.}
+#'   \item{Length}{Either the length (e.g. CHAR(5) yields 5) or the levels
+#'         of an ENUM or SET field.}
+#'   \item{Unsigned}{Logical, whether the numeric column is signed.}
+#'   \item{NULL}{Logical, whether the column is nullable.}
+#'   \item{Encoding}{The character encoding of a char column.}
+#'   \item{Collation}{The collation of a char column.}
+#' }
 #' 
 #' @name parse_col_def
 #' 
 #' @param ... Arguments passed to the S3 methods
 #' @param con A connection used to determine the SQL dialect to be used
 #' 
-#' @return Character vector.
-#' 
-#' @section TODO: what about character encoding? ie if UTF chars are to be
-#' written to an ascii column: catch that as well?
+#' @return A tibble.
 #' 
 #' @export
 #' 
@@ -134,13 +141,28 @@ parse_col_def.MariaDBConnection <- function(x,
     })
 
     to_parse <- !is.integer(str) & !is.null(str) & !is.na(str)
-    if (length(str[to_parse]) > 0) {
+    if (any(to_parse)) {
       str[to_parse] <- lapply(strsplit(str[to_parse], "',\\s*'"), unquote_str,
                               USE.NAMES = FALSE)
       if (all(sapply(str, length) == 1L)) str <- unlist(str)
     }
 
     str
+  }
+
+  # extract everything that follows regex what until the next whitespace char
+  extract_additional <- function(str, what) {
+    to_parse <- grepl(what, type$rest)
+    charset <- character(length(to_parse))
+    if (any(to_parse))
+      charset[to_parse] <- regmatches(
+                             type$rest[to_parse],
+                             regexpr(paste0("(?<=", what, "\\s)[^\\s]+"),
+                                     type$rest[to_parse],
+                                     perl = TRUE))
+
+    charset[!to_parse] <- NA_character_
+    unquote_str(charset)
   }
 
   # replace multiple whitespace with single and remove leading whitespace
@@ -154,5 +176,7 @@ parse_col_def.MariaDBConnection <- function(x,
                  Type = type$type,
                  Length = parse_length(type$length),
                  Unsigned = grepl("UNSIGNED", x, ignore.case = TRUE),
-                 Null = !grepl("NOT NULL", x, ignore.case = TRUE))
+                 Null = !grepl("NOT NULL", x, ignore.case = TRUE),
+                 Encoding = extract_additional(type$rest, "CHARACTER\\sSET"),
+                 Collation = extract_additional(type$rest, "COLLATE"))
 }

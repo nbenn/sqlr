@@ -3,7 +3,7 @@
 \name{parse_col_def}
 \alias{parse_col_def}
 \alias{parse_col_def.MariaDBConnection}
-\title{Unquote identifiers}
+\title{Parse SQL column definitions}
 \usage{
 parse_col_def(..., con = get_con())
 
@@ -17,15 +17,20 @@ parse_col_def(..., con = get_con())
 \item{x}{Character vector to be parsed.}
 }
 \value{
-Character vector.
+A tibble.
 }
 \description{
-Quoted identifiers such as produced by
-\code{DBI::dbQuoteIdentifier(con, "foo")} are unquoted and stripped of their
-\code{SQL} class, yielding the original character vector (here "foo").
-}
-\section{TODO}{
- what about character encoding? ie if UTF chars are to be
-written to an ascii column: catch that as well?
-}
+Split and parse SQL column definitions, such as created by
+[tbl_spec].
 
+\describe{
+  \item{Field}{The column name.}
+  \item{Type}{The column data type.}
+  \item{Length}{Either the length (e.g. CHAR(5) yields 5) or the levels
+        of an ENUM or SET field.}
+  \item{Unsigned}{Logical, whether the numeric column is signed.}
+  \item{NULL}{Logical, whether the column is nullable.}
+  \item{Encoding}{The character encoding of a char column.}
+  \item{Collation}{The collation of a char column.}
+}
+}
