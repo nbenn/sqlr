@@ -82,7 +82,7 @@ show_db_cols.MariaDBConnection <- function(tbl,
 
   if (parse) {
 
-    tmp <- parse_col_def(res$Type, name = FALSE, con = con)
+    tmp <- parse_col_spec(res$Type, name = FALSE, con = con)
     res <- tibble::as_tibble(cbind(res[, "Field"],
                                    tmp[, c("Type", "Length", "Unsigned")],
                                    res[, !names(res) %in% c("Field", "Type")]))

@@ -73,7 +73,7 @@ unquote_str.MariaDBConnection <- function(x, con = get_con(), ...) {
 #'   \item{Collation}{The collation of a char column.}
 #' }
 #' 
-#' @name parse_col_def
+#' @name parse_col_spec
 #' 
 #' @param ... Arguments passed to the S3 methods
 #' @param con A connection used to determine the SQL dialect to be used
@@ -82,15 +82,15 @@ unquote_str.MariaDBConnection <- function(x, con = get_con(), ...) {
 #' 
 #' @export
 #' 
-parse_col_def <- function(..., con = get_con()) UseMethod("parse_col_def", con)
+parse_col_spec <- function(..., con = get_con()) UseMethod("parse_col_spec", con)
 
-#' @rdname parse_col_def
+#' @rdname parse_col_spec
 #' 
 #' @param x Character vector to be parsed.
 #' 
 #' @export
 #' 
-parse_col_def.MariaDBConnection <- function(x,
+parse_col_spec.MariaDBConnection <- function(x,
                                             con = get_con(),
                                             ...) {
 

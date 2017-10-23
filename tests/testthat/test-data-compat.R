@@ -79,19 +79,19 @@ test_that("mysql strings can be unqouted", {
 })
 
 test_that("column definitions can be parsed", {
-  expect_is(parse_col_def(col_spec()), "tbl_df")
-  expect_equal(nrow(parse_col_def(col_spec())), 1L)
+  expect_is(parse_col_spec(col_spec()), "tbl_df")
+  expect_equal(nrow(parse_col_spec(col_spec())), 1L)
   tbl <- tibble::tibble(Field = "foo", Type = "INT", Length = NA_integer_,
                         Unsigned = FALSE, Null = TRUE,
                         Encoding = NA_character_, Collation = NA_character_)
-  expect_equal(parse_col_def(col_spec("foo", "int", unsigned = FALSE,
+  expect_equal(parse_col_spec(col_spec("foo", "int", unsigned = FALSE,
                              nullable = TRUE)),
                tbl)
-  expect_equal(parse_col_def(col_spec("foo", "int", unsigned = FALSE,
+  expect_equal(parse_col_spec(col_spec("foo", "int", unsigned = FALSE,
                              nullable = TRUE, auto_increment = TRUE)),
                tbl)
-  expect_equal(parse_col_def("`foo` INT"), tbl)
-  expect_equal(parse_col_def("INT"),
+  expect_equal(parse_col_spec("`foo` INT"), tbl)
+  expect_equal(parse_col_spec("INT"),
                tibble::tibble(Field = NA_character_, Type = "INT",
                               Length = NA_integer_, Unsigned = FALSE,
                               Null = TRUE, Encoding = NA_character_,
@@ -99,77 +99,77 @@ test_that("column definitions can be parsed", {
   tbl  <- tibble::tibble(Field = NA_character_, Type = "INT", Length = 5L,
                          Unsigned = TRUE, Null = TRUE,
                          Encoding = NA_character_, Collation = NA_character_)
-  expect_equal(parse_col_def("INT(5) UNSIGNED"), tbl)
-  expect_equal(parse_col_def("INT(5)  UNSIGNED"), tbl)
-  expect_equal(parse_col_def("INT(5)\nUNSIGNED"), tbl)
-  expect_equal(parse_col_def("INT(5)\tUNSIGNED"), tbl)
-  expect_equal(parse_col_def(" INT(5) UNSIGNED"), tbl)
+  expect_equal(parse_col_spec("INT(5) UNSIGNED"), tbl)
+  expect_equal(parse_col_spec("INT(5)  UNSIGNED"), tbl)
+  expect_equal(parse_col_spec("INT(5)\nUNSIGNED"), tbl)
+  expect_equal(parse_col_spec("INT(5)\tUNSIGNED"), tbl)
+  expect_equal(parse_col_spec(" INT(5) UNSIGNED"), tbl)
   tbl  <- tibble::tibble(Field = "foo", Type = "INT", Length = 5L,
                          Unsigned = TRUE, Null = TRUE,
                          Encoding = NA_character_, Collation = NA_character_)
-  expect_equal(parse_col_def("`foo` INT(5) UNSIGNED"), tbl)
-  expect_equal(parse_col_def(" `foo`  INT(5) UNSIGNED"), tbl)
-  expect_equal(parse_col_def(" `foo`  INT(5)\nUNSIGNED"), tbl)
-  expect_equal(parse_col_def(c("`foo` INT(5) UNSIGNED",
+  expect_equal(parse_col_spec("`foo` INT(5) UNSIGNED"), tbl)
+  expect_equal(parse_col_spec(" `foo`  INT(5) UNSIGNED"), tbl)
+  expect_equal(parse_col_spec(" `foo`  INT(5)\nUNSIGNED"), tbl)
+  expect_equal(parse_col_spec(c("`foo` INT(5) UNSIGNED",
                                "`foo` INT(5) UNSIGNED")), rbind(tbl, tbl))
-  expect_equal(parse_col_def(c("`foo` INT(5) UNSIGNED NULL",
+  expect_equal(parse_col_spec(c("`foo` INT(5) UNSIGNED NULL",
                                "\tINT(5) UNSIGNED",
                                "`foo` INT(5) UNSIGNED")),
                tibble::tibble(Field = c("foo", NA, "foo"), Type = "INT",
                               Length = 5L, Unsigned = TRUE, Null = TRUE,
                               Encoding = NA_character_,
                               Collation = NA_character_))
-  expect_equal(parse_col_def(col_spec("foo", "char", fixed = TRUE,
+  expect_equal(parse_col_spec(col_spec("foo", "char", fixed = TRUE,
                              nullable = TRUE)),
                tibble::tibble(Field = "foo", Type = "CHAR",
                               Length = 255L, Unsigned = FALSE, Null = TRUE,
                               Encoding = NA_character_,
                               Collation = NA_character_))
-  expect_equal(parse_col_def(col_spec("foo", "char", fixed = TRUE,
+  expect_equal(parse_col_spec(col_spec("foo", "char", fixed = TRUE,
                              nullable = TRUE)),
                tibble::tibble(Field = "foo", Type = "CHAR",
                               Length = 255L, Unsigned = FALSE, Null = TRUE,
                               Encoding = NA_character_,
                               Collation = NA_character_))
-  expect_equal(parse_col_def(col_spec("foo", "char", length = 65535L,
+  expect_equal(parse_col_spec(col_spec("foo", "char", length = 65535L,
                              nullable = TRUE)),
                tibble::tibble(Field = "foo", Type = "TEXT",
                               Length = NA_integer_, Unsigned = FALSE,
                               Null = TRUE, Encoding = NA_character_,
                               Collation = NA_character_))
-  expect_equal(parse_col_def("`foo` ENUM('a')"),
+  expect_equal(parse_col_spec("`foo` ENUM('a')"),
                tibble::tibble(Field = "foo", Type = "ENUM",
                               Length = "a", Unsigned = FALSE,
                               Null = TRUE, Encoding = NA_character_,
                               Collation = NA_character_))
-  expect_equal(parse_col_def("`foo` ENUM('a, b')"),
+  expect_equal(parse_col_spec("`foo` ENUM('a, b')"),
                tibble::tibble(Field = "foo", Type = "ENUM",
                               Length = "a, b", Unsigned = FALSE,
                               Null = TRUE, Encoding = NA_character_,
                               Collation = NA_character_))
-  expect_equal(parse_col_def("`foo` ENUM('a', 'b')"),
+  expect_equal(parse_col_spec("`foo` ENUM('a', 'b')"),
                tibble::tibble(Field = "foo", Type = "ENUM",
                               Length = list(c("a", "b")), Unsigned = FALSE,
                               Null = TRUE, Encoding = NA_character_,
                               Collation = NA_character_))
-  expect_equal(parse_col_def(c("`foo` ENUM('a', 'b')", "int")),
+  expect_equal(parse_col_spec(c("`foo` ENUM('a', 'b')", "int")),
                tibble::tibble(Field = c("foo", NA), Type = c("ENUM", "INT"),
                               Length = list(c("a", "b"), NA_character_),
                               Unsigned = FALSE, Null = TRUE,
                               Encoding = NA_character_,
                               Collation = NA_character_))
-  expect_equal(parse_col_def("`foo` ENUM('a (b)')"),
+  expect_equal(parse_col_spec("`foo` ENUM('a (b)')"),
                tibble::tibble(Field = "foo", Type = "ENUM",
                               Length = "a (b)", Unsigned = FALSE,
                               Null = TRUE, Encoding = NA_character_,
                               Collation = NA_character_))
-  expect_equal(parse_col_def(paste0("`foo` VARCHAR(255) CHARACTER SET 'foo' ",
+  expect_equal(parse_col_spec(paste0("`foo` VARCHAR(255) CHARACTER SET 'foo' ",
                                     "COLLATE 'bar'")),
                tibble::tibble(Field = "foo", Type = "VARCHAR",
                               Length = 255, Unsigned = FALSE,
                               Null = TRUE, Encoding = "foo",
                               Collation = "bar"))
-  expect_equal(parse_col_def(c("`foo` VARCHAR(255) CHARACTER SET 'foo'",
+  expect_equal(parse_col_spec(c("`foo` VARCHAR(255) CHARACTER SET 'foo'",
                                "INT", "CHAR(5)",
                                "`foo` VARCHAR(255) COLLATE 'bar'")),
                tibble::tibble(Field = c("foo", NA, NA, "foo"),
