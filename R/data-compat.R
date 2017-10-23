@@ -58,6 +58,7 @@ parse_col_def.MariaDBConnection <- function(x,
 
   get_first <- function(...) sapply(strsplit(...), `[`, 1L)
 
+  # replace multiple whitespace with single and remove leading whitespace
   x <- sub("^\\s", "", gsub("\\s+", " ", x))
 
   has_name <- get_first(x, "\\s") != unquote_ident(get_first(x, "\\s"))
@@ -89,6 +90,7 @@ parse_col_def.MariaDBConnection <- function(x,
 
   parse <- !is.integer(len) & !is.null(len)
   len[parse] <- sapply(len[parse], strsplit, ",\\s*", USE.NAMES = FALSE)
+  if (all(sapply(len, length) == 1L)) len <- unlist(len)
 
   tibble::tibble(Field = unquote_ident(field),
                  Type = as.character(get_first(tmp, "\\s")),
