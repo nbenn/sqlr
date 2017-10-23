@@ -98,14 +98,16 @@ parse_col_def.MariaDBConnection <- function(x,
   field[!has_name] <- NA
 
   tmp <- mapply(sub, pattern = paste0(field, " "), x = x,
-                MoreArgs = list(replacement = ""))
+                MoreArgs = list(replacement = "", fixed = TRUE))
   tmp[!has_name] <- x[!has_name]
 
-  len <- substr(tmp, regexpr("\\(", tmp), regexpr("\\)", tmp))
+  # extract everything from first "(" to last ")"
+  len <- substr(tmp, attr(regexpr("^(.+?)\\(", tmp), "match.length"),
+                attr(regexpr("^(.+)\\)", tmp), "match.length"))
   len <- sub("^\\(", "", sub("\\)$", "", len))
   names(len) <- NULL
 
-  tmp <- mapply(sub, pattern = len, x = tmp,
+  tmp <- mapply(sub, pattern = len, x = tmp, fixed = len != "",
                 MoreArgs = list(replacement = ""))
   tmp <- sub("\\(\\)", "", tmp)
 
@@ -118,11 +120,14 @@ parse_col_def.MariaDBConnection <- function(x,
   })
 
   parse <- !is.integer(len) & !is.null(len)
-  len[parse] <- sapply(len[parse], strsplit, ",\\s*", USE.NAMES = FALSE)
-  if (all(sapply(len, length) == 1L)) len <- unlist(len)
+  if (length(len[parse]) > 0) {
+    len[parse] <- lapply(strsplit(len[parse], "',\\s*'"), unquote_str,
+                         USE.NAMES = FALSE)
+    if (all(sapply(len, length) == 1L)) len <- unlist(len)
+  }
 
   tibble::tibble(Field = unquote_ident(field),
-                 Type = as.character(get_first(tmp, "\\s")),
+                 Type = toupper(as.character(get_first(tmp, "\\s"))),
                  Length = len,
                  Unsigned = grepl("UNSIGNED", x, ignore.case = TRUE),
                  Null = !grepl("NOT NULL", x, ignore.case = TRUE))

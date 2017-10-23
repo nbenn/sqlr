@@ -126,9 +126,25 @@ test_that("column definitions can be parsed", {
                tibble::tibble(Field = "foo", Type = "TEXT",
                               Length = NA_integer_, Unsigned = FALSE,
                               Null = TRUE))
-  expect_equal(parse_col_def("`foo` ENUM('a', 'b') CHARACTER SET ascii"),
+  expect_equal(parse_col_def("`foo` ENUM('a')"),
                tibble::tibble(Field = "foo", Type = "ENUM",
-                              Length = list(c("'a'", "'b'")), Unsigned = FALSE,
+                              Length = "a", Unsigned = FALSE,
+                              Null = TRUE))
+  expect_equal(parse_col_def("`foo` ENUM('a, b')"),
+               tibble::tibble(Field = "foo", Type = "ENUM",
+                              Length = "a, b", Unsigned = FALSE,
+                              Null = TRUE))
+  expect_equal(parse_col_def("`foo` ENUM('a', 'b')"),
+               tibble::tibble(Field = "foo", Type = "ENUM",
+                              Length = list(c("a", "b")), Unsigned = FALSE,
+                              Null = TRUE))
+  expect_equal(parse_col_def(c("`foo` ENUM('a', 'b')", "int")),
+               tibble::tibble(Field = c("foo", NA), Type = c("ENUM", "INT"),
+                              Length = list(c("a", "b"), NA_character_),
+                              Unsigned = FALSE, Null = TRUE))
+  expect_equal(parse_col_def("`foo` ENUM('a (b)')"),
+               tibble::tibble(Field = "foo", Type = "ENUM",
+                              Length = "a (b)", Unsigned = FALSE,
                               Null = TRUE))
 })
 
