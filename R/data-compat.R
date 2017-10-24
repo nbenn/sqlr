@@ -57,6 +57,90 @@ unquote_str.MariaDBConnection <- function(x, con = get_con(), ...) {
   as.character(sub("^'", "", sub("'$", "", x)))
 }
 
+#' @title Parse SQL data type definitions
+#' 
+#' @description Split and parse SQL data type definitions, such as created by
+#' any of the data type specification functions (e.g. [col_int], [col_dbl],
+#' etc.). The result is a tibble with as many rows as SQL statements were
+#' passed and with the following columns:
+#' 
+#' \describe{
+#'   \item{Type}{The column data type.}
+#'   \item{Length}{Either the length (e.g. CHAR(5) yields 5) or the levels
+#'         of an ENUM or SET field.}
+#'   \item{Unsigned}{Logical, whether the numeric column is signed.}
+#' }
+#' 
+#' @name parse_data_type
+#' 
+#' @param ... Arguments passed to the S3 methods
+#' @param con A connection used to determine the SQL dialect to be used
+#' 
+#' @return A tibble.
+#' 
+#' @export
+#' 
+parse_data_type <- function(..., con = get_con()) {
+  UseMethod("parse_data_type", con)
+}
+
+#' @rdname parse_data_type
+#' 
+#' @param x Character vector to be parsed.
+#' 
+#' @export
+#' 
+parse_data_type.MariaDBConnection <- function(x,
+                                              con = get_con(),
+                                              ...) {
+
+  get_first <- function(...) sapply(strsplit(...), `[`, 1L)
+
+  get_type <- function(str) get_first(str, "\\s|\\(")
+
+  get_length <- function(str) {
+    # extract everything from first "(" to last ")"
+    len <- substr(str, attr(regexpr("^(.+?)\\(", str), "match.length"),
+                  attr(regexpr("^(.+)\\)", str), "match.length"))
+    len[len == ""] <- NA_character_
+    names(len) <- NULL
+    sub("^\\(", "", sub("\\)$", "", len))
+  }
+
+  parse_length <- function(str) {
+    str <- tryCatch(as.integer(str), warning = function(w) {
+      if (grepl("^NAs introduced by coercion$", conditionMessage(w)))
+        str
+      else
+        warning(w)
+    })
+
+    to_parse <- !is.integer(str) & !is.null(str) & !is.na(str)
+    if (any(to_parse)) {
+      str[to_parse] <- lapply(strsplit(str[to_parse], "',\\s*'"), unquote_str,
+                              con = con, USE.NAMES = FALSE)
+      # for some reason, sapply(str, length) causes an error; why!?
+      if (all(sapply(str, function(x) length(x)) == 1L)) str <- unlist(str)
+    }
+
+    str
+  }
+
+  # replace multiple whitespace with single and remove leading whitespace
+  x <- sub("^\\s", "", gsub("\\s+", " ", x))
+
+  type <- get_type(x)
+
+  stopifnot(type == unquote_ident(type, con),
+            type == unquote_str(type, con))
+
+  length <- get_length(x)
+
+  tibble::tibble(Type = toupper(type),
+                 Length = parse_length(length),
+                 Unsigned = grepl("UNSIGNED", x, ignore.case = TRUE))
+}
+
 #' @title Parse SQL column definitions
 #' 
 #' @description Split and parse SQL column definitions, such as created by
@@ -64,10 +148,7 @@ unquote_str.MariaDBConnection <- function(x, con = get_con(), ...) {
 #' 
 #' \describe{
 #'   \item{Field}{The column name.}
-#'   \item{Type}{The column data type.}
-#'   \item{Length}{Either the length (e.g. CHAR(5) yields 5) or the levels
-#'         of an ENUM or SET field.}
-#'   \item{Unsigned}{Logical, whether the numeric column is signed.}
+#'   \item{Type, Length, Unsigned}{See [parse_data_type].}
 #'   \item{NULL}{Logical, whether the column is nullable.}
 #'   \item{Encoding}{The character encoding of a char column.}
 #'   \item{Collation}{The collation of a char column.}
@@ -82,7 +163,9 @@ unquote_str.MariaDBConnection <- function(x, con = get_con(), ...) {
 #' 
 #' @export
 #' 
-parse_col_spec <- function(..., con = get_con()) UseMethod("parse_col_spec", con)
+parse_col_spec <- function(..., con = get_con()) {
+  UseMethod("parse_col_spec", con)
+}
 
 #' @rdname parse_col_spec
 #' 
@@ -91,92 +174,50 @@ parse_col_spec <- function(..., con = get_con()) UseMethod("parse_col_spec", con
 #' @export
 #' 
 parse_col_spec.MariaDBConnection <- function(x,
-                                            con = get_con(),
-                                            ...) {
+                                             con = get_con(),
+                                             ...) {
 
-  get_first <- function(...) sapply(strsplit(...), `[`, 1L)
+  get_name <- function(str) {
+    quoted <- grepl("^`", str)
+    nme <- character(length(quoted))
 
-  # if the first element is a quoted identifier, split it away, else name <- NA
-  split_name <- function(str) {
-    has_name <- get_first(str, "\\s") != unquote_ident(get_first(str, "\\s"))
-
-    nme <- get_first(str, "\\s")
-    nme[!has_name] <- NA
-
-    str <- mapply(sub, pattern = paste0(nme, " "), x = str,
-                  MoreArgs = list(replacement = "", fixed = TRUE))
-    str[!has_name] <- str[!has_name]
-
-    list(name = unquote_ident(nme),
-         rest = str)
-  }
-
-  # split into type, everything in parentheses, rest
-  split_type <- function(str) {
-    # extract everything from first "(" to last ")"
-    len <- substr(str, attr(regexpr("^(.+?)\\(", str), "match.length"),
-                  attr(regexpr("^(.+)\\)", str), "match.length"))
-    len[len == ""] <- " "
-    names(len) <- NULL
-
-    typ <- get_first(str, len, fixed = TRUE)
-    len[len == " "] <- ""
-
-    str <- mapply(sub, pattern = paste0(typ, len, " "), x = str,
-                  MoreArgs = list(replacement = "", fixed = TRUE))
-    len[len == ""] <- NA
-
-    list(type = toupper(typ),
-         length = sub("^\\(", "", sub("\\)$", "", len)),
-         rest = str)
-  }
-
-  # coerce to integer or split ENUM/SET into levels
-  parse_length <- function(str) {
-    str <- tryCatch(as.integer(str), warning = function(w) {
-      if (grepl("^NAs introduced by coercion$", conditionMessage(w)))
-        str
-      else
-        warning(w)
-    })
-
-    to_parse <- !is.integer(str) & !is.null(str) & !is.na(str)
-    if (any(to_parse)) {
-      str[to_parse] <- lapply(strsplit(str[to_parse], "',\\s*'"), unquote_str,
-                              USE.NAMES = FALSE)
-      if (all(sapply(str, length) == 1L)) str <- unlist(str)
-    }
-
-    str
+    if (any(quoted))
+      nme[quoted] <- sub("`(?:.(?!`))+$", "`", str[quoted], perl = TRUE)
+    if (!all(quoted))
+      nme[!quoted] <- regmatches(str[!quoted],
+                                 regexpr("^([^\\s]+)", str[!quoted],
+                                         perl = TRUE))
+    nme
   }
 
   # extract everything that follows regex what until the next whitespace char
   extract_additional <- function(str, what) {
-    to_parse <- grepl(what, type$rest)
-    charset <- character(length(to_parse))
+    to_parse <- grepl(what, str)
+    res <- character(length(to_parse))
     if (any(to_parse))
-      charset[to_parse] <- regmatches(
-                             type$rest[to_parse],
-                             regexpr(paste0("(?<=", what, "\\s)[^\\s]+"),
-                                     type$rest[to_parse],
-                                     perl = TRUE))
-
-    charset[!to_parse] <- NA_character_
-    unquote_str(charset)
+      res[to_parse] <- regmatches(str[to_parse],
+                                  regexpr(paste0("(?<=", what, "\\s)[^\\s]+"),
+                                          str[to_parse],
+                                          perl = TRUE, ignore.case = TRUE))
+    res[!to_parse] <- NA_character_
+    unquote_str(res, con)
   }
 
   # replace multiple whitespace with single and remove leading whitespace
   x <- sub("^\\s", "", gsub("\\s+", " ", x))
 
-  field <- split_name(x)
+  nme <- get_name(x)
 
-  type <- split_type(field$rest)
+  x <- mapply(sub, pattern = nme, x = x,
+              MoreArgs = list(replacement = "", fixed = TRUE))
 
-  tibble::tibble(Field = field$name,
-                 Type = type$type,
-                 Length = parse_length(type$length),
-                 Unsigned = grepl("UNSIGNED", x, ignore.case = TRUE),
+  type <- parse_data_type(x, con)
+
+  tibble::tibble(Field = unquote_ident(nme, con),
+                 Type = type$Type,
+                 Length = type$Length,
+                 Unsigned = type$Unsigned,
                  Null = !grepl("NOT NULL", x, ignore.case = TRUE),
-                 Encoding = extract_additional(type$rest, "CHARACTER\\sSET"),
-                 Collation = extract_additional(type$rest, "COLLATE"))
+                 Encoding = extract_additional(x, "CHARACTER\\sSET"),
+                 Collation = extract_additional(x, "COLLATE"))
 }

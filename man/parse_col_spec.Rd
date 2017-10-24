@@ -25,10 +25,7 @@ Split and parse SQL column definitions, such as created by
 
 \describe{
   \item{Field}{The column name.}
-  \item{Type}{The column data type.}
-  \item{Length}{Either the length (e.g. CHAR(5) yields 5) or the levels
-        of an ENUM or SET field.}
-  \item{Unsigned}{Logical, whether the numeric column is signed.}
+  \item{Type, Length, Unsigned}{See [parse_data_type].}
   \item{NULL}{Logical, whether the column is nullable.}
   \item{Encoding}{The character encoding of a char column.}
   \item{Collation}{The collation of a char column.}
