@@ -11,6 +11,5 @@ NULL (invisibly)
 }
 \description{
 Destroy the database connection object that is currently saved
-in the config environment. It will only be destroyed on the next garbage
-collection run.
+in the config environment.
 }

@@ -63,19 +63,24 @@ test_that("db connection can be established", {
   expect_equal(cfg$dbname, "testthat")
   expect_equal(cfg$username, "test")
   expect_equal(cfg$password, "test123")
-  expect_s4_class(sqlr:::connect_mysql(dbname = "testthat", username = "test",
-                                       password = "test123"),
-                  "MariaDBConnection")
-  expect_s4_class(sqlr:::connect_db(cfg), "MariaDBConnection")
+
+  con <- sqlr:::connect_mysql(dbname = "testthat", username = "test",
+                              password = "test123")
+  expect_s4_class(con, "MariaDBConnection")
+  DBI::dbDisconnect(con)
+
+  con <- sqlr:::connect_db(cfg)
+  expect_s4_class(con, "MariaDBConnection")
+  DBI::dbDisconnect(con)
 })
 
 test_that("get/set/rm config con", {
-  expect_null(sqlr:::rm_con())
+  expect_null(rm_con())
   expect_null(sqlr:::config$con)
   expect_true(set_con(section = "mysql_unittest"))
   expect_s4_class(sqlr:::config$con, "MariaDBConnection")
   expect_equal(sqlr:::get_con(), sqlr:::config$con)
   expect_false(set_con(section = "mysql_unittest"))
   expect_true(set_con(section = "mysql_unittest", update = TRUE))
-  expect_null(sqlr:::rm_con())
+  expect_null(rm_con())
 })

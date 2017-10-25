@@ -79,7 +79,10 @@ set_con <- function(file_name = NULL,
 
   stopifnot(is_lgl(update, n_elem = eq(1L)))
 
-  if (is.null(config$con) || !DBI::dbIsValid(config$con) || update) {
+  if (!is.null(config$con) && (!DBI::dbIsValid(config$con) || update))
+    rm_con()
+
+  if (is.null(config$con)) {
     config$con <- connect_db(load_config(file_name, section))
     invisible(TRUE)
   } else
@@ -103,14 +106,14 @@ get_con <- function(...) {
 #' @title Destroy the database connection
 #' 
 #' @description Destroy the database connection object that is currently saved
-#' in the config environment. It will only be destroyed on the next garbage
-#' collection run.
+#' in the config environment.
 #' 
 #' @return NULL (invisibly)
 #'
 #' @export
 #' 
 rm_con <- function() {
+  if (!is.null(config$con)) DBI::dbDisconnect(config$con)
   config$con <- NULL
   invisible(NULL)
 }
@@ -196,14 +199,6 @@ connect_mysql <- function(...) {
       # nocov end
     }
   )
-
-  attr(con, "finaliser") <- (function(con) {
-    reg.finalizer(environment(), function(...) {
-      message("Auto-disconnecting ", class(con)[[1]])
-      DBI::dbDisconnect(con)
-    })
-    environment()
-  })(con)
 
   con
 }
