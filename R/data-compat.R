@@ -218,6 +218,60 @@ parse_col_spec.MariaDBConnection <- function(x,
                  Length = type$Length,
                  Unsigned = type$Unsigned,
                  Null = !grepl("NOT NULL", x, ignore.case = TRUE),
-                 Encoding = extract_additional(x, "CHARACTER\\sSET"),
+                 Charset = extract_additional(x, "CHARACTER\\sSET"),
                  Collation = extract_additional(x, "COLLATE"))
+}
+
+#' @title Test if column specifications are compatible
+#' 
+#' @description For a column to be written to db, test whether the existing
+#' column definition in db is compatible with the new data.
+#' 
+#' @name is_compat
+#' 
+#' @param ... Arguments passed to the S3 methods
+#' @param con A connection used to determine the SQL dialect to be used
+#' 
+#' @return Character vector.
+#' 
+#' @export
+#' 
+is_compat <- function(..., con = get_con()) UseMethod("is_compat", con)
+
+#' @rdname is_compat
+#' 
+#' @param x Data to be written to db.
+#' @param tbl Name of the existing table.
+#' @param col Column names in the table that are affected.
+#' 
+#' @export
+#' 
+is_compat.MariaDBConnection <- function(x,
+                                        tbl,
+                                        col = NULL,
+                                        con = get_con(),
+                                        ...) {
+
+  spec <- get_col_spec(x, ...)
+
+  stopifnot(all(sapply(spec, inherits, "SQL")),
+            is_chr(tbl, n_elem = eq(1L)),
+            is_chr(col, n_elem = gte(1L), allow_null = TRUE))
+
+  if (is.null(col))
+    where <- NULL
+  else
+    where <- DBI::SQL(paste0("`field` IN (",
+                             paste0(DBI::dbQuoteString(con, col),
+                                    collapse = ", "),
+                             ")"))
+
+  new <- parse_col_spec(spec)
+  old <- show_db_cols(tbl, where = where, full = TRUE, parse = TRUE)
+
+  sapply(new$Field, function(field) {
+    new <- new[new$Field == field, ]
+    old <- old[old$Field == field, ]
+    new$Type == old$Type
+  })
 }
