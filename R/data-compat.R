@@ -222,12 +222,13 @@ parse_col_spec.MariaDBConnection <- function(x,
                  Collation = extract_additional(x, "COLLATE"))
 }
 
-#' @title Test if column specifications are compatible
+#' @title Make column specifications compatible
 #' 
 #' @description For a column to be written to db, test whether the existing
-#' column definition in db is compatible with the new data.
+#' column definition in db is compatible with the new data and if not, create
+#' an appropriate ALTER TABLE clause.
 #' 
-#' @name is_compat
+#' @name make_compat
 #' 
 #' @param ... Arguments passed to the S3 methods
 #' @param con A connection used to determine the SQL dialect to be used
@@ -236,9 +237,9 @@ parse_col_spec.MariaDBConnection <- function(x,
 #' 
 #' @export
 #' 
-is_compat <- function(..., con = get_con()) UseMethod("is_compat", con)
+make_compat <- function(..., con = get_con()) UseMethod("make_compat", con)
 
-#' @rdname is_compat
+#' @rdname make_compat
 #' 
 #' @param x Data to be written to db.
 #' @param tbl Name of the existing table.
@@ -246,11 +247,11 @@ is_compat <- function(..., con = get_con()) UseMethod("is_compat", con)
 #' 
 #' @export
 #' 
-is_compat.MariaDBConnection <- function(x,
-                                        tbl,
-                                        col = NULL,
-                                        con = get_con(),
-                                        ...) {
+make_compat.MariaDBConnection <- function(x,
+                                          tbl,
+                                          col = NULL,
+                                          con = get_con(),
+                                          ...) {
 
   spec <- get_col_spec(x, ...)
 
@@ -270,8 +271,28 @@ is_compat.MariaDBConnection <- function(x,
   old <- show_db_cols(tbl, where = where, full = TRUE, parse = TRUE)
 
   sapply(new$Field, function(field) {
+    if (!field %in% old$Field)
+      return(DBI::SQL(paste("ADD COLUMN", spec[[field]])))
     new <- new[new$Field == field, ]
     old <- old[old$Field == field, ]
-    new$Type == old$Type
+    browser()
+    n$Type == old$Type
   })
+}
+
+# - col needs to be created               -2
+# - col can be changed to make it fit     -1
+# - col may stay as-is                     0
+# - col cannot be changed to make it fit   1
+
+compare_int <- function(new, old) {
+  int_types <- c("TINYINT", "SMALLINT", "MEDIUMINT", "INT", "BIGINT")
+  stopifnot(new$Type %in% int_types)
+  if (old$Type %in% int_types) {
+    new$Type <- which(new$Type == int_types)
+    old$Type <- which(old$Type == int_types)
+    if (old$Unsigned & !new$Unsigned)      return(FALSE)
+    else if (!old$Unsigned & new$Unsigned) return(new$Type < old$Type)
+    else                                   return(new$Type <= old$Type)
+  } else                                   return(NA)
 }

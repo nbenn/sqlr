@@ -122,6 +122,9 @@ test_that("data types can be parsed", {
                tibble::tibble(Type = "INT", Length = 5L, Unsigned = TRUE))
   expect_equal(parse_data_type("enum('a')"),
                tibble::tibble(Type = "ENUM", Length = "a", Unsigned = FALSE))
+  expect_equal(parse_data_type("enum('a', 'b')"),
+               tibble::tibble(Type = "ENUM", Length = list(c("a", "b")),
+                              Unsigned = FALSE))
   expect_equal(parse_data_type("enum('a, b')"),
                tibble::tibble(Type = "ENUM", Length = "a, b",
                               Unsigned = FALSE))
@@ -229,7 +232,7 @@ test_that("column definitions can be parsed", {
 test_that("column definitions can be compared", {
   drop_db_tbl(c("airport"), force = TRUE)
   write_db_tbl("airport", airports)
-  expect_true(all(is_compat(airports, "airport", names(airports))))
+  expect_true(all(make_compat(airports, "airport", names(airports))))
   drop_db_tbl(c("airport"), force = TRUE)
 })
 
