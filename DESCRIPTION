@@ -5,7 +5,7 @@ Authors@R: c(
     person("Nicolas", "Bennett", email = "nicolas.bennett@stat.math.ethz.ch",
            role = c("aut", "cre")))
 Description:
-    Starting with MardaDB/MySQL and possibly expanding to other SQL dialects, the aim of this package is to help with generating queries for creating and altering tables.
+    Starting with MariaDB/MySQL and possibly expanding to other SQL dialects, the aim of this package is to help with generating queries for creating and altering tables.
 Depends:
     R (>= 3.1.0)
 Imports:
