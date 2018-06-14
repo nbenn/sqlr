@@ -18,7 +18,8 @@ Imports:
     tibble,
     yaml,
     methods,
-    R6
+    R6,
+    assertthat
 Suggests:
     testthat
 URL: https://github.com/nbenn/sqlr
