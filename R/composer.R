@@ -11,6 +11,7 @@ composer <- R6Class(
 #' @export
 type_composer <- R6Class(
   "type_composer",
+  inherit = composer,
   public = list(
     generate_sql = function(x) {
       paste(x$sql_type)
