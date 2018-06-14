@@ -17,7 +17,8 @@ Imports:
     rlang,
     tibble,
     yaml,
-    methods
+    methods,
+    R6
 Suggests:
     testthat
 URL: https://github.com/nbenn/sqlr
