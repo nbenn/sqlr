@@ -7,11 +7,12 @@
 data_type <- R6Class(
   "data_type",
   public = list(
+    dialect = "sql:2011",
     as_r = function(...) {
       stop("implement in child classes")
     },
     as_sql = function(composer = type_composer$new()) {
-      composer$generate_sql(private)
+      composer$generate_sql(self, private)
     }
   ),
   private = list(

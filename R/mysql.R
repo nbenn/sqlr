@@ -1,8 +1,13 @@
 
 #' @examples
+#' small_int$new()$as_sql()
+#' # will throw an error
+#' # small_int$new()$as_sql(mysql_type_composer$new())
+#' 
 #' enable_mysql()
-#' int <- integer$new(5)
-#' int$as_sql(mysql_type_composer$new())
+#' 
+#' mysql_tiny_int$new()$as_sql(mysql_type_composer$new())
+#' mysql_tiny_int$new(5)$as_sql(mysql_type_composer$new())
 #' 
 #' @importFrom assertthat assert_that is.count
 
@@ -23,11 +28,12 @@ mysql_type_composer <- R6Class(
   "mysql_type_composer",
   inherit = type_composer,
   public = list(
-    generate_sql = function(x) {
-      res <- super$generate_sql(x)
-      if (!is.na(x$display_width)) {
-        assert_that(is.count(x$display_width))
-        paste0(res, "(", x$display_width, ")")
+    dialect = "mysql",
+    generate_sql = function(pub, priv) {
+      res <- super$generate_sql(pub, priv)
+      if (!is.na(priv$display_width)) {
+        assert_that(is.count(priv$display_width))
+        paste0(res, "(", priv$display_width, ")")
       } else
         res
     }
@@ -36,9 +42,39 @@ mysql_type_composer <- R6Class(
 
 #' @export
 mysql_tiny_int <- R6Class(
-  "tiny_int",
+  "mysql_tiny_int",
   inherit = integer,
+  public = list(
+    dialect = "mysql"
+  ),
   private = list(
     sql_type = "TINYINT"
+  )
+)
+
+#' @export
+mysql_integer <- R6Class(
+  "mysql_integer",
+  inherit = integer,
+  public = list(
+    dialect = "mysql"
+  )
+)
+
+#' @export
+mysql_small_int <- R6Class(
+  "mysql_small_int",
+  inherit = small_int,
+  public = list(
+    dialect = "mysql"
+  )
+)
+
+#' @export
+mysql_big_int <- R6Class(
+  "mysql_big_int",
+  inherit = big_int,
+  public = list(
+    dialect = "mysql"
   )
 )
