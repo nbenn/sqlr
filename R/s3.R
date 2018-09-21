@@ -14,7 +14,7 @@ sqlr_render <- function(x, con, ...) UseMethod("sqlr_render")
 
 #' @export
 sqlr_render.list <- function(x, con, ...) {
-  unlist(lapply(x, sqlr_render, con = con, ...))
+  DBI::SQL(unlist(lapply(x, sqlr_render, con = con, ...)))
 }
 
 #' @export

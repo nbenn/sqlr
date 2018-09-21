@@ -29,7 +29,7 @@ test_that("column types can be specified", {
   expect_error(col_spec(type = "foo"))
   expect_error(col_spec(type = foo))
   expect_error(col_spec(type = mean))
-  expect_error_render(col_spec(name = ""))
+  expect_error(col_spec(name = ""))
   expect_render(
     col_spec(
       name = "foo", type = "int",
@@ -38,7 +38,7 @@ test_that("column types can be specified", {
     "`foo` INT UNSIGNED"
   )
   expect_error(col_spec(key = "foo"))
-  expect_error_render(col_spec(auto_increment = "yes"))
+  expect_error(col_spec(auto_increment = "yes"))
   expect_render(
     col_spec(
       name = "foo", nullable = FALSE,
@@ -57,7 +57,7 @@ test_that("column types can be specified", {
     ),
     "`foo` INT AUTO_INCREMENT PRIMARY KEY"
   )
-  expect_error_render(col_spec(name = "foo", comment = ""))
+  expect_error(col_spec(name = "foo", comment = ""))
   expect_render(
     col_spec(name = "fo.o"),
     "`fo.o` INT"

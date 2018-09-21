@@ -67,10 +67,11 @@ get_col_spec.list <- function(x, ...) get_col_spec(blob::as.blob(x), ...)
 #' @export
 #'
 get_col_spec.blob <- function(x, ...) {
-  sizes <- sapply(x, utils::object.size)
+  sizes <- vapply(x, length, integer(1))
+  max_sizes <- max(sizes, 1L)
   col_spec(...,
-    type = col_raw, length = max(sizes),
-    fixed = (length(unique(sizes)) == 1L & max(sizes) < 256L)
+    type = col_raw, length = max_sizes,
+    fixed = (length(unique(sizes)) <= 1L & max_sizes < 256L)
   )
 }
 

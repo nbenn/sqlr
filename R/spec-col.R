@@ -82,22 +82,7 @@ col_spec <- function(name = paste(sample(letters, 10, TRUE),
   if (is.function(type)) {
     type <- type(...)
   }
-
   # FIXME: Check class of return type
-
-  obj <- as.list(environment())
-  new_sqlr(obj, subclass = "col_spec")
-}
-
-#' @export sqlr_render.sqlr_col_spec
-#' @method sqlr_render sqlr_col_spec
-#' @export
-sqlr_render.sqlr_col_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_spec", con)
-
-#' @method sqlr_render.sqlr_col_spec MariaDBConnection
-#' @export
-sqlr_render.sqlr_col_spec.MariaDBConnection <- function(x, con, ...) {
-  list2env(x, environment())
 
   stopifnot(
     is_chr(name, n_elem = eq(1L)),
@@ -118,6 +103,20 @@ sqlr_render.sqlr_col_spec.MariaDBConnection <- function(x, con, ...) {
     primary = " PRIMARY KEY",
     key = " KEY"
   )
+
+  obj <- as.list(environment())
+  new_sqlr(obj, subclass = "col_spec")
+}
+
+#' @export sqlr_render.sqlr_col_spec
+#' @method sqlr_render sqlr_col_spec
+#' @export
+sqlr_render.sqlr_col_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_spec", con)
+
+#' @method sqlr_render.sqlr_col_spec MariaDBConnection
+#' @export
+sqlr_render.sqlr_col_spec.MariaDBConnection <- function(x, con, ...) {
+  list2env(x, environment())
 
   DBI::SQL(paste0(
     DBI::dbQuoteIdentifier(con, name),
