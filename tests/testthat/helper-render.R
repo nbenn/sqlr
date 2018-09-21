@@ -17,5 +17,7 @@ expect_warning_render <- function(spec, ...) {
 }
 
 expect_error_render <- function(spec, ...) {
+  con <- DBI::dbConnect(RMariaDB::MariaDB())
+  on.exit(DBI::dbDisconnect(con))
   expect_error(sqlr_render(!!spec, con), ...)
 }
