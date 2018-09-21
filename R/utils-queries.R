@@ -192,7 +192,7 @@ unquote_str.MariaDBConnection <- function(x, con = get_con(), ...) {
 #'
 #' @export
 #'
-parse_data_type <- function(..., con = get_con()) {
+parse_data_type <- function(..., con) {
   UseMethod("parse_data_type", con)
 }
 
@@ -203,8 +203,8 @@ parse_data_type <- function(..., con = get_con()) {
 #' @export
 #'
 parse_data_type.MariaDBConnection <- function(x,
-                                              con = get_con(),
-                                              ...) {
+                                              ...,
+                                              con) {
   get_first <- function(...) sapply(strsplit(...), `[`, 1L)
 
   get_type <- function(str) get_first(str, "\\s|\\(")
@@ -282,7 +282,7 @@ parse_data_type.MariaDBConnection <- function(x,
 #'
 #' @export
 #'
-parse_col_spec <- function(..., con = get_con()) {
+parse_col_spec <- function(..., con) {
   UseMethod("parse_col_spec", con)
 }
 
@@ -293,8 +293,8 @@ parse_col_spec <- function(..., con = get_con()) {
 #' @export
 #'
 parse_col_spec.MariaDBConnection <- function(x,
-                                             con = get_con(),
-                                             ...) {
+                                             ...,
+                                             con) {
   get_name <- function(str) {
     quoted <- grepl("^`", str)
     nme <- character(length(quoted))
@@ -340,7 +340,7 @@ parse_col_spec.MariaDBConnection <- function(x,
     MoreArgs = list(replacement = "", fixed = TRUE)
   )
 
-  type <- parse_data_type(x, con)
+  type <- parse_data_type(x, con = con)
 
   tibble::tibble(
     Field = unquote_ident(nme, con),

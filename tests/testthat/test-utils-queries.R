@@ -1,8 +1,10 @@
 context("utils: test query utils")
 
-set_con(section = "mysql_unittest")
-drop_db_tbl(c("plane"), force = TRUE)
-write_db_tbl("plane", planes, keys = pk_spec("tailnum"), char_set = "ascii")
+setup({
+  set_con(section = "mysql_unittest")
+  drop_db_tbl(c("plane"), force = TRUE, con = get_con())
+  write_db_tbl("plane", planes, keys = pk_spec("tailnum"), char_set = "ascii", con = get_con())
+})
 
 test_that("columns can be listed", {
   expect_error(show_db_cols(c("plane", "airport")))
@@ -206,145 +208,145 @@ test_that("mysql strings can be unqouted", {
 })
 
 test_that("data types can be parsed", {
-  expect_is(parse_data_type(col_int()), "tbl_df")
+  expect_is(test_parse_data_type(col_int()), "tbl_df")
   expect_equal(
-    parse_data_type(col_int()),
+    test_parse_data_type(col_int()),
     tibble::tibble(
       Type = "INT", Length = NA_integer_,
       Unsigned = FALSE
     )
   )
   expect_equal(
-    parse_data_type(c(col_int(), col_dbl())),
+    test_parse_data_type(list(col_int(), col_dbl())),
     tibble::tibble(
       Type = c("INT", "DOUBLE"), Length = NA_integer_,
       Unsigned = FALSE
     )
   )
   expect_equal(
-    parse_data_type(c(col_int(), col_dbl(unsigned = TRUE))),
+    test_parse_data_type(list(col_int(), col_dbl(unsigned = TRUE))),
     tibble::tibble(
       Type = c("INT", "DOUBLE"), Length = NA_integer_,
       Unsigned = c(FALSE, TRUE)
     )
   )
   expect_equal(
-    parse_data_type(col_chr()),
+    test_parse_data_type(col_chr()),
     tibble::tibble(
       Type = "VARCHAR", Length = 255L,
       Unsigned = FALSE
     )
   )
   expect_equal(
-    parse_data_type(col_dtm()),
+    test_parse_data_type(col_dtm()),
     tibble::tibble(
       Type = "DATETIME", Length = NA_integer_,
       Unsigned = FALSE
     )
   )
   expect_equal(
-    parse_data_type("int"),
+    test_parse_data_type_str("int"),
     tibble::tibble(
       Type = "INT", Length = NA_integer_,
       Unsigned = FALSE
     )
   )
   expect_equal(
-    parse_data_type(" int"),
+    test_parse_data_type_str(" int"),
     tibble::tibble(
       Type = "INT", Length = NA_integer_,
       Unsigned = FALSE
     )
   )
   expect_equal(
-    parse_data_type("\nint"),
+    test_parse_data_type_str("\nint"),
     tibble::tibble(
       Type = "INT", Length = NA_integer_,
       Unsigned = FALSE
     )
   )
   expect_equal(
-    parse_data_type("\nint\t"),
+    test_parse_data_type_str("\nint\t"),
     tibble::tibble(
       Type = "INT", Length = NA_integer_,
       Unsigned = FALSE
     )
   )
   expect_equal(
-    parse_data_type("int foo"),
+    test_parse_data_type_str("int foo"),
     tibble::tibble(
       Type = "INT", Length = NA_integer_,
       Unsigned = FALSE
     )
   )
   expect_equal(
-    parse_data_type("int(5)"),
+    test_parse_data_type_str("int(5)"),
     tibble::tibble(Type = "INT", Length = 5L, Unsigned = FALSE)
   )
   expect_equal(
-    parse_data_type("int(5) unsigned"),
+    test_parse_data_type_str("int(5) unsigned"),
     tibble::tibble(Type = "INT", Length = 5L, Unsigned = TRUE)
   )
   expect_equal(
-    parse_data_type("int(5)\tunsigned"),
+    test_parse_data_type_str("int(5)\tunsigned"),
     tibble::tibble(Type = "INT", Length = 5L, Unsigned = TRUE)
   )
   expect_equal(
-    parse_data_type("int(5)    unsigned"),
+    test_parse_data_type_str("int(5)    unsigned"),
     tibble::tibble(Type = "INT", Length = 5L, Unsigned = TRUE)
   )
   expect_equal(
-    parse_data_type("int(5)\n\nunsigned"),
+    test_parse_data_type_str("int(5)\n\nunsigned"),
     tibble::tibble(Type = "INT", Length = 5L, Unsigned = TRUE)
   )
   expect_equal(
-    parse_data_type("enum('a')"),
+    test_parse_data_type_str("enum('a')"),
     tibble::tibble(Type = "ENUM", Length = "a", Unsigned = FALSE)
   )
   expect_equal(
-    parse_data_type("enum('a', 'b')"),
+    test_parse_data_type_str("enum('a', 'b')"),
     tibble::tibble(
       Type = "ENUM", Length = list(c("a", "b")),
       Unsigned = FALSE
     )
   )
   expect_equal(
-    parse_data_type("enum('a, b')"),
+    test_parse_data_type_str("enum('a, b')"),
     tibble::tibble(
       Type = "ENUM", Length = "a, b",
       Unsigned = FALSE
     )
   )
   expect_equal(
-    parse_data_type("enum('(a, b)')"),
+    test_parse_data_type_str("enum('(a, b)')"),
     tibble::tibble(
       Type = "ENUM", Length = "(a, b)",
       Unsigned = FALSE
     )
   )
   expect_equal(
-    parse_data_type("enum('a','b')"),
+    test_parse_data_type_str("enum('a','b')"),
     tibble::tibble(
       Type = "ENUM", Length = list(c("a", "b")),
       Unsigned = FALSE
     )
   )
   expect_equal(
-    parse_data_type("enum('a',\n'b')"),
+    test_parse_data_type_str("enum('a',\n'b')"),
     tibble::tibble(
       Type = "ENUM", Length = list(c("a", "b")),
       Unsigned = FALSE
     )
   )
   expect_equal(
-    parse_data_type("enum('a', '(b)')"),
+    test_parse_data_type_str("enum('a', '(b)')"),
     tibble::tibble(
       Type = "ENUM", Length = list(c("a", "(b)")),
       Unsigned = FALSE
     )
   )
   expect_equal(
-    parse_data_type(c("enum('a', 'b')", "int")),
+    test_parse_data_type_str(c("enum('a', 'b')", "int")),
     tibble::tibble(
       Type = c("ENUM", "INT"),
       Length = list(c("a", "b"), NA_character_),
@@ -354,43 +356,43 @@ test_that("data types can be parsed", {
 })
 
 test_that("column definitions can be parsed", {
-  expect_is(parse_col_spec(col_spec()), "tbl_df")
-  expect_equal(nrow(parse_col_spec(col_spec())), 1L)
+  expect_is(test_parse_col_spec(col_spec()), "tbl_df")
+  expect_equal(nrow(test_parse_col_spec(col_spec())), 1L)
   tbl <- tibble::tibble(
     Field = "foo", Type = "INT", Length = NA_integer_,
     Unsigned = FALSE, Null = TRUE,
     Charset = NA_character_, Collation = NA_character_
   )
   expect_equal(
-    parse_col_spec(col_spec("foo", "int",
+    test_parse_col_spec(col_spec("foo", "int",
       unsigned = FALSE,
       nullable = TRUE
     )),
     tbl
   )
   expect_equal(
-    parse_col_spec(col_spec("foo", "int",
+    test_parse_col_spec(col_spec("foo", "int",
       unsigned = FALSE,
       nullable = TRUE, auto_increment = TRUE
     )),
     tbl
   )
-  expect_equal(parse_col_spec("`foo` INT"), tbl)
-  expect_error(parse_col_spec("INT"))
+  expect_equal(test_parse_col_spec_str("`foo` INT"), tbl)
+  expect_error(test_parse_col_spec_str("INT"))
   tbl <- tibble::tibble(
     Field = "foo", Type = "INT", Length = 5L,
     Unsigned = TRUE, Null = TRUE,
     Charset = NA_character_, Collation = NA_character_
   )
-  expect_equal(parse_col_spec("`foo` INT(5) UNSIGNED"), tbl)
-  expect_equal(parse_col_spec(" `foo`  INT(5) UNSIGNED"), tbl)
-  expect_equal(parse_col_spec(" `foo`  INT(5)\nUNSIGNED"), tbl)
-  expect_equal(parse_col_spec(c(
+  expect_equal(test_parse_col_spec_str("`foo` INT(5) UNSIGNED"), tbl)
+  expect_equal(test_parse_col_spec_str(" `foo`  INT(5) UNSIGNED"), tbl)
+  expect_equal(test_parse_col_spec_str(" `foo`  INT(5)\nUNSIGNED"), tbl)
+  expect_equal(test_parse_col_spec_str(c(
     "`foo` INT(5) UNSIGNED",
     "`foo` INT(5) UNSIGNED"
   )), rbind(tbl, tbl))
   expect_equal(
-    parse_col_spec(c(
+    test_parse_col_spec_str(c(
       "`foo` INT(5) UNSIGNED NULL",
       "\nfoo double UNSIGNED",
       "`foo` INT(5) UNSIGNED"
@@ -403,7 +405,7 @@ test_that("column definitions can be parsed", {
     )
   )
   expect_equal(
-    parse_col_spec(col_spec("foo", "char",
+    test_parse_col_spec(col_spec("foo", "char",
       fixed = TRUE,
       nullable = TRUE
     )),
@@ -415,7 +417,7 @@ test_that("column definitions can be parsed", {
     )
   )
   expect_equal(
-    parse_col_spec(col_spec("foo", "char",
+    test_parse_col_spec(col_spec("foo", "char",
       fixed = TRUE,
       nullable = TRUE
     )),
@@ -427,7 +429,7 @@ test_that("column definitions can be parsed", {
     )
   )
   expect_equal(
-    parse_col_spec(col_spec("foo", "char",
+    test_parse_col_spec(col_spec("foo", "char",
       length = 65535L,
       nullable = TRUE
     )),
@@ -439,7 +441,7 @@ test_that("column definitions can be parsed", {
     )
   )
   expect_equal(
-    parse_col_spec(paste0(
+    test_parse_col_spec_str(paste0(
       "`foo` VARCHAR(255) CHARACTER SET 'foo' ",
       "COLLATE 'bar'"
     )),
@@ -451,7 +453,7 @@ test_that("column definitions can be parsed", {
     )
   )
   expect_equal(
-    parse_col_spec(c(
+    test_parse_col_spec_str(c(
       "`foo` VARCHAR(255) CHARACTER SET 'foo'",
       "foo INT", "foo CHAR(5)",
       "`foo` VARCHAR(255) COLLATE 'bar'"
@@ -465,7 +467,7 @@ test_that("column definitions can be parsed", {
     )
   )
   expect_equal(
-    parse_col_spec("`fo`o` INT(5) UNSIGNED"),
+    test_parse_col_spec_str("`fo`o` INT(5) UNSIGNED"),
     tibble::tibble(
       Field = "fo`o", Type = "INT", Length = 5L,
       Unsigned = TRUE, Null = TRUE,
@@ -474,7 +476,7 @@ test_that("column definitions can be parsed", {
     )
   )
   expect_equal(
-    parse_col_spec("`fo o` INT(5) UNSIGNED"),
+    test_parse_col_spec_str("`fo o` INT(5) UNSIGNED"),
     tibble::tibble(
       Field = "fo o", Type = "INT", Length = 5L,
       Unsigned = TRUE, Null = TRUE,
@@ -483,7 +485,7 @@ test_that("column definitions can be parsed", {
     )
   )
   expect_equal(
-    parse_col_spec("`fo(o)` INT(5) UNSIGNED"),
+    test_parse_col_spec_str("`fo(o)` INT(5) UNSIGNED"),
     tibble::tibble(
       Field = "fo(o)", Type = "INT", Length = 5L,
       Unsigned = TRUE, Null = TRUE,
@@ -492,7 +494,7 @@ test_that("column definitions can be parsed", {
     )
   )
   expect_equal(
-    parse_col_spec(c("`fo o` INT", "foo INT")),
+    test_parse_col_spec_str(c("`fo o` INT", "foo INT")),
     tibble::tibble(
       Field = c("fo o", "foo"), Type = "INT",
       Length = NA_integer_, Unsigned = FALSE,
@@ -502,5 +504,7 @@ test_that("column definitions can be parsed", {
   )
 })
 
-drop_db_tbl(c("plane"), force = TRUE)
-rm_con()
+teardown({
+  drop_db_tbl(c("plane"), force = TRUE, con = get_con())
+  rm_con()
+})

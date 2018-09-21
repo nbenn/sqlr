@@ -15,7 +15,7 @@
 #'
 #' @export
 #'
-write_db_tbl <- function(..., con = get_con()) UseMethod("write_db_tbl", con)
+write_db_tbl <- function(..., con) UseMethod("write_db_tbl", con)
 
 #' @param name String specifying the table name
 #' @param data A data.frame, holding the data to be added. Columns have to be
@@ -56,7 +56,7 @@ write_db_tbl.MariaDBConnection <- function(name,
                                            partition = NULL,
                                            on_dupl_key = NULL,
                                            ...,
-                                           con = get_con()) {
+                                           con) {
   stopifnot(
     is.data.frame(data), nrow(data) > 0, ncol(data) > 0,
     !is.null(names(data)), length(names(data)) > 0,
@@ -88,9 +88,9 @@ write_db_tbl.MariaDBConnection <- function(name,
 
   if (!DBI::dbExistsTable(con, name)) {
     if ("cols" %in% names(list(...))) {
-      stopifnot(create_db_tbl(name = name, ...))
+      stopifnot(create_db_tbl(name = name, ..., con = con))
     } else {
-      stopifnot(create_db_tbl(name = name, cols = get_col_spec(data), ...))
+      stopifnot(create_db_tbl(name = name, cols = get_col_spec(data), ..., con = con))
     }
   }
 

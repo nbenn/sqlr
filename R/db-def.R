@@ -42,7 +42,7 @@ create_db_tbl.MariaDBConnection <- function(..., con) {
 #'
 #' @export
 #'
-drop_db_tbl <- function(..., con = get_con()) UseMethod("drop_db_tbl", con)
+drop_db_tbl <- function(..., con) UseMethod("drop_db_tbl", con)
 
 #' @param tbls Character vector indicating which table(s) to delete.
 #' @param temporary Logical switch, restricting the delete to temporary tables.
@@ -56,8 +56,8 @@ drop_db_tbl <- function(..., con = get_con()) UseMethod("drop_db_tbl", con)
 drop_db_tbl.MariaDBConnection <- function(tbls,
                                           temporary = FALSE,
                                           force = FALSE,
-                                          con = get_con(),
-                                          ...) {
+                                          ...,
+                                          con) {
   stopifnot(
     is_chr(tbls),
     is_lgl(temporary, n_elem = eq(1L)),
