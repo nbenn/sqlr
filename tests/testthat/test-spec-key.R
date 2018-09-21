@@ -1,23 +1,22 @@
 context("mysql reference specification")
 
-set_con(section = "mysql_unittest")
+setup(
+  set_con(section = "mysql_unittest")
+)
 
 test_that("references can be specified", {
   expect_error(fk_spec())
-  expect_error(fk_spec("foo", "bar", "foobar"))
+  expect_error_render(fk_spec("foo", "bar", "foobar"))
   expect_error(fk_spec("foo", c("bar", "baz"), "foobar"))
-  expect_s4_class(
+  expect_is(
     fk_spec("foo", "bar", "foobar", check = FALSE),
-    "SQL"
+    "sqlr_fk_spec"
   )
-  expect_warning(fk_spec("foo", "bar", "foobar",
+  expect_warning_render(fk_spec("foo", "bar", "foobar",
     match = "simple",
     check = FALSE
   ))
-  expect_error(fk_spec("foo", "bar", "foobar",
-    match = "xyzzy",
-    check = FALSE
-  ))
+  expect_error(fk_spec("foo", "bar", "foobar", match = "xyzzy", check = FALSE))
   expect_render(
     fk_spec("foo", "bar", "foobar", check = FALSE),
     paste(
@@ -26,61 +25,44 @@ test_that("references can be specified", {
     )
   )
   expect_render(
-    fk_spec(c("f", "o", "o", "foobar",
-      c("b", "a", "r"),
-      check = FALSE
-    )),
+    fk_spec(c("f", "o", "o"), "foobar", c("b", "a", "r"), check = FALSE),
     paste(
       "FOREIGN KEY (`f`, `o`, `o`) REFERENCES `foobar`",
       "(`b`, `a`, `r`) ON DELETE CASCADE ON UPDATE CASCADE"
     )
   )
-  expect_equal(
-    as.character(fk_spec("foo", "bar", "foobar", "xyzzy",
-      check = FALSE
-    )),
+  expect_render(
+    fk_spec("foo", "bar", "foobar", "xyzzy", check = FALSE),
     paste(
       "CONSTRAINT `xyzzy` FOREIGN KEY (`foo`) REFERENCES `bar`",
       "(`foobar`) ON DELETE CASCADE ON UPDATE CASCADE"
     )
   )
-  expect_equal(
-    as.character(fk_spec("foo", "bar", "foobar", "xyzzy",
-      check = FALSE
-    )),
-    paste(
-      "CONSTRAINT `xyzzy` FOREIGN KEY (`foo`) REFERENCES `bar`",
-      "(`foobar`) ON DELETE CASCADE ON UPDATE CASCADE"
-    )
-  )
-  expect_equal(
-    as.character(fk_spec("foo", "bar", "baz", "foobar", "xyzzy",
-      check = FALSE
-    )),
+  expect_render(
+    fk_spec("foo", "bar", "baz", "foobar", "xyzzy", check = FALSE),
     paste(
       "CONSTRAINT `foobar` FOREIGN KEY `xyzzy` (`foo`)",
       "REFERENCES `bar` (`baz`) ON DELETE CASCADE ON UPDATE",
       "CASCADE"
     )
   )
-  expect_equal(
-    as.character(fk_spec("fo'o", "b\nar", "foo`bar",
-      check = FALSE
-    )),
+  expect_render(
+    fk_spec("fo'o", "b\nar", "foo`bar", check = FALSE),
     paste(
       "FOREIGN KEY (`fo'o`) REFERENCES `b\nar` (`foo``bar`) ON",
       "DELETE CASCADE ON UPDATE CASCADE"
     )
   )
-  expect_error(fk_spec("foo", "bar", "foobar",
+  expect_error_render(fk_spec("foo", "bar", "foobar",
     on_upd = "xyzzy",
     check = FALSE
   ))
-  expect_equal(
-    as.character(fk_spec("foo", "bar", "foobar",
-      on_del = "set_null", on_upd = "no_action",
+  expect_render(
+    fk_spec("foo", "bar", "foobar",
+      on_del = "set_null",
+      on_upd = "no_action",
       check = FALSE
-    )),
+    ),
     paste(
       "FOREIGN KEY (`foo`) REFERENCES `bar` (`foobar`) ON",
       "DELETE SET NULL ON UPDATE NO ACTION"
@@ -93,9 +75,9 @@ test_that("primary keys can be specified", {
   expect_error(pk_spec("foo", type = "bar"))
   expect_error(pk_spec("foo", constr_name = 1L))
   expect_error(pk_spec("foo", block_size = 1:2))
-  expect_s4_class(
+  expect_is(
     pk_spec("foo"),
-    "SQL"
+    "sqlr_pk_spec"
   )
   expect_render(
     pk_spec("foo"),
@@ -156,9 +138,9 @@ test_that("unique keys can be specified", {
   expect_error(uk_spec("foo", type = "bar"))
   expect_error(uk_spec("foo", constr_name = 1L))
   expect_error(uk_spec("foo", block_size = 1:2))
-  expect_s4_class(
+  expect_is(
     uk_spec("foo"),
-    "SQL"
+    "sqlr_uk_spec"
   )
   expect_render(
     uk_spec("foo"),
@@ -227,9 +209,9 @@ test_that("secondary keys can be specified", {
   expect_error(key_spec("foo", type = "bar"))
   expect_error(key_spec("foo", index_name = 1L))
   expect_error(key_spec("foo", block_size = 1:2))
-  expect_s4_class(
+  expect_is(
     key_spec("foo"),
-    "SQL"
+    "sqlr_key_spec"
   )
   expect_render(
     key_spec("foo"),
@@ -290,9 +272,9 @@ test_that("fulltext keys can be specified", {
   expect_error(ft_key_spec("foo", parser = 1L))
   expect_error(ft_key_spec("foo", index_name = 1L))
   expect_error(ft_key_spec("foo", comment = c("foo", "bar")))
-  expect_s4_class(
+  expect_is(
     ft_key_spec("foo"),
-    "SQL"
+    "sqlr_ft_key_spec"
   )
   expect_render(
     ft_key_spec("foo"),
@@ -352,9 +334,9 @@ test_that("spatial keys can be specified", {
   expect_error(spat_key_spec())
   expect_error(spat_key_spec("foo", index_name = 1L))
   expect_error(spat_key_spec("foo", comment = c("foo", "bar")))
-  expect_s4_class(
+  expect_is(
     spat_key_spec("foo"),
-    "SQL"
+    "sqlr_spat_key_spec"
   )
   expect_render(
     spat_key_spec("foo"),
@@ -402,4 +384,6 @@ test_that("spatial keys can be specified", {
   )
 })
 
-rm_con()
+teardown(
+  rm_con()
+)

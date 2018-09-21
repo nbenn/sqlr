@@ -44,7 +44,19 @@ fk_spec <- function(child_ind,
                     on_upd = "cascade",
                     check = TRUE,
                     ...) {
+
   match <- match.arg(match)
+
+  stopifnot(
+    is_chr(child_ind, n_elem = gte(1L)),
+    is_chr(parent_tbl, n_elem = eq(1L)),
+    is_chr(parent_ind, n_elem = gte(1L)),
+    is_chr(constr_name, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(on_del, n_elem = eq(1L)),
+    is_chr(on_upd, n_elem = eq(1L)),
+    is_lgl(check, n_elem = eq(1L))
+  )
 
   obj <- as.list(environment())
   new_sqlr(obj, subclass = "fk_spec")
@@ -59,17 +71,6 @@ sqlr_render.sqlr_fk_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_fk
 #' @export
 sqlr_render.sqlr_fk_spec.MariaDBConnection <- function(x, con, ...) {
   list2env(x, environment())
-
-  stopifnot(
-    is_chr(child_ind, n_elem = gte(1L)),
-    is_chr(parent_tbl, n_elem = eq(1L)),
-    is_chr(parent_ind, n_elem = gte(1L)),
-    is_chr(constr_name, n_elem = eq(1L), allow_na = TRUE),
-    is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
-    is_chr(on_del, n_elem = eq(1L)),
-    is_chr(on_upd, n_elem = eq(1L)),
-    is_lgl(check, n_elem = eq(1L))
-  )
 
   if (!is.na(match)) {
     warning(paste(strwrap(
@@ -167,7 +168,18 @@ pk_spec <- function(cols,
                     block_size = NA_integer_,
                     comment = NA_character_,
                     ...) {
+
   type <- match.arg(type)
+
+  stopifnot(
+    is_chr(cols, n_elem = gte(1L)),
+    is_chr(constr_name, n_elem = eq(1L), allow_na = TRUE),
+    is_int(block_size,
+      n_elem = eq(1L), strict = FALSE,
+      allow_na = TRUE
+    ),
+    is_chr(comment, n_elem = eq(1L), allow_na = TRUE)
+  )
 
   obj <- as.list(environment())
   new_sqlr(obj, subclass = "pk_spec")
@@ -182,16 +194,6 @@ sqlr_render.sqlr_pk_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_pk
 #' @export
 sqlr_render.sqlr_pk_spec.MariaDBConnection <- function(x, con, ...) {
   list2env(x, environment())
-
-  stopifnot(
-    is_chr(cols, n_elem = gte(1L)),
-    is_chr(constr_name, n_elem = eq(1L), allow_na = TRUE),
-    is_int(block_size,
-      n_elem = eq(1L), strict = FALSE,
-      allow_na = TRUE
-    ),
-    is_chr(comment, n_elem = eq(1L), allow_na = TRUE)
-  )
 
   DBI::SQL(paste0(
     if (!is.na(constr_name)) {
@@ -242,7 +244,16 @@ uk_spec <- function(cols,
                     block_size = NA_integer_,
                     comment = NA_character_,
                     ...) {
+
   type <- match.arg(type)
+
+  stopifnot(
+    is_chr(cols, n_elem = gte(1L)),
+    is_chr(constr_name, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
+    is_int(block_size, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(comment, n_elem = eq(1L), allow_na = TRUE)
+  )
 
   obj <- as.list(environment())
   new_sqlr(obj, subclass = "uk_spec")
@@ -257,14 +268,6 @@ sqlr_render.sqlr_uk_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_uk
 #' @export
 sqlr_render.sqlr_uk_spec.MariaDBConnection <- function(x, con, ...) {
   list2env(x, environment())
-
-  stopifnot(
-    is_chr(cols, n_elem = gte(1L)),
-    is_chr(constr_name, n_elem = eq(1L), allow_na = TRUE),
-    is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
-    is_int(block_size, n_elem = eq(1L), allow_na = TRUE),
-    is_chr(comment, n_elem = eq(1L), allow_na = TRUE)
-  )
 
   DBI::SQL(paste0(
     if (!is.na(constr_name)) {
@@ -316,7 +319,15 @@ key_spec <- function(cols,
                      block_size = NA_integer_,
                      comment = NA_character_,
                      ...) {
+
   type <- match.arg(type)
+
+  stopifnot(
+    is_chr(cols, n_elem = gte(1L)),
+    is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
+    is_int(block_size, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(comment, n_elem = eq(1L), allow_na = TRUE)
+  )
 
   obj <- as.list(environment())
   new_sqlr(obj, subclass = "key_spec")
@@ -331,13 +342,6 @@ sqlr_render.sqlr_key_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_k
 #' @export
 sqlr_render.sqlr_key_spec.MariaDBConnection <- function(x, con, ...) {
   list2env(x, environment())
-
-  stopifnot(
-    is_chr(cols, n_elem = gte(1L)),
-    is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
-    is_int(block_size, n_elem = eq(1L), allow_na = TRUE),
-    is_chr(comment, n_elem = eq(1L), allow_na = TRUE)
-  )
 
   DBI::SQL(paste0(
     "KEY",
@@ -390,6 +394,14 @@ ft_key_spec <- function(cols,
                         parser = NA_character_,
                         comment = NA_character_,
                         ...) {
+
+  stopifnot(
+    is_chr(cols, n_elem = gte(1L)),
+    is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(parser, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(comment, n_elem = eq(1L), allow_na = TRUE)
+  )
+
   obj <- as.list(environment())
   new_sqlr(obj, subclass = "ft_key_spec")
 }
@@ -403,13 +415,6 @@ sqlr_render.sqlr_ft_key_spec <- function(x, con, ...) UseMethod("sqlr_render.sql
 #' @export
 sqlr_render.sqlr_ft_key_spec.MariaDBConnection <- function(x, con, ...) {
   list2env(x, environment())
-
-  stopifnot(
-    is_chr(cols, n_elem = gte(1L)),
-    is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
-    is_chr(parser, n_elem = eq(1L), allow_na = TRUE),
-    is_chr(comment, n_elem = eq(1L), allow_na = TRUE)
-  )
 
   DBI::SQL(paste0(
     "FULLTEXT KEY",
@@ -449,6 +454,13 @@ spat_key_spec <- function(cols,
                           index_name = NA_character_,
                           comment = NA_character_,
                           ...) {
+
+  stopifnot(
+    is_chr(cols, n_elem = gte(1L)),
+    is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(comment, n_elem = eq(1L), allow_na = TRUE)
+  )
+
   obj <- as.list(environment())
   new_sqlr(obj, subclass = "spat_key_spec")
 }
@@ -462,12 +474,6 @@ sqlr_render.sqlr_spat_key_spec <- function(x, con, ...) UseMethod("sqlr_render.s
 #' @export
 sqlr_render.sqlr_spat_key_spec.MariaDBConnection <- function(x, con, ...) {
   list2env(x, environment())
-
-  stopifnot(
-    is_chr(cols, n_elem = gte(1L)),
-    is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
-    is_chr(comment, n_elem = eq(1L), allow_na = TRUE)
-  )
 
   DBI::SQL(paste0(
     "SPATIAL KEY",
