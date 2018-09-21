@@ -21,8 +21,8 @@ create_db_tbl <- function(..., con = get_con()) UseMethod("create_db_tbl", con)
 #'
 #' @export
 #'
-create_db_tbl.MariaDBConnection <- function(..., con = get_con()) {
-  rs <- DBI::dbSendStatement(con, tbl_spec(..., con = con))
+create_db_tbl.MariaDBConnection <- function(..., con) {
+  rs <- DBI::dbSendStatement(con, sqlr_render(tbl_spec(...), con))
   on.exit(DBI::dbClearResult(rs))
 
   invisible(DBI::dbHasCompleted(rs))
