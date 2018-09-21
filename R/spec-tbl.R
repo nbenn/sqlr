@@ -42,7 +42,8 @@ tbl_spec <- function(..., con = get_con()) UseMethod("tbl_spec", con)
 #' @export
 #'
 tbl_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
-                                                    collapse = ""),
+                                         collapse = ""
+                                       ),
                                        cols = col_id(),
                                        keys = NULL,
                                        temp = FALSE,
@@ -56,16 +57,19 @@ tbl_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
                                        partition = NULL,
                                        con = get_con(),
                                        ...) {
-
-  stopifnot(is_chr(name, n_elem = eq(1L)),
-            is_lgl(temp, n_elem = eq(1L)),
-            is_lgl(force, n_elem = eq(1L)),
-            is_int(auto_incr, n_elem = eq(1L), allow_na = TRUE,
-                   strict = FALSE),
-            is_chr(char_set, n_elem = eq(1L), allow_na = TRUE),
-            is_chr(collate, n_elem = eq(1L), allow_na = TRUE),
-            is_chr(comment, n_elem = eq(1L), allow_na = TRUE),
-            is_chr(engine, n_elem = eq(1L)))
+  stopifnot(
+    is_chr(name, n_elem = eq(1L)),
+    is_lgl(temp, n_elem = eq(1L)),
+    is_lgl(force, n_elem = eq(1L)),
+    is_int(auto_incr,
+      n_elem = eq(1L), allow_na = TRUE,
+      strict = FALSE
+    ),
+    is_chr(char_set, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(collate, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(comment, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(engine, n_elem = eq(1L))
+  )
 
   if (!is.null(table_options))
     stopifnot(inherits(table_options, "SQL"), length(table_options) >= 1)
@@ -79,27 +83,29 @@ tbl_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
     stopifnot(all(sapply(keys, inherits, "SQL")), length(keys) >= 1)
   }
 
-  DBI::SQL(paste0("CREATE",
-                  if (temp)
-                    " TEMPORARY",
-                  " TABLE",
-                  if (force)
-                    " IF NOT EXISTS",
-                  " ", DBI::dbQuoteIdentifier(con, name),
-                  " (",
-                    paste(cols, collapse = ", "),
-                    if (!is.null(keys))
-                      paste(",", paste(keys, collapse = ", ")),
-                  ")",
-                  " ENGINE = ", DBI::dbQuoteString(con, engine),
-                  if (!is.na(auto_incr))
-                    paste(" AUTO_INCREMENT =", auto_incr),
-                  if (!is.na(char_set))
-                    paste(" DEFAULT CHARACTER SET =", char_set),
-                  if (!is.na(collate))
-                    paste(" DEFAULT COLLATE =", collate),
-                  if (!is.na(comment))
-                    paste(" COMMENT =", comment),
-                  if (!is.null(table_options))
-                    paste0(" ", paste(table_options, collapse = " "))))
+  DBI::SQL(paste0(
+    "CREATE",
+    if (temp)
+      " TEMPORARY",
+    " TABLE",
+    if (force)
+      " IF NOT EXISTS",
+    " ", DBI::dbQuoteIdentifier(con, name),
+    " (",
+    paste(cols, collapse = ", "),
+    if (!is.null(keys))
+      paste(",", paste(keys, collapse = ", ")),
+    ")",
+    " ENGINE = ", DBI::dbQuoteString(con, engine),
+    if (!is.na(auto_incr))
+      paste(" AUTO_INCREMENT =", auto_incr),
+    if (!is.na(char_set))
+      paste(" DEFAULT CHARACTER SET =", char_set),
+    if (!is.na(collate))
+      paste(" DEFAULT COLLATE =", collate),
+    if (!is.na(comment))
+      paste(" COMMENT =", comment),
+    if (!is.null(table_options))
+      paste0(" ", paste(table_options, collapse = " "))
+  ))
 }

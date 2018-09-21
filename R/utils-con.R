@@ -22,7 +22,6 @@ config <- new.env()
 #'
 load_config <- function(file_name = NULL,
                         section = NULL) {
-
   find_yml <- function(dir) {
     list.files(dir, pattern = "\\.ya?ml$", full.names = TRUE)[1]
   }
@@ -33,20 +32,21 @@ load_config <- function(file_name = NULL,
     else lapply(lst, find_section, sec)
   }
 
-  stopifnot(is_chr(file_name, n_elem = eq(1L), allow_null = TRUE),
-            is_chr(section, n_elem = eq(1L), allow_null = TRUE))
+  stopifnot(
+    is_chr(file_name, n_elem = eq(1L), allow_null = TRUE),
+    is_chr(section, n_elem = eq(1L), allow_null = TRUE)
+  )
 
   if (is.null(file_name)) {
-
     file_name <- find_yml(getwd())
 
     if (is.na(file_name)) {
       file_name <- find_yml(system.file("extdata",
-                            package = methods::getPackageName()))
+        package = methods::getPackageName()
+      ))
     }
 
     stopifnot(!is.na(file_name))
-
   } else stopifnot(file.exists(file_name))
 
   cfg <- yaml::yaml.load_file(file_name)
@@ -76,7 +76,6 @@ load_config <- function(file_name = NULL,
 set_con <- function(file_name = NULL,
                     section = "db_setup",
                     update = FALSE) {
-
   stopifnot(is_lgl(update, n_elem = eq(1L)))
 
   if (!is.null(config$con) && (!DBI::dbIsValid(config$con) || update))
@@ -130,11 +129,11 @@ rm_con <- function() {
 #' @return A connection object that can be used for further database access.
 #'
 connect_db <- function(config) {
-
   dbtype <- match.arg(config$dbtype, "mysql")
 
   switch(dbtype,
-         mysql = do.call(connect_mysql, config[names(config) != "dbtype"]))
+    mysql = do.call(connect_mysql, config[names(config) != "dbtype"])
+  )
 }
 
 #' @title Connect to a MySQL database
@@ -149,7 +148,6 @@ connect_db <- function(config) {
 #' connection is automatically destroyed when garbage collected.
 #'
 connect_mysql <- function(...) {
-
   dots <- list(...)
   if (is.null(dots$host)) dots$host <- "localhost"
 
@@ -158,12 +156,14 @@ connect_mysql <- function(...) {
     error = function(e) {
       # nocov start
       if (interactive()) {
-
         message(paste(strwrap(
-          paste0("in order to set up the database ", dots$dbname, ", the ",
-                 "credentials of an account with CREATE and GRANT privileges ",
-                 "are needed temporarily. Please enter the username (default ",
-                 "root): ")), collapse = "\n"), appendLF = FALSE)
+          paste0(
+            "in order to set up the database ", dots$dbname, ", the ",
+            "credentials of an account with CREATE and GRANT privileges ",
+            "are needed temporarily. Please enter the username (default ",
+            "root): "
+          )
+        ), collapse = "\n"), appendLF = FALSE)
 
         root_dots <- dots[names(dots) != "dbname"]
 
@@ -179,22 +179,30 @@ connect_mysql <- function(...) {
 
         invisible(DBI::dbExecute(
           root_con,
-          DBI::SQL(paste("CREATE DATABASE IF NOT EXISTS",
-                         DBI::dbQuoteIdentifier(root_con, dots$dbname)))))
+          DBI::SQL(paste(
+            "CREATE DATABASE IF NOT EXISTS",
+            DBI::dbQuoteIdentifier(root_con, dots$dbname)
+          ))
+        ))
 
         invisible(DBI::dbExecute(
           root_con,
-          DBI::SQL(paste0("GRANT ALL ON ", DBI::dbQuoteIdentifier(root_con,
-                                                                  dots$dbname),
-                          ".* TO ",
-                          DBI::dbQuoteString(root_con, dots$username), "@",
-                          DBI::dbQuoteString(root_con, dots$host),
-                          if (!is.null(dots$password))
-                            paste(" IDENTIFIED BY",
-                                  DBI::dbQuoteString(root_con, dots$password))
-                          ))))
+          DBI::SQL(paste0(
+            "GRANT ALL ON ", DBI::dbQuoteIdentifier(
+              root_con,
+              dots$dbname
+            ),
+            ".* TO ",
+            DBI::dbQuoteString(root_con, dots$username), "@",
+            DBI::dbQuoteString(root_con, dots$host),
+            if (!is.null(dots$password))
+              paste(
+                " IDENTIFIED BY",
+                DBI::dbQuoteString(root_con, dots$password)
+              )
+          ))
+        ))
         do.call(DBI::dbConnect, c(RMariaDB::MariaDB(), dots))
-
       } else stop(e)
       # nocov end
     }

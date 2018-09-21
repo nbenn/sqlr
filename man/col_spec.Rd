@@ -46,17 +46,17 @@ CREATE/ALTER TABLE statements.
 }
 \examples{
 \dontrun{
-  col_spec(name = "foo", type = col_int())
-  col_spec(name = "foo", type = col_int(unsigned = TRUE))
+col_spec(name = "foo", type = col_int())
+col_spec(name = "foo", type = col_int(unsigned = TRUE))
 
-  col_spec(name = "foo", type = col_int)
-  col_spec(name = "foo", type = col_int, unsigned = TRUE)
+col_spec(name = "foo", type = col_int)
+col_spec(name = "foo", type = col_int, unsigned = TRUE)
 
-  col_spec(name = "foo", type = "integer")
-  col_spec(name = "foo", type = "integer", unsigned = TRUE)
+col_spec(name = "foo", type = "integer")
+col_spec(name = "foo", type = "integer", unsigned = TRUE)
 
-  col_spec(name = "foo", type = "int")
-  col_spec(name = "foo", type = "int", unsigned = TRUE)
+col_spec(name = "foo", type = "int")
+col_spec(name = "foo", type = "int", unsigned = TRUE)
 }
 
 }

@@ -22,7 +22,6 @@ create_db_tbl <- function(..., con = get_con()) UseMethod("create_db_tbl", con)
 #' @export
 #'
 create_db_tbl.MariaDBConnection <- function(..., con = get_con()) {
-
   rs <- DBI::dbSendStatement(con, tbl_spec(..., con = con))
   on.exit(DBI::dbClearResult(rs))
 
@@ -59,20 +58,26 @@ drop_db_tbl.MariaDBConnection <- function(tbls,
                                           force = FALSE,
                                           con = get_con(),
                                           ...) {
+  stopifnot(
+    is_chr(tbls),
+    is_lgl(temporary, n_elem = eq(1L)),
+    is_lgl(force, n_elem = eq(1L))
+  )
 
-  stopifnot(is_chr(tbls),
-            is_lgl(temporary, n_elem = eq(1L)),
-            is_lgl(force, n_elem = eq(1L)))
-
-  rs <- DBI::dbSendStatement(con,
-                             DBI::SQL(paste0("DROP",
-                                      if (temporary)
-                                        " TEMPORARY",
-                                      " TABLE",
-                                      if (force)
-                                        " IF EXISTS",
-                                      paste(DBI::dbQuoteIdentifier(con, tbls),
-                                            collapse = ", "))))
+  rs <- DBI::dbSendStatement(
+    con,
+    DBI::SQL(paste0(
+      "DROP",
+      if (temporary)
+        " TEMPORARY",
+      " TABLE",
+      if (force)
+        " IF EXISTS",
+      paste(DBI::dbQuoteIdentifier(con, tbls),
+        collapse = ", "
+      )
+    ))
+  )
 
   on.exit(DBI::dbClearResult(rs))
 

@@ -6,8 +6,8 @@ test_that("config file can be loaded", {
   expect_gte(length(sqlr:::load_config()), 1)
 
   cfg_all <- sqlr:::load_config()
-  cfg_1   <- sqlr:::load_config()["db_setup"]
-  cfg_2   <- sqlr:::load_config()["mysql_unittest"]
+  cfg_1 <- sqlr:::load_config()["db_setup"]
+  cfg_2 <- sqlr:::load_config()["mysql_unittest"]
 
   writeLines(yaml::as.yaml(cfg_1), con = "foo.yaml")
   expect_equal(sqlr:::load_config(), cfg_1)
@@ -27,20 +27,28 @@ test_that("config file can be loaded", {
   expect_equal(sqlr:::load_config("foo.yml"), cfg_1)
   unlink(c("foo.yml", "bar.yml"))
 
-  sec <- list(a = 1,
-              b = list(c = 2, d = 3),
-              e = list(f = list(g = 4, h = 5),
-                       i = 6),
-              j = 7,
-              k = list(l = 8,
-                       m = list(n = 9,
-                                o = list(o = 10, p = 11),
-                                q = 12),
-                       r = 13),
-                       m = list(1, 2),
-              s = 14,
-              c = 15,
-              t = list(e = 16))
+  sec <- list(
+    a = 1,
+    b = list(c = 2, d = 3),
+    e = list(
+      f = list(g = 4, h = 5),
+      i = 6
+    ),
+    j = 7,
+    k = list(
+      l = 8,
+      m = list(
+        n = 9,
+        o = list(o = 10, p = 11),
+        q = 12
+      ),
+      r = 13
+    ),
+    m = list(1, 2),
+    s = 14,
+    c = 15,
+    t = list(e = 16)
+  )
   writeLines(yaml::as.yaml(sec), con = "foo.yaml")
   expect_equal(sqlr:::load_config(section = "f"), list(g = 4, h = 5))
   expect_equal(sqlr:::load_config(section = "m"), 1:2)
@@ -48,8 +56,10 @@ test_that("config file can be loaded", {
   expect_equal(sqlr:::load_config(section = "o"), list(o = 10, p = 11))
   expect_equal(sqlr:::load_config(section = "q"), 12)
   expect_equal(sqlr:::load_config(section = "d"), 3)
-  expect_equal(sqlr:::load_config(section = "e"), list(f = list(g = 4, h = 5),
-                                                       i = 6))
+  expect_equal(sqlr:::load_config(section = "e"), list(
+    f = list(g = 4, h = 5),
+    i = 6
+  ))
   expect_error(sqlr:::load_config(section = "z"))
   unlink("foo.yaml")
 })
@@ -57,15 +67,18 @@ test_that("config file can be loaded", {
 test_that("db connection can be established", {
   cfg <- sqlr:::load_config(section = "mysql_unittest")
   expect_named(cfg,
-               c("dbtype", "dbname", "username", "password"),
-               ignore.order = TRUE)
+    c("dbtype", "dbname", "username", "password"),
+    ignore.order = TRUE
+  )
   expect_equal(cfg$dbtype, "mysql")
   expect_equal(cfg$dbname, "testthat")
   expect_equal(cfg$username, "test")
   expect_equal(cfg$password, "test123")
 
-  con <- sqlr:::connect_mysql(dbname = "testthat", username = "test",
-                              password = "test123")
+  con <- sqlr:::connect_mysql(
+    dbname = "testthat", username = "test",
+    password = "test123"
+  )
   expect_s4_class(con, "MariaDBConnection")
   DBI::dbDisconnect(con)
 

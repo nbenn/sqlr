@@ -48,23 +48,28 @@ write_db_tbl <- function(..., con = get_con()) UseMethod("write_db_tbl", con)
 write_db_tbl.MariaDBConnection <- function(name,
                                            data,
                                            mode = c("insert", "replace"),
-                                           priority = c(NA, "low", "high",
-                                                        "delayed"),
+                                           priority = c(
+                                             NA, "low", "high",
+                                             "delayed"
+                                           ),
                                            ignore = FALSE,
                                            partition = NULL,
                                            on_dupl_key = NULL,
                                            ...,
                                            con = get_con()) {
-
-  stopifnot(is.data.frame(data), nrow(data) > 0, ncol(data) > 0,
-            !is.null(names(data)), length(names(data)) > 0,
-            is_chr(name, n_elem = eq(1L)),
-            is_lgl(ignore, n_elem = eq(1L)),
-            is_lst(on_dupl_key, names = TRUE, allow_null = TRUE))
+  stopifnot(
+    is.data.frame(data), nrow(data) > 0, ncol(data) > 0,
+    !is.null(names(data)), length(names(data)) > 0,
+    is_chr(name, n_elem = eq(1L)),
+    is_lgl(ignore, n_elem = eq(1L)),
+    is_lst(on_dupl_key, names = TRUE, allow_null = TRUE)
+  )
 
   if (!is.null(on_dupl_key))
-    stopifnot(all(sapply(on_dupl_key, inherits, "SQL")),
-              all(names(on_dupl_key) %in% names(data)))
+    stopifnot(
+      all(sapply(on_dupl_key, inherits, "SQL")),
+      all(names(on_dupl_key) %in% names(data))
+    )
   if (!is.null(partition)) stop("this is not implemented yet.")
 
   mode <- match.arg(mode)
@@ -75,9 +80,10 @@ write_db_tbl.MariaDBConnection <- function(name,
   }
 
   priority <- switch(match.arg(priority),
-                     low = "LOW_PRIORITY",
-                     high = "HIGH_PRIORITY",
-                     delayed = "DELAYED")
+    low = "LOW_PRIORITY",
+    high = "HIGH_PRIORITY",
+    delayed = "DELAYED"
+  )
 
   if (!DBI::dbExistsTable(con, name)) {
     if ("cols" %in% names(list(...)))
@@ -90,24 +96,30 @@ write_db_tbl.MariaDBConnection <- function(name,
   on.exit(DBI::dbRollback(con))
 
   insert <- DBI::SQL(
-    paste0(toupper(mode),
-           if (!is.null(priority))
-             paste0(" ", priority),
-           if (ignore)
-             " IGNORE",
-           " INTO ", DBI::dbQuoteIdentifier(con, name),
-           if (!is.null(partition))
-             " PARTITION",
-           " (",
-             paste0(DBI::dbQuoteIdentifier(con, names(data)),
-                    collapse = ", "),
-           ") VALUES (",
-             paste0(rep("?", ncol(data)), collapse = ", "),
-           ")",
-           if (!is.null(on_dupl_key))
-             paste(" ON DUPLICATE KEY UPDATE",
-                   paste(DBI::dbQuoteIdentifier(con, names(on_dupl_key)),
-                         on_dupl_key, sep = " = ", collapse = ", "))
+    paste0(
+      toupper(mode),
+      if (!is.null(priority))
+        paste0(" ", priority),
+      if (ignore)
+        " IGNORE",
+      " INTO ", DBI::dbQuoteIdentifier(con, name),
+      if (!is.null(partition))
+        " PARTITION",
+      " (",
+      paste0(DBI::dbQuoteIdentifier(con, names(data)),
+        collapse = ", "
+      ),
+      ") VALUES (",
+      paste0(rep("?", ncol(data)), collapse = ", "),
+      ")",
+      if (!is.null(on_dupl_key))
+        paste(
+          " ON DUPLICATE KEY UPDATE",
+          paste(DBI::dbQuoteIdentifier(con, names(on_dupl_key)),
+            on_dupl_key,
+            sep = " = ", collapse = ", "
+          )
+        )
     )
   )
 
@@ -118,8 +130,9 @@ write_db_tbl.MariaDBConnection <- function(name,
       DBI::dbBind(rs, stats::setNames(data, NULL))
       DBI::dbGetRowsAffected(rs)
     },
-      finally = DBI::dbClearResult(rs)
-    ), warning = function(w) {
+    finally = DBI::dbClearResult(rs)
+    ),
+    warning = function(w) {
       if (grepl("^Factors converted to character$", conditionMessage(w)))
         invokeRestart("muffleWarning")
       else

@@ -15,11 +15,14 @@ test_that("argument checking works for vector", {
   expect_error(is_vec(1L, extra_test = "foo"))
   expect_false(is_vec(c(TRUE, FALSE), names = TRUE))
   expect_true(is_vec(setNames(c(TRUE, FALSE), c("a", "b")),
-                     names = TRUE))
+    names = TRUE
+  ))
   expect_true(is_vec(setNames(c(TRUE, FALSE), c("a", "b")),
-                     names = c("b", "a")))
+    names = c("b", "a")
+  ))
   expect_false(is_vec(setNames(c(TRUE, FALSE), c("a", "b")),
-                      names = c("a", "c")))
+    names = c("a", "c")
+  ))
   expect_true(is_vec(setNames(c(TRUE, FALSE), c("a", "b"))))
   expect_error(is_vec(setNames(c(TRUE, FALSE), c("a", "b")), names = NULL))
 })
@@ -120,8 +123,10 @@ test_that("argument checking works for list", {
   expect_false(is_lst(list(a = 1, b = "c", d = NULL)))
   expect_true(is_lst(list(a = 1, b = "c", d = NULL), allow_null = TRUE))
   expect_false(is_lst(list(a = NA, b = "c", d = NULL), allow_null = TRUE))
-  expect_true(is_lst(list(a = NA, b = "c", d = NULL), allow_null = TRUE,
-                     allow_na = TRUE))
+  expect_true(is_lst(list(a = NA, b = "c", d = NULL),
+    allow_null = TRUE,
+    allow_na = TRUE
+  ))
   expect_false(is_lst(list(a = c(1, NA))))
   expect_true(is_lst(list(a = c(1, NA)), allow_na = TRUE))
   expect_false(is_lst(list(a = list(x = 1, y = NA))))

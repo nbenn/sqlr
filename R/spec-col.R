@@ -31,17 +31,17 @@ col_spec <- function(..., con = get_con()) UseMethod("col_spec", con)
 #'
 #' @examples
 #' \dontrun{
-#'   col_spec(name = "foo", type = col_int())
-#'   col_spec(name = "foo", type = col_int(unsigned = TRUE))
+#' col_spec(name = "foo", type = col_int())
+#' col_spec(name = "foo", type = col_int(unsigned = TRUE))
 #'
-#'   col_spec(name = "foo", type = col_int)
-#'   col_spec(name = "foo", type = col_int, unsigned = TRUE)
+#' col_spec(name = "foo", type = col_int)
+#' col_spec(name = "foo", type = col_int, unsigned = TRUE)
 #'
-#'   col_spec(name = "foo", type = "integer")
-#'   col_spec(name = "foo", type = "integer", unsigned = TRUE)
+#' col_spec(name = "foo", type = "integer")
+#' col_spec(name = "foo", type = "integer", unsigned = TRUE)
 #'
-#'   col_spec(name = "foo", type = "int")
-#'   col_spec(name = "foo", type = "int", unsigned = TRUE)
+#' col_spec(name = "foo", type = "int")
+#' col_spec(name = "foo", type = "int", unsigned = TRUE)
 #' }
 #'
 #' @rdname col_spec
@@ -49,7 +49,8 @@ col_spec <- function(..., con = get_con()) UseMethod("col_spec", con)
 #' @export
 #'
 col_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
-                                                    collapse = ""),
+                                         collapse = ""
+                                       ),
                                        type = col_int(),
                                        nullable = TRUE,
                                        default = NULL,
@@ -58,47 +59,48 @@ col_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
                                        comment = NULL,
                                        con = get_con(),
                                        ...) {
-
-  stopifnot(is_chr(name, n_elem = eq(1L)),
-            is_lgl(nullable, n_elem = eq(1L)),
-            is_lgl(auto_increment, n_elem = eq(1L)),
-            is_vec(default, n_elem = eq(1L), allow_na = TRUE,
-                   allow_null = TRUE),
-            is_chr(comment, n_elem = eq(1L), allow_null = TRUE))
+  stopifnot(
+    is_chr(name, n_elem = eq(1L)),
+    is_lgl(nullable, n_elem = eq(1L)),
+    is_lgl(auto_increment, n_elem = eq(1L)),
+    is_vec(default,
+      n_elem = eq(1L), allow_na = TRUE,
+      allow_null = TRUE
+    ),
+    is_chr(comment, n_elem = eq(1L), allow_null = TRUE)
+  )
 
   if (!is.null(default) && is.na(default)) default <- NA_character_
 
   type_quo <- rlang::enquo(type)
 
-  type_funs <- c("col_int", "col_dbl", "col_chr", "col_raw", "col_lgl",
-                 "col_fct", "col_dtm")
+  type_funs <- c(
+    "col_int", "col_dbl", "col_chr", "col_raw", "col_lgl",
+    "col_fct", "col_dtm"
+  )
 
   if (rlang::quo_is_lang(type_quo)) {
-
     type <- rlang::lang_modify(type_quo, con = con)
     type <- rlang::eval_tidy(type)
-
   } else if (rlang::quo_is_symbolic(type_quo) && rlang::is_function(type)) {
-
     stopifnot(rlang::quo_name(type_quo) %in% type_funs, length(type) == 1)
     type <- do.call(type, c(list(...), con = con))
-
   } else {
-
     stopifnot(is_chr(type, n_elem = eq(1L)))
     if (!type %in% type_funs) {
       type <- switch(type,
-                     integer = col_int,
-                     int = col_int,
-                     double = col_dbl,
-                     numeric = col_dbl,
-                     character = col_chr,
-                     char = col_chr,
-                     raw = col_raw,
-                     logical = col_lgl,
-                     factor = col_fct,
-                     datetime = col_dtm,
-                     stop("unknown type: ", type, call. = FALSE))
+        integer = col_int,
+        int = col_int,
+        double = col_dbl,
+        numeric = col_dbl,
+        character = col_chr,
+        char = col_chr,
+        raw = col_raw,
+        logical = col_lgl,
+        factor = col_fct,
+        datetime = col_dtm,
+        stop("unknown type: ", type, call. = FALSE)
+      )
     }
 
     type <- do.call(type, c(..., con = con))
@@ -108,26 +110,29 @@ col_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
 
   key <- match.arg(key)
   key <- switch(key,
-                unique = " UNIQUE KEY",
-                primary = " PRIMARY KEY",
-                key = " KEY")
+    unique = " UNIQUE KEY",
+    primary = " PRIMARY KEY",
+    key = " KEY"
+  )
 
-  DBI::SQL(paste0(DBI::dbQuoteIdentifier(con, name),
-                  " ", type,
-                  if (!nullable)
-                    " NOT NULL",
-                  if (is_chr(default, n_char = NULL, allow_na = TRUE))
-                    paste(" DEFAULT", DBI::dbQuoteString(con, default))
-                  else if (is_num(default))
-                    paste(" DEFAULT", default)
-                  else if (is_lgl(default))
-                    paste(" DEFAULT", as.numeric(default)),
-                  if (auto_increment)
-                    " AUTO_INCREMENT",
-                  if (!is.null(key))
-                    key,
-                  if (!is.null(comment) && nchar(comment) > 0)
-                    paste(" COMMENT", DBI::dbQuoteString(con, comment))))
+  DBI::SQL(paste0(
+    DBI::dbQuoteIdentifier(con, name),
+    " ", type,
+    if (!nullable)
+      " NOT NULL",
+    if (is_chr(default, n_char = NULL, allow_na = TRUE))
+      paste(" DEFAULT", DBI::dbQuoteString(con, default))
+    else if (is_num(default))
+      paste(" DEFAULT", default)
+    else if (is_lgl(default))
+      paste(" DEFAULT", as.numeric(default)),
+    if (auto_increment)
+      " AUTO_INCREMENT",
+    if (!is.null(key))
+      key,
+    if (!is.null(comment) && nchar(comment) > 0)
+      paste(" COMMENT", DBI::dbQuoteString(con, comment))
+  ))
 }
 
 #' @title Generate SQL for an integer data type definition
@@ -161,13 +166,11 @@ col_int.MariaDBConnection <- function(size = "int",
                                       min = NA,
                                       max = NA,
                                       ...) {
-
   if (!is.na(min) | !is.na(max)) {
-
     if (is.na(min)) min <- bit64::as.integer64(-2147483648)
-    else            stopifnot(is_int(min, n_elem = eq(1L), strict = FALSE))
+    else stopifnot(is_int(min, n_elem = eq(1L), strict = FALSE))
     if (is.na(max)) max <- 2147483647L
-    else            stopifnot(is_int(max, n_elem = eq(1L), strict = FALSE))
+    else stopifnot(is_int(max, n_elem = eq(1L), strict = FALSE))
 
     stopifnot(min <= max)
 
@@ -187,20 +190,21 @@ col_int.MariaDBConnection <- function(size = "int",
               (min >= 0L        &
                max <  bit64::as.integer64(4294967296))) size <- "int"
     else size <- "big"
-
   } else {
-
-    stopifnot(is_chr(size, n_elem = eq(1L)),
-              any(c("tiny", "small", "medium", "int", "big") %in% size),
-              is_lgl(unsigned, n_elem = eq(1L)))
+    stopifnot(
+      is_chr(size, n_elem = eq(1L)),
+      any(c("tiny", "small", "medium", "int", "big") %in% size),
+      is_lgl(unsigned, n_elem = eq(1L))
+    )
   }
 
   size <- switch(size,
-                 tiny   = "TINYINT",
-                 small  = "SMALLINT",
-                 medium = "MEDIUMINT",
-                 int    = "INT",
-                 big    = "BIGINT")
+    tiny = "TINYINT",
+    small = "SMALLINT",
+    medium = "MEDIUMINT",
+    int = "INT",
+    big = "BIGINT"
+  )
 
   DBI::SQL(paste0(size, if (unsigned) " UNSIGNED"))
 }
@@ -232,14 +236,16 @@ col_dbl <- function(..., con = get_con()) UseMethod("col_dbl", con)
 col_dbl.MariaDBConnection <- function(prec = "double",
                                       unsigned = FALSE,
                                       ...) {
-
-  stopifnot(is_chr(prec, n_elem = eq(1L)),
-            any(c("single", "double") %in% prec),
-            is_lgl(unsigned, n_elem = eq(1L)))
+  stopifnot(
+    is_chr(prec, n_elem = eq(1L)),
+    any(c("single", "double") %in% prec),
+    is_lgl(unsigned, n_elem = eq(1L))
+  )
 
   prec <- switch(prec,
-                 single = "FLOAT",
-                 double = "DOUBLE")
+    single = "FLOAT",
+    double = "DOUBLE"
+  )
 
   DBI::SQL(paste0(prec, if (unsigned) " UNSIGNED"))
 }
@@ -276,11 +282,11 @@ col_dbl.MariaDBConnection <- function(prec = "double",
 #' @export
 #'
 col_chr <- function(length = 255L,
-                                      fixed = FALSE,
-                                      force_text = length >= 16384L,
-                                      char_set = NA_character_,
-                                      collate = NA_character_,
-                                      ...) {
+                    fixed = FALSE,
+                    force_text = length >= 16384L,
+                    char_set = NA_character_,
+                    collate = NA_character_,
+                    ...) {
   obj <- as.list(environment())
   new_sqlr(obj, subclass = "col_chr")
 }
@@ -295,34 +301,35 @@ sqlr_render.sqlr_col_chr <- function(x, con, ...) UseMethod("sql_render.sqlr_col
 sqlr_render.sqlr_col_chr.MariaDBConnection <- function(x, con, ...) {
   list2env(x, environment())
 
-  stopifnot(is_int(length, n_elem = eq(1L), strict = FALSE), length > 0L,
-            is_lgl(fixed, n_elem = eq(1L)),
-            is_lgl(force_text, n_elem = eq(1L)),
-            is_chr(char_set, n_elem = eq(1L), allow_na = TRUE),
-            is_chr(collate, n_elem = eq(1L), allow_na = TRUE),
-            !all(c(fixed, force_text)))
+  stopifnot(
+    is_int(length, n_elem = eq(1L), strict = FALSE), length > 0L,
+    is_lgl(fixed, n_elem = eq(1L)),
+    is_lgl(force_text, n_elem = eq(1L)),
+    is_chr(char_set, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(collate, n_elem = eq(1L), allow_na = TRUE),
+    !all(c(fixed, force_text))
+  )
   if (fixed) stopifnot(length < 256L)
 
   length <- as.integer(length)
 
   if (length < 256L) {
-
     if (fixed)
       type <- paste0("CHAR(", length, ")")
     else if (force_text)
       type <- "TINYTEXT"
     else
       type <- paste0("VARCHAR(", length, ")")
-
   } else if (length < 65536L) {
-
     if (force_text)
       type <- "TEXT"
     else {
       type <- paste0("VARCHAR(", length, ")")
       if (length >= 16384L) {
-        warning("effective max length might be lower than 2^16; ",
-                "possibly consider TEXT instead")
+        warning(
+          "effective max length might be lower than 2^16; ",
+          "possibly consider TEXT instead"
+        )
       }
     }
   } else if (length < 16777216L)
@@ -330,11 +337,13 @@ sqlr_render.sqlr_col_chr.MariaDBConnection <- function(x, con, ...) {
   else
     type <- "LONGTEXT"
 
-  DBI::SQL(paste0(type,
-                  if (!is.na(char_set))
-                    paste(" CHARACTER SET", DBI::dbQuoteString(con, char_set)),
-                  if (!is.na(collate))
-                    paste(" COLLATE", DBI::dbQuoteString(con, collate))))
+  DBI::SQL(paste0(
+    type,
+    if (!is.na(char_set))
+      paste(" CHARACTER SET", DBI::dbQuoteString(con, char_set)),
+    if (!is.na(collate))
+      paste(" COLLATE", DBI::dbQuoteString(con, collate))
+  ))
 }
 
 #' @title Generate SQL for a binary data type definition
@@ -368,31 +377,31 @@ col_raw.MariaDBConnection <- function(length = 255L,
                                       fixed = FALSE,
                                       force_blob = length >= 16384L,
                                       ...) {
-
-  stopifnot(is_int(length, n_elem = eq(1L), strict = FALSE), length > 0L,
-            is_lgl(fixed, n_elem = eq(1L)),
-            is_lgl(force_blob, n_elem = eq(1L)),
-            !all(c(fixed, force_blob)))
+  stopifnot(
+    is_int(length, n_elem = eq(1L), strict = FALSE), length > 0L,
+    is_lgl(fixed, n_elem = eq(1L)),
+    is_lgl(force_blob, n_elem = eq(1L)),
+    !all(c(fixed, force_blob))
+  )
   if (fixed) stopifnot(length < 256L)
 
   if (length < 256L) {
-
     if (fixed)
       type <- paste0("BINARY(", length, ")")
     else if (force_blob)
       type <- "TINYBLOB"
     else
       type <- paste0("VARBINARY(", length, ")")
-
   } else if (length < 65536L) {
-
     if (force_blob)
       type <- "BLOB"
     else {
       type <- paste0("VARBINARY(", length, ")")
       if (length >= 16384L) {
-        warning("effective max length might be lower than 2^16; ",
-                "possibly consider BLOB instead")
+        warning(
+          "effective max length might be lower than 2^16; ",
+          "possibly consider BLOB instead"
+        )
       }
     }
   } else if (length < 16777216L)
@@ -448,7 +457,6 @@ col_fct.MariaDBConnection <- function(levels,
                                       collate = NA_character_,
                                       con = get_con(),
                                       ...) {
-
   stopifnot(is_chr(levels, n_elem = gte(1L), n_char = NULL))
 
   variant <- match.arg(variant)
@@ -456,16 +464,20 @@ col_fct.MariaDBConnection <- function(levels,
 
   levels <- DBI::dbQuoteString(con, levels)
 
-  variant <- paste0(toupper(variant),
-                 "(",
-                   paste(levels, collapse = ", "),
-                 ")")
+  variant <- paste0(
+    toupper(variant),
+    "(",
+    paste(levels, collapse = ", "),
+    ")"
+  )
 
-  DBI::SQL(paste0(variant,
-                  if (!is.na(char_set) && nchar(char_set) > 0)
-                    paste(" CHARACTER SET", DBI::dbQuoteString(con, char_set)),
-                  if (!is.na(collate) && nchar(collate) > 0)
-                    paste(" COLLATE", DBI::dbQuoteString(con, collate))))
+  DBI::SQL(paste0(
+    variant,
+    if (!is.na(char_set) && nchar(char_set) > 0)
+      paste(" CHARACTER SET", DBI::dbQuoteString(con, char_set)),
+    if (!is.na(collate) && nchar(collate) > 0)
+      paste(" COLLATE", DBI::dbQuoteString(con, collate))
+  ))
 }
 
 #' @title Generate SQL for a date/time data type definition
@@ -492,13 +504,13 @@ col_dtm <- function(..., con = get_con()) UseMethod("col_dtm", con)
 #'
 #' @export
 #'
-col_dtm.MariaDBConnection <- function(class = c("datetime", "date", "time",
-                                                "year"),
+col_dtm.MariaDBConnection <- function(class = c(
+                                        "datetime", "date", "time",
+                                        "year"
+                                      ),
                                       val = NULL,
                                       ...) {
-
   if (!is.null(val)) {
-
     if (!missing(class)) warning("param \"class\" will be ignored.")
 
     class <- class(val)
@@ -517,9 +529,7 @@ col_dtm.MariaDBConnection <- function(class = c("datetime", "date", "time",
         stop("numbers are treated as years and only 4 digits are accepted")
     } else
       stop("class ", class, " is not recognized for determining col_dtm")
-
   } else {
-
     class <- match.arg(class)
   }
 
@@ -559,13 +569,14 @@ col_id.MariaDBConnection <- function(name = "id",
                                      key = "primary",
                                      as_lst = FALSE,
                                      ...) {
-
-  spec <- col_spec(name = name, type = type, unsigned = unsigned,
-                   nullable = FALSE, auto_increment = auto_increment,
-                   key = key, ...)
+  spec <- col_spec(
+    name = name, type = type, unsigned = unsigned,
+    nullable = FALSE, auto_increment = auto_increment,
+    key = key, ...
+  )
 
   if (as_lst)
     stats::setNames(list(spec), name)
   else
     spec
-  }
+}

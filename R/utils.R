@@ -33,7 +33,6 @@ is_vec <- function(x,
                    names = FALSE,
                    allow_na = FALSE,
                    allow_null = FALSE) {
-
   if (is.logical(names) & length(names) == 1) {
     check_names <- names
     if (check_names)
@@ -48,23 +47,24 @@ is_vec <- function(x,
   stopifnot(is.logical(allow_null), length(allow_null) == 1)
 
   type <- switch(match.arg(type),
-                 `NA` = function(x) TRUE,
-                 int  = function(x) is.integer(x) | bit64::is.integer64(x),
-                 num  = is.numeric,
-                 lgl  = is.logical,
-                 chr  = is.character,
-                 lst  = is.list)
+    `NA` = function(x) TRUE,
+    int = function(x) is.integer(x) | bit64::is.integer64(x),
+    num = is.numeric,
+    lgl = is.logical,
+    chr = is.character,
+    lst = is.list
+  )
 
   res <- !(
     (is.null(x) && !allow_null) ||
-    !is.null(x) && (
-      (!bit64::is.vector.integer64(x)) ||
-      (!is.null(type) && !type(x)) ||
-      (check_names && (is.null(names(x)) || !setequal(names(x), names))) ||
-      (!allow_null && any(sapply(x, is.null))) ||
-      (!allow_na && anyNA(x, recursive = TRUE)) ||
-      (!is.null(n_elem) && !n_elem(length(x)))
-    )
+      !is.null(x) && (
+        (!bit64::is.vector.integer64(x)) ||
+          (!is.null(type) && !type(x)) ||
+          (check_names && (is.null(names(x)) || !setequal(names(x), names))) ||
+          (!allow_null && any(sapply(x, is.null))) ||
+          (!allow_na && anyNA(x, recursive = TRUE)) ||
+          (!is.null(n_elem) && !n_elem(length(x)))
+      )
   )
 
   stopifnot(is.logical(res), length(res) == 1, !is.na(res))
@@ -128,7 +128,7 @@ is_lst <- function(...) is_vec(..., type = "lst")
 #'
 #' @export
 #'
-lt  <- function(b) function(a) a < b
+lt <- function(b) function(a) a < b
 
 #' @rdname is_vec
 #'
@@ -140,7 +140,7 @@ lte <- function(b) function(a) a <= b
 #'
 #' @export
 #'
-gt  <- function(b) function(a) a > b
+gt <- function(b) function(a) a > b
 
 #' @rdname is_vec
 #'
@@ -152,4 +152,4 @@ gte <- function(b) function(a) a >= b
 #'
 #' @export
 #'
-eq  <- function(b) function(a) a == b
+eq <- function(b) function(a) a == b

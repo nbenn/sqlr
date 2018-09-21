@@ -39,12 +39,12 @@
 #'
 #' @examples
 #' \dontrun{
-#'   airports <- nycflights13::airports
-#'   attr(airports, "spec") <- NULL
-#'   airports$tz <- as.integer(airports$tz)
-#'   airports$tzone[airports$tzone == "\\N"] <- NA
-#'   airports$tzone <- as.factor(airports$tzone)
-#'   save(airports, file = "data/airports.rda", compress = "xz")
+#' airports <- nycflights13::airports
+#' attr(airports, "spec") <- NULL
+#' airports$tz <- as.integer(airports$tz)
+#' airports$tzone[airports$tzone == "\\N"] <- NA
+#' airports$tzone <- as.factor(airports$tzone)
+#' save(airports, file = "data/airports.rda", compress = "xz")
 #' }
 #'
 "airports"

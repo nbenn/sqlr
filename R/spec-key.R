@@ -43,38 +43,47 @@ fk_spec.MariaDBConnection <- function(child_ind,
                                       parent_ind,
                                       constr_name = NA_character_,
                                       index_name = NA_character_,
-                                      match = c(NA, "simple", "full",
-                                                "partial"),
+                                      match = c(
+                                        NA, "simple", "full",
+                                        "partial"
+                                      ),
                                       on_del = "cascade",
                                       on_upd = "cascade",
                                       check = TRUE,
                                       con = get_con(),
                                       ...) {
-
-  stopifnot(is_chr(child_ind, n_elem = gte(1L)),
-            is_chr(parent_tbl, n_elem = eq(1L)),
-            is_chr(parent_ind, n_elem = gte(1L)),
-            is_chr(constr_name, n_elem = eq(1L), allow_na = TRUE),
-            is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
-            is_chr(on_del, n_elem = eq(1L)),
-            is_chr(on_upd, n_elem = eq(1L)),
-            is_lgl(check, n_elem = eq(1L)))
+  stopifnot(
+    is_chr(child_ind, n_elem = gte(1L)),
+    is_chr(parent_tbl, n_elem = eq(1L)),
+    is_chr(parent_ind, n_elem = gte(1L)),
+    is_chr(constr_name, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(on_del, n_elem = eq(1L)),
+    is_chr(on_upd, n_elem = eq(1L)),
+    is_lgl(check, n_elem = eq(1L))
+  )
 
   match <- match.arg(match)
 
   if (!is.na(match)) {
     warning(paste(strwrap(
-      paste("For MySQL, the use of an explicit MATCH clause will not have the",
-            "specified effect, and also causes ON DELETE and ON UPDATE",
-            "clauses to be ignored. For these reasons, specifying MATCH",
-            "should be avoided."), exdent = 2), collapse = "\n"))
+      paste(
+        "For MySQL, the use of an explicit MATCH clause will not have the",
+        "specified effect, and also causes ON DELETE and ON UPDATE",
+        "clauses to be ignored. For these reasons, specifying MATCH",
+        "should be avoided."
+      ),
+      exdent = 2
+    ), collapse = "\n"))
   }
 
-  ref_opts <- list(restrict = "RESTRICT",
-                   cascade = "CASCADE",
-                   set_null = "SET NULL",
-                   no_action = "NO ACTION",
-                   set_default = "SET DEFAULT")
+  ref_opts <- list(
+    restrict = "RESTRICT",
+    cascade = "CASCADE",
+    set_null = "SET NULL",
+    no_action = "NO ACTION",
+    set_default = "SET DEFAULT"
+  )
 
   on_del <- match.arg(on_del, names(ref_opts))
   on_upd <- match.arg(on_upd, names(ref_opts))
@@ -88,27 +97,33 @@ fk_spec.MariaDBConnection <- function(child_ind,
     # - same no of cols and type as child_ind
   }
 
-  DBI::SQL(paste0(if (!is.na(constr_name))
-                    paste0("CONSTRAINT ",
-                           DBI::dbQuoteIdentifier(con, constr_name),
-                           " "),
-                  "FOREIGN KEY",
-                  if (!is.na(index_name))
-                    paste0(" ", DBI::dbQuoteIdentifier(con, index_name)),
-                  " (",
-                    paste(DBI::dbQuoteIdentifier(con, child_ind),
-                          collapse = ", "),
-                  ")",
-                  " REFERENCES ",
-                  DBI::dbQuoteIdentifier(con, parent_tbl),
-                  " (",
-                    paste(DBI::dbQuoteIdentifier(con, parent_ind),
-                          collapse = ", "),
-                  ")",
-                  if (!is.na(match))
-                    paste("MATCH", toupper(match)),
-                  " ON DELETE ", ref_opts[[on_del]],
-                  " ON UPDATE ", ref_opts[[on_upd]]))
+  DBI::SQL(paste0(
+    if (!is.na(constr_name))
+      paste0(
+        "CONSTRAINT ",
+        DBI::dbQuoteIdentifier(con, constr_name),
+        " "
+      ),
+    "FOREIGN KEY",
+    if (!is.na(index_name))
+      paste0(" ", DBI::dbQuoteIdentifier(con, index_name)),
+    " (",
+    paste(DBI::dbQuoteIdentifier(con, child_ind),
+      collapse = ", "
+    ),
+    ")",
+    " REFERENCES ",
+    DBI::dbQuoteIdentifier(con, parent_tbl),
+    " (",
+    paste(DBI::dbQuoteIdentifier(con, parent_ind),
+      collapse = ", "
+    ),
+    ")",
+    if (!is.na(match))
+      paste("MATCH", toupper(match)),
+    " ON DELETE ", ref_opts[[on_del]],
+    " ON UPDATE ", ref_opts[[on_upd]]
+  ))
 }
 
 
@@ -151,30 +166,38 @@ pk_spec.MariaDBConnection <- function(cols,
                                       comment = NA_character_,
                                       con = get_con(),
                                       ...) {
-
-  stopifnot(is_chr(cols, n_elem = gte(1L)),
-            is_chr(constr_name, n_elem = eq(1L), allow_na = TRUE),
-            is_int(block_size, n_elem = eq(1L), strict = FALSE,
-                   allow_na = TRUE),
-            is_chr(comment, n_elem = eq(1L), allow_na = TRUE))
+  stopifnot(
+    is_chr(cols, n_elem = gte(1L)),
+    is_chr(constr_name, n_elem = eq(1L), allow_na = TRUE),
+    is_int(block_size,
+      n_elem = eq(1L), strict = FALSE,
+      allow_na = TRUE
+    ),
+    is_chr(comment, n_elem = eq(1L), allow_na = TRUE)
+  )
 
   type <- match.arg(type)
 
-  DBI::SQL(paste0(if (!is.na(constr_name))
-                    paste0("CONSTRAINT ",
-                           DBI::dbQuoteIdentifier(con, constr_name),
-                           " "),
-                  "PRIMARY KEY",
-                  if (!is.na(type))
-                    paste0(" USING ", toupper(type)),
-                  " (",
-                    paste(DBI::dbQuoteIdentifier(con, cols),
-                          collapse = ", "),
-                  ")",
-                  if (!is.na(block_size))
-                    paste0(" KEY_BLOCK_SIZE = ", block_size),
-                  if (!is.na(comment))
-                    paste0(" COMMENT ", DBI::dbQuoteString(con, comment))))
+  DBI::SQL(paste0(
+    if (!is.na(constr_name))
+      paste0(
+        "CONSTRAINT ",
+        DBI::dbQuoteIdentifier(con, constr_name),
+        " "
+      ),
+    "PRIMARY KEY",
+    if (!is.na(type))
+      paste0(" USING ", toupper(type)),
+    " (",
+    paste(DBI::dbQuoteIdentifier(con, cols),
+      collapse = ", "
+    ),
+    ")",
+    if (!is.na(block_size))
+      paste0(" KEY_BLOCK_SIZE = ", block_size),
+    if (!is.na(comment))
+      paste0(" COMMENT ", DBI::dbQuoteString(con, comment))
+  ))
 }
 
 #' @title Generate SQL for unique key definition
@@ -208,32 +231,38 @@ uk_spec.MariaDBConnection <- function(cols,
                                       comment = NA_character_,
                                       con = get_con(),
                                       ...) {
-
-  stopifnot(is_chr(cols, n_elem = gte(1L)),
-            is_chr(constr_name, n_elem = eq(1L), allow_na = TRUE),
-            is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
-            is_int(block_size, n_elem = eq(1L), allow_na = TRUE),
-            is_chr(comment, n_elem = eq(1L), allow_na = TRUE))
+  stopifnot(
+    is_chr(cols, n_elem = gte(1L)),
+    is_chr(constr_name, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
+    is_int(block_size, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(comment, n_elem = eq(1L), allow_na = TRUE)
+  )
 
   type <- match.arg(type)
 
-  DBI::SQL(paste0(if (!is.na(constr_name))
-                    paste0("CONSTRAINT ",
-                           DBI::dbQuoteIdentifier(con, constr_name),
-                           " "),
-                  "UNIQUE KEY",
-                  if (!is.na(index_name))
-                    paste0(" ", DBI::dbQuoteIdentifier(con, index_name)),
-                  if (!is.na(type))
-                    paste0(" USING ", toupper(type)),
-                  " (",
-                    paste(DBI::dbQuoteIdentifier(con, cols),
-                          collapse = ", "),
-                  ")",
-                  if (!is.na(block_size))
-                    paste0(" KEY_BLOCK_SIZE = ", block_size),
-                  if (!is.na(comment))
-                    paste0(" COMMENT ", DBI::dbQuoteString(con, comment))))
+  DBI::SQL(paste0(
+    if (!is.na(constr_name))
+      paste0(
+        "CONSTRAINT ",
+        DBI::dbQuoteIdentifier(con, constr_name),
+        " "
+      ),
+    "UNIQUE KEY",
+    if (!is.na(index_name))
+      paste0(" ", DBI::dbQuoteIdentifier(con, index_name)),
+    if (!is.na(type))
+      paste0(" USING ", toupper(type)),
+    " (",
+    paste(DBI::dbQuoteIdentifier(con, cols),
+      collapse = ", "
+    ),
+    ")",
+    if (!is.na(block_size))
+      paste0(" KEY_BLOCK_SIZE = ", block_size),
+    if (!is.na(comment))
+      paste0(" COMMENT ", DBI::dbQuoteString(con, comment))
+  ))
 }
 
 #' @title Generate SQL for (secondary) key definition
@@ -265,27 +294,31 @@ key_spec.MariaDBConnection <- function(cols,
                                        comment = NA_character_,
                                        con = get_con(),
                                        ...) {
-
-  stopifnot(is_chr(cols, n_elem = gte(1L)),
-            is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
-            is_int(block_size, n_elem = eq(1L), allow_na = TRUE),
-            is_chr(comment, n_elem = eq(1L), allow_na = TRUE))
+  stopifnot(
+    is_chr(cols, n_elem = gte(1L)),
+    is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
+    is_int(block_size, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(comment, n_elem = eq(1L), allow_na = TRUE)
+  )
 
   type <- match.arg(type)
 
-  DBI::SQL(paste0("KEY",
-                  if (!is.na(index_name))
-                    paste0(" ", DBI::dbQuoteIdentifier(con, index_name)),
-                  if (!is.na(type))
-                    paste0(" USING ", toupper(type)),
-                  " (",
-                    paste(DBI::dbQuoteIdentifier(con, cols),
-                          collapse = ", "),
-                  ")",
-                  if (!is.na(block_size))
-                    paste0(" KEY_BLOCK_SIZE = ", block_size),
-                  if (!is.na(comment))
-                    paste0(" COMMENT ", DBI::dbQuoteString(con, comment))))
+  DBI::SQL(paste0(
+    "KEY",
+    if (!is.na(index_name))
+      paste0(" ", DBI::dbQuoteIdentifier(con, index_name)),
+    if (!is.na(type))
+      paste0(" USING ", toupper(type)),
+    " (",
+    paste(DBI::dbQuoteIdentifier(con, cols),
+      collapse = ", "
+    ),
+    ")",
+    if (!is.na(block_size))
+      paste0(" KEY_BLOCK_SIZE = ", block_size),
+    if (!is.na(comment))
+      paste0(" COMMENT ", DBI::dbQuoteString(con, comment))
+  ))
 }
 
 #' @title Generate SQL for fulltext key definition
@@ -325,23 +358,27 @@ ft_key_spec.MariaDBConnection <- function(cols,
                                           comment = NA_character_,
                                           con = get_con(),
                                           ...) {
+  stopifnot(
+    is_chr(cols, n_elem = gte(1L)),
+    is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(parser, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(comment, n_elem = eq(1L), allow_na = TRUE)
+  )
 
-  stopifnot(is_chr(cols, n_elem = gte(1L)),
-            is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
-            is_chr(parser, n_elem = eq(1L), allow_na = TRUE),
-            is_chr(comment, n_elem = eq(1L), allow_na = TRUE))
-
-  DBI::SQL(paste0("FULLTEXT KEY",
-                  if (!is.na(index_name))
-                    paste0(" ", DBI::dbQuoteIdentifier(con, index_name)),
-                  " (",
-                    paste(DBI::dbQuoteIdentifier(con, cols),
-                          collapse = ", "),
-                  ")",
-                  if (!is.na(parser))
-                    paste0(" WITH PARSER ", parser),
-                  if (!is.na(comment))
-                    paste0(" COMMENT ", DBI::dbQuoteString(con, comment))))
+  DBI::SQL(paste0(
+    "FULLTEXT KEY",
+    if (!is.na(index_name))
+      paste0(" ", DBI::dbQuoteIdentifier(con, index_name)),
+    " (",
+    paste(DBI::dbQuoteIdentifier(con, cols),
+      collapse = ", "
+    ),
+    ")",
+    if (!is.na(parser))
+      paste0(" WITH PARSER ", parser),
+    if (!is.na(comment))
+      paste0(" COMMENT ", DBI::dbQuoteString(con, comment))
+  ))
 }
 
 #' @title Generate SQL for spatial key definition
@@ -371,18 +408,22 @@ spat_key_spec.MariaDBConnection <- function(cols,
                                             comment = NA_character_,
                                             con = get_con(),
                                             ...) {
+  stopifnot(
+    is_chr(cols, n_elem = gte(1L)),
+    is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(comment, n_elem = eq(1L), allow_na = TRUE)
+  )
 
-  stopifnot(is_chr(cols, n_elem = gte(1L)),
-            is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
-            is_chr(comment, n_elem = eq(1L), allow_na = TRUE))
-
-  DBI::SQL(paste0("SPATIAL KEY",
-                  if (!is.na(index_name))
-                    paste0(" ", DBI::dbQuoteIdentifier(con, index_name)),
-                  " (",
-                    paste(DBI::dbQuoteIdentifier(con, cols),
-                          collapse = ", "),
-                  ")",
-                  if (!is.na(comment))
-                    paste0(" COMMENT ", DBI::dbQuoteString(con, comment))))
+  DBI::SQL(paste0(
+    "SPATIAL KEY",
+    if (!is.na(index_name))
+      paste0(" ", DBI::dbQuoteIdentifier(con, index_name)),
+    " (",
+    paste(DBI::dbQuoteIdentifier(con, cols),
+      collapse = ", "
+    ),
+    ")",
+    if (!is.na(comment))
+      paste0(" COMMENT ", DBI::dbQuoteString(con, comment))
+  ))
 }
