@@ -305,7 +305,7 @@ col_chr <- function(length = 255L,
 #' @export sqlr_render.sqlr_col_chr
 #' @method sqlr_render sqlr_col_chr
 #' @export
-sqlr_render.sqlr_col_chr <- function(x, con, ...) UseMethod("sql_render.sqlr_col_chr", con)
+sqlr_render.sqlr_col_chr <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_chr", con)
 
 #' @method sqlr_render.sqlr_col_chr MariaDBConnection
 #' @export

@@ -3,4 +3,4 @@ new_sqlr <- function(x, subclass) {
 }
 
 #' @export
-sqlr_render <- function(x, con, ...) UseMethod("sql_render")
+sqlr_render <- function(x, con, ...) UseMethod("sqlr_render")
