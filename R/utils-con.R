@@ -4,7 +4,8 @@
 #' @description Configuration information, as well as the current connection
 #' is saved to and fetched from this environment.
 #'
-config <- new.env()
+# FIXME: Move this and set_con()/rm_con() to helper
+config <- new_environment()
 
 #' @title Load yml configuration file
 #'
