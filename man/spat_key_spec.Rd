@@ -2,20 +2,12 @@
 % Please edit documentation in R/spec-key.R
 \name{spat_key_spec}
 \alias{spat_key_spec}
-\alias{spat_key_spec.MariaDBConnection}
 \title{Generate SQL for spatial key definition}
 \usage{
-spat_key_spec(..., con = get_con())
-
-\method{spat_key_spec}{MariaDBConnection}(cols,
-  index_name = NA_character_, comment = NA_character_,
-  con = get_con(), ...)
+spat_key_spec(cols, index_name = NA_character_,
+  comment = NA_character_, ...)
 }
 \arguments{
-\item{...}{Arguments passed on to further methods.}
-
-\item{con}{Database connection object.}
-
 \item{cols}{Character vector specifying the column(s) to be used for the
 key}
 
@@ -23,6 +15,8 @@ key}
 
 \item{comment}{Index definitions can include an optional comment of up to
 1024 characters.}
+
+\item{...}{Arguments passed on to further methods.}
 }
 \value{
 SQL to be used in a CREATE table statement

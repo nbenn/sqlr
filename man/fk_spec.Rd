@@ -2,21 +2,14 @@
 % Please edit documentation in R/spec-key.R
 \name{fk_spec}
 \alias{fk_spec}
-\alias{fk_spec.MariaDBConnection}
 \title{Generate SQL for reference definition}
 \usage{
-fk_spec(..., con = get_con())
-
-\method{fk_spec}{MariaDBConnection}(child_ind, parent_tbl, parent_ind,
-  constr_name = NA_character_, index_name = NA_character_,
-  match = c(NA, "simple", "full", "partial"), on_del = "cascade",
-  on_upd = "cascade", check = TRUE, con = get_con(), ...)
+fk_spec(child_ind, parent_tbl, parent_ind, constr_name = NA_character_,
+  index_name = NA_character_, match = c(NA, "simple", "full",
+  "partial"), on_del = "cascade", on_upd = "cascade", check = TRUE,
+  ...)
 }
 \arguments{
-\item{...}{Arguments passed on to further methods.}
-
-\item{con}{Database connection object.}
-
 \item{child_ind}{Index column name(s) from which the reference is pointing
 to.}
 
@@ -39,6 +32,8 @@ values in the parent table that have matching rows in the child table.}
 
 \item{check}{Logical switch for checking whether parent table/columns are
 available.}
+
+\item{...}{Arguments passed on to further methods.}
 }
 \value{
 SQL to be used in a CREATE table statement

@@ -7,14 +7,9 @@
 #' @name col_spec
 #'
 #' @param ... Arguments passed to the S3 methods
-#' @param con A connection used to determine the SQL dialect to be used
 #'
 #' @return SQL to be used in a CREATE table statement
 #'
-#' @export
-#'
-col_spec <- function(..., con = get_con()) UseMethod("col_spec", con)
-
 #' @param name String specifying the column name
 #' @param type Either a call to one of the functions capable of specifying a
 #' column type (where the con object will be replaced with the one from the
@@ -44,11 +39,9 @@ col_spec <- function(..., con = get_con()) UseMethod("col_spec", con)
 #' col_spec(name = "foo", type = "int", unsigned = TRUE)
 #' }
 #'
-#' @rdname col_spec
-#'
 #' @export
 #'
-col_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
+col_spec <- function(name = paste(sample(letters, 10, TRUE),
                                          collapse = ""
                                        ),
                                        type = col_int(),
@@ -57,8 +50,23 @@ col_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
                                        auto_increment = FALSE,
                                        key = c(NA, "unique", "primary", "key"),
                                        comment = NULL,
-                                       con = get_con(),
                                        ...) {
+  key <- match.arg(key)
+
+  obj <- as.list(environment())
+  new_sqlr(obj, subclass = "col_spec")
+}
+
+#' @export sqlr_render.sqlr_col_spec
+#' @method sqlr_render sqlr_col_spec
+#' @export
+sqlr_render.sqlr_col_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_spec", con)
+
+#' @method sqlr_render.sqlr_col_spec MariaDBConnection
+#' @export
+sqlr_render.sqlr_col_spec.MariaDBConnection <- function(x, con, ...) {
+  list2env(x, environment())
+
   stopifnot(
     is_chr(name, n_elem = eq(1L)),
     is_lgl(nullable, n_elem = eq(1L)),
@@ -68,47 +76,11 @@ col_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
       allow_null = TRUE
     ),
     is_chr(comment, n_elem = eq(1L), allow_null = TRUE)
+    # FIXME: cols inherit from "sqlr_col"
   )
 
   if (!is.null(default) && is.na(default)) default <- NA_character_
 
-  type_quo <- rlang::enquo(type)
-
-  type_funs <- c(
-    "col_int", "col_dbl", "col_chr", "col_raw", "col_lgl",
-    "col_fct", "col_dtm"
-  )
-
-  if (rlang::quo_is_lang(type_quo)) {
-    type <- rlang::lang_modify(type_quo, con = con)
-    type <- rlang::eval_tidy(type)
-  } else if (rlang::quo_is_symbolic(type_quo) && rlang::is_function(type)) {
-    stopifnot(rlang::quo_name(type_quo) %in% type_funs, length(type) == 1)
-    type <- do.call(type, c(list(...), con = con))
-  } else {
-    stopifnot(is_chr(type, n_elem = eq(1L)))
-    if (!type %in% type_funs) {
-      type <- switch(type,
-        integer = col_int,
-        int = col_int,
-        double = col_dbl,
-        numeric = col_dbl,
-        character = col_chr,
-        char = col_chr,
-        raw = col_raw,
-        logical = col_lgl,
-        factor = col_fct,
-        datetime = col_dtm,
-        stop("unknown type: ", type, call. = FALSE)
-      )
-    }
-
-    type <- do.call(type, c(..., con = con))
-  }
-
-  stopifnot(inherits(type, "SQL"), length(type) == 1)
-
-  key <- match.arg(key)
   key <- switch(key,
     unique = " UNIQUE KEY",
     primary = " PRIMARY KEY",
@@ -117,7 +89,7 @@ col_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
 
   DBI::SQL(paste0(
     DBI::dbQuoteIdentifier(con, name),
-    " ", type,
+    " ", sqlr_render(type, con),
     if (!nullable) {
       " NOT NULL"
     },
@@ -151,10 +123,6 @@ col_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
 #'
 #' @return SQL to be used in a CREATE table statement
 #'
-#' @export
-#'
-col_int <- function(..., con = get_con()) UseMethod("col_int", con)
-
 #' @param size One of \code{tiny}, \code{small}, \code{medium}, \code{int},
 #' \code{big}, specifying the size of integer.
 #' @param unsigned Logical switch specifying whether the integer is singed or
@@ -162,15 +130,27 @@ col_int <- function(..., con = get_con()) UseMethod("col_int", con)
 #' @param min,max The minimum/maximum values the integer column has to be able
 #' to hold. This can be used for inferring size and signedness automatically.
 #'
-#' @rdname col_int
-#'
 #' @export
 #'
-col_int.MariaDBConnection <- function(size = "int",
+col_int <- function(size = "int",
                                       unsigned = FALSE,
                                       min = NA,
                                       max = NA,
                                       ...) {
+  obj <- as.list(environment())
+  new_sqlr(obj, subclass = "col_int")
+}
+
+#' @export sqlr_render.sqlr_col_int
+#' @method sqlr_render sqlr_col_int
+#' @export
+sqlr_render.sqlr_col_int <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_int", con)
+
+#' @method sqlr_render.sqlr_col_int MariaDBConnection
+#' @export
+sqlr_render.sqlr_col_int.MariaDBConnection <- function(x, con, ...) {
+  list2env(x, environment())
+
   if (!is.na(min) | !is.na(max)) {
     if (is.na(min)) {
       min <- bit64::as.integer64(-2147483648)
@@ -380,10 +360,6 @@ sqlr_render.sqlr_col_chr.MariaDBConnection <- function(x, con, ...) {
 #'
 #' @return SQL to be used in a CREATE table statement
 #'
-#' @export
-#'
-col_raw <- function(..., con = get_con()) UseMethod("col_raw", con)
-
 #' @param length The maximum number of bytes the column is expected to hold.
 #' @param fixed Logical switch specifying whether lengths are fixed throughout
 #' rows.
@@ -392,14 +368,26 @@ col_raw <- function(..., con = get_con()) UseMethod("col_raw", con)
 #' row. BLOB columns only contribute 9 to 12 bytes toward the row size limit
 #' (65,535 bytes).
 #'
-#' @rdname col_raw
-#'
 #' @export
 #'
-col_raw.MariaDBConnection <- function(length = 255L,
+col_raw <- function(length = 255L,
                                       fixed = FALSE,
                                       force_blob = length >= 16384L,
                                       ...) {
+  obj <- as.list(environment())
+  new_sqlr(obj, subclass = "col_raw")
+}
+
+#' @export sqlr_render.sqlr_col_raw
+#' @method sqlr_render sqlr_col_raw
+#' @export
+sqlr_render.sqlr_col_raw <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_raw", con)
+
+#' @method sqlr_render.sqlr_col_raw MariaDBConnection
+#' @export
+sqlr_render.sqlr_col_raw.MariaDBConnection <- function(x, con, ...) {
+  list2env(x, environment())
+
   stopifnot(
     is_int(length, n_elem = eq(1L), strict = FALSE), length > 0L,
     is_lgl(fixed, n_elem = eq(1L)),
@@ -447,11 +435,23 @@ col_raw.MariaDBConnection <- function(length = 255L,
 #' @return SQL to be used in a CREATE table statement
 #'
 #' @export
-#'
-col_lgl <- function(..., con = get_con()) UseMethod("col_lgl", con)
+col_lgl <- function(...) {
+  obj <- as.list(environment())
+  new_sqlr(obj, subclass = "col_lgl")
+}
 
+#' @export sqlr_render.sqlr_col_lgl
+#' @method sqlr_render sqlr_col_lgl
 #' @export
-col_lgl.MariaDBConnection <- function(...) DBI::SQL("BOOL")
+sqlr_render.sqlr_col_lgl <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_lgl", con)
+
+#' @method sqlr_render.sqlr_col_lgl MariaDBConnection
+#' @export
+sqlr_render.sqlr_col_lgl.MariaDBConnection <- function(x, con, ...) {
+  list2env(x, environment())
+
+  DBI::SQL("BOOL")
+}
 
 #' @title Generate SQL for a factor data type definition
 #'
@@ -464,27 +464,35 @@ col_lgl.MariaDBConnection <- function(...) DBI::SQL("BOOL")
 #'
 #' @return SQL to be used in a CREATE table statement
 #'
-#' @export
-#'
-col_fct <- function(..., con = get_con()) UseMethod("col_fct", con)
-
 #' @param levels A character vector, specifying the factor levels.
 #' @param variant One of \code{enum}, \code{set}.
 #' @param char_set,collate The character set and collation used.
 #'
-#' @rdname col_fct
-#'
 #' @export
 #'
-col_fct.MariaDBConnection <- function(levels,
+col_fct <- function(levels,
                                       variant = c("enum", "set"),
                                       char_set = NA_character_,
                                       collate = NA_character_,
-                                      con = get_con(),
                                       ...) {
+  variant <- match.arg(variant)
+
+  obj <- as.list(environment())
+  new_sqlr(obj, subclass = "col_fct")
+}
+
+#' @export sqlr_render.sqlr_col_fct
+#' @method sqlr_render sqlr_col_fct
+#' @export
+sqlr_render.sqlr_col_fct <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_fct", con)
+
+#' @method sqlr_render.sqlr_col_fct MariaDBConnection
+#' @export
+sqlr_render.sqlr_col_fct.MariaDBConnection <- function(x, con, ...) {
+  list2env(x, environment())
+
   stopifnot(is_chr(levels, n_elem = gte(1L), n_char = NULL))
 
-  variant <- match.arg(variant)
   levels <- unique(levels)
 
   levels <- DBI::dbQuoteString(con, levels)
@@ -512,31 +520,24 @@ col_fct.MariaDBConnection <- function(levels,
 #' @description Generate SQL, that can be used for date/time data type
 #' specifications in column definitions for CREATE/ALTER TABLE statements.
 #'
-#' @name col_dtm
-#'
 #' @inheritParams col_spec
 #'
 #' @return SQL to be used in a CREATE table statement
 #'
-#' @export
-#'
-col_dtm <- function(..., con = get_con()) UseMethod("col_dtm", con)
-
 #' @param class One of \code{datetime}, \code{date}, \code{time}, \code{year},
 #' specifying the type of date/time of the column.
 #' @param val A value, the class of which is used for automatically inferring
 #' type.
 #'
-#' @rdname col_dtm
-#'
 #' @export
 #'
-col_dtm.MariaDBConnection <- function(class = c(
+col_dtm <- function(class = c(
                                         "datetime", "date", "time",
                                         "year"
                                       ),
                                       val = NULL,
                                       ...) {
+
   if (!is.null(val)) {
     if (!missing(class)) warning("param \"class\" will be ignored.")
 
@@ -562,6 +563,20 @@ col_dtm.MariaDBConnection <- function(class = c(
     class <- match.arg(class)
   }
 
+  obj <- as.list(environment())
+  new_sqlr(obj, subclass = "col_dtm")
+}
+
+#' @export sqlr_render.sqlr_col_dtm
+#' @method sqlr_render sqlr_col_dtm
+#' @export
+sqlr_render.sqlr_col_dtm <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_dtm", con)
+
+#' @method sqlr_render.sqlr_col_dtm MariaDBConnection
+#' @export
+sqlr_render.sqlr_col_dtm.MariaDBConnection <- function(x, con, ...) {
+  list2env(x, environment())
+
   DBI::SQL(toupper(class))
 }
 
@@ -574,30 +589,37 @@ col_dtm.MariaDBConnection <- function(class = c(
 #' @name col_id
 #'
 #' @param ... Arguments passed to the S3 methods
-#' @param con A connection used to determine the SQL dialect to be used
 #'
 #' @return SQL to be used in a CREATE table statement
 #'
-#' @export
-#'
-col_id <- function(..., con = get_con()) UseMethod("col_id", con)
-
 #' @inheritParams col_spec
 #' @inheritParams col_int
 #' @param as_lst Logical switch for returning the col_spec as a list entry for
 #' easier c'ing with col_specs from a data.frame
 #'
-#' @rdname col_id
-#'
 #' @export
 #'
-col_id.MariaDBConnection <- function(name = "id",
+col_id <- function(name = "id",
                                      type = "int",
                                      unsigned = TRUE,
                                      auto_increment = TRUE,
                                      key = "primary",
                                      as_lst = FALSE,
                                      ...) {
+  obj <- as.list(environment())
+  new_sqlr(obj, subclass = "col_id")
+}
+
+#' @export sqlr_render.sqlr_col_id
+#' @method sqlr_render sqlr_col_id
+#' @export
+sqlr_render.sqlr_col_id <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_id", con)
+
+#' @method sqlr_render.sqlr_col_id MariaDBConnection
+#' @export
+sqlr_render.sqlr_col_id.MariaDBConnection <- function(x, con, ...) {
+  list2env(x, environment())
+
   spec <- col_spec(
     name = name, type = type, unsigned = unsigned,
     nullable = FALSE, auto_increment = auto_increment,

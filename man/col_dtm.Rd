@@ -2,24 +2,18 @@
 % Please edit documentation in R/spec-col.R
 \name{col_dtm}
 \alias{col_dtm}
-\alias{col_dtm.MariaDBConnection}
 \title{Generate SQL for a date/time data type definition}
 \usage{
-col_dtm(..., con = get_con())
-
-\method{col_dtm}{MariaDBConnection}(class = c("datetime", "date", "time",
-  "year"), val = NULL, ...)
+col_dtm(class = c("datetime", "date", "time", "year"), val = NULL, ...)
 }
 \arguments{
-\item{...}{Arguments passed to the S3 methods}
-
-\item{con}{A connection used to determine the SQL dialect to be used}
-
 \item{class}{One of \code{datetime}, \code{date}, \code{time}, \code{year},
 specifying the type of date/time of the column.}
 
 \item{val}{A value, the class of which is used for automatically inferring
 type.}
+
+\item{...}{Arguments passed to the S3 methods}
 }
 \value{
 SQL to be used in a CREATE table statement

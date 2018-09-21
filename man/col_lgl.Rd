@@ -4,12 +4,10 @@
 \alias{col_lgl}
 \title{Generate SQL for a boolean data type definition}
 \usage{
-col_lgl(..., con = get_con())
+col_lgl(...)
 }
 \arguments{
 \item{...}{Arguments passed to the S3 methods}
-
-\item{con}{A connection used to determine the SQL dialect to be used}
 }
 \value{
 SQL to be used in a CREATE table statement

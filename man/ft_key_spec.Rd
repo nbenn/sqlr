@@ -2,20 +2,12 @@
 % Please edit documentation in R/spec-key.R
 \name{ft_key_spec}
 \alias{ft_key_spec}
-\alias{ft_key_spec.MariaDBConnection}
 \title{Generate SQL for fulltext key definition}
 \usage{
-ft_key_spec(..., con = get_con())
-
-\method{ft_key_spec}{MariaDBConnection}(cols, index_name = NA_character_,
-  parser = NA_character_, comment = NA_character_, con = get_con(),
-  ...)
+ft_key_spec(cols, index_name = NA_character_, parser = NA_character_,
+  comment = NA_character_, ...)
 }
 \arguments{
-\item{...}{Arguments passed on to further methods.}
-
-\item{con}{Database connection object.}
-
 \item{cols}{Character vector specifying the column(s) to be used for the
 key}
 
@@ -29,6 +21,8 @@ and \code{mecab}
 
 \item{comment}{Index definitions can include an optional comment of up to
 1024 characters.}
+
+\item{...}{Arguments passed on to further methods.}
 }
 \value{
 SQL to be used in a CREATE table statement

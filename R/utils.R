@@ -49,7 +49,8 @@ is_vec <- function(x,
   stopifnot(is.logical(allow_na), length(allow_na) == 1)
   stopifnot(is.logical(allow_null), length(allow_null) == 1)
 
-  type <- switch(match.arg(type),
+  type <- match.arg(type)
+  type <- switch(type,
     `NA` = function(x) TRUE,
     int = function(x) is.integer(x) | bit64::is.integer64(x),
     num = is.numeric,

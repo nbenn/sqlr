@@ -2,20 +2,12 @@
 % Please edit documentation in R/spec-key.R
 \name{key_spec}
 \alias{key_spec}
-\alias{key_spec.MariaDBConnection}
 \title{Generate SQL for (secondary) key definition}
 \usage{
-key_spec(..., con = get_con())
-
-\method{key_spec}{MariaDBConnection}(cols, index_name = NA_character_,
-  type = c(NA, "btree", "hash"), block_size = NA_integer_,
-  comment = NA_character_, con = get_con(), ...)
+key_spec(cols, index_name = NA_character_, type = c(NA, "btree",
+  "hash"), block_size = NA_integer_, comment = NA_character_, ...)
 }
 \arguments{
-\item{...}{Arguments passed on to further methods.}
-
-\item{con}{Database connection object.}
-
 \item{cols}{Character vector specifying the column(s) to be used for the
 key}
 
@@ -31,6 +23,8 @@ KEY_BLOCK_SIZE value is permitted.}
 
 \item{comment}{Index definitions can include an optional comment of up to
 1024 characters.}
+
+\item{...}{Arguments passed on to further methods.}
 }
 \value{
 SQL to be used in a CREATE table statement

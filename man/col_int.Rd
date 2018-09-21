@@ -2,19 +2,11 @@
 % Please edit documentation in R/spec-col.R
 \name{col_int}
 \alias{col_int}
-\alias{col_int.MariaDBConnection}
 \title{Generate SQL for an integer data type definition}
 \usage{
-col_int(..., con = get_con())
-
-\method{col_int}{MariaDBConnection}(size = "int", unsigned = FALSE,
-  min = NA, max = NA, ...)
+col_int(size = "int", unsigned = FALSE, min = NA, max = NA, ...)
 }
 \arguments{
-\item{...}{Arguments passed to the S3 methods}
-
-\item{con}{A connection used to determine the SQL dialect to be used}
-
 \item{size}{One of \code{tiny}, \code{small}, \code{medium}, \code{int},
 \code{big}, specifying the size of integer.}
 
@@ -23,6 +15,8 @@ unsigned.}
 
 \item{min, max}{The minimum/maximum values the integer column has to be able
 to hold. This can be used for inferring size and signedness automatically.}
+
+\item{...}{Arguments passed to the S3 methods}
 }
 \value{
 SQL to be used in a CREATE table statement

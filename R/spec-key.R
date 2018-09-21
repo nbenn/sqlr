@@ -7,17 +7,12 @@
 #' @name fk_spec
 #'
 #' @param ... Arguments passed on to further methods.
-#' @param con Database connection object.
 #'
 #' @return SQL to be used in a CREATE table statement
 #'
 #' @section TODO: improve checks and add check unit test as soon as tables can
 #' be created.
 #'
-#' @export
-#'
-fk_spec <- function(..., con = get_con()) UseMethod("fk_spec", con)
-
 #' @param child_ind Index column name(s) from which the reference is pointing
 #' to.
 #' @param parent_tbl The table to which the reference is pointing to.
@@ -34,11 +29,9 @@ fk_spec <- function(..., con = get_con()) UseMethod("fk_spec", con)
 #' @param check Logical switch for checking whether parent table/columns are
 #' available.
 #'
-#' @rdname fk_spec
-#'
 #' @export
 #'
-fk_spec.MariaDBConnection <- function(child_ind,
+fk_spec <- function(child_ind,
                                       parent_tbl,
                                       parent_ind,
                                       constr_name = NA_character_,
@@ -50,8 +43,23 @@ fk_spec.MariaDBConnection <- function(child_ind,
                                       on_del = "cascade",
                                       on_upd = "cascade",
                                       check = TRUE,
-                                      con = get_con(),
                                       ...) {
+  match <- match.arg(match)
+
+  obj <- as.list(environment())
+  new_sqlr(obj, subclass = "fk_spec")
+}
+
+#' @export sqlr_render.sqlr_fk_spec
+#' @method sqlr_render sqlr_fk_spec
+#' @export
+sqlr_render.sqlr_fk_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_fk_spec", con)
+
+#' @method sqlr_render.sqlr_fk_spec MariaDBConnection
+#' @export
+sqlr_render.sqlr_fk_spec.MariaDBConnection <- function(x, con, ...) {
+  list2env(x, environment())
+
   stopifnot(
     is_chr(child_ind, n_elem = gte(1L)),
     is_chr(parent_tbl, n_elem = eq(1L)),
@@ -62,8 +70,6 @@ fk_spec.MariaDBConnection <- function(child_ind,
     is_chr(on_upd, n_elem = eq(1L)),
     is_lgl(check, n_elem = eq(1L))
   )
-
-  match <- match.arg(match)
 
   if (!is.na(match)) {
     warning(paste(strwrap(
@@ -138,14 +144,9 @@ fk_spec.MariaDBConnection <- function(child_ind,
 #' @name pk_spec
 #'
 #' @param ... Arguments passed on to further methods.
-#' @param con Database connection object.
 #'
 #' @return SQL to be used in a CREATE table statement
 #'
-#' @export
-#'
-pk_spec <- function(..., con = get_con()) UseMethod("pk_spec", con)
-
 #' @param cols Character vector specifying the column(s) to be used for the
 #' key
 #' @param constr_name (Optional) name of the constraint.
@@ -158,17 +159,30 @@ pk_spec <- function(..., con = get_con()) UseMethod("pk_spec", con)
 #' @param comment Index definitions can include an optional comment of up to
 #' 1024 characters.
 #'
-#' @rdname pk_spec
-#'
 #' @export
 #'
-pk_spec.MariaDBConnection <- function(cols,
+pk_spec <- function(cols,
                                       constr_name = NA_character_,
                                       type = c(NA, "btree", "hash"),
                                       block_size = NA_integer_,
                                       comment = NA_character_,
-                                      con = get_con(),
                                       ...) {
+  type <- match.arg(type)
+
+  obj <- as.list(environment())
+  new_sqlr(obj, subclass = "pk_spec")
+}
+
+#' @export sqlr_render.sqlr_pk_spec
+#' @method sqlr_render sqlr_pk_spec
+#' @export
+sqlr_render.sqlr_pk_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_pk_spec", con)
+
+#' @method sqlr_render.sqlr_pk_spec MariaDBConnection
+#' @export
+sqlr_render.sqlr_pk_spec.MariaDBConnection <- function(x, con, ...) {
+  list2env(x, environment())
+
   stopifnot(
     is_chr(cols, n_elem = gte(1L)),
     is_chr(constr_name, n_elem = eq(1L), allow_na = TRUE),
@@ -178,8 +192,6 @@ pk_spec.MariaDBConnection <- function(cols,
     ),
     is_chr(comment, n_elem = eq(1L), allow_na = TRUE)
   )
-
-  type <- match.arg(type)
 
   DBI::SQL(paste0(
     if (!is.na(constr_name)) {
@@ -215,29 +227,37 @@ pk_spec.MariaDBConnection <- function(cols,
 #' @name uk_spec
 #'
 #' @param ... Arguments passed on to further methods.
-#' @param con Database connection object.
 #'
 #' @return SQL to be used in a CREATE table statement
 #'
-#' @export
-#'
-uk_spec <- function(..., con = get_con()) UseMethod("uk_spec", con)
-
 #' @inheritParams pk_spec
 #' @param index_name (Optional) name of the index.
 #'
-#' @rdname uk_spec
-#'
 #' @export
 #'
-uk_spec.MariaDBConnection <- function(cols,
+uk_spec <- function(cols,
                                       constr_name = NA_character_,
                                       index_name = NA_character_,
                                       type = c(NA, "btree", "hash"),
                                       block_size = NA_integer_,
                                       comment = NA_character_,
-                                      con = get_con(),
                                       ...) {
+  type <- match.arg(type)
+
+  obj <- as.list(environment())
+  new_sqlr(obj, subclass = "uk_spec")
+}
+
+#' @export sqlr_render.sqlr_uk_spec
+#' @method sqlr_render sqlr_uk_spec
+#' @export
+sqlr_render.sqlr_uk_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_uk_spec", con)
+
+#' @method sqlr_render.sqlr_uk_spec MariaDBConnection
+#' @export
+sqlr_render.sqlr_uk_spec.MariaDBConnection <- function(x, con, ...) {
+  list2env(x, environment())
+
   stopifnot(
     is_chr(cols, n_elem = gte(1L)),
     is_chr(constr_name, n_elem = eq(1L), allow_na = TRUE),
@@ -245,8 +265,6 @@ uk_spec.MariaDBConnection <- function(cols,
     is_int(block_size, n_elem = eq(1L), allow_na = TRUE),
     is_chr(comment, n_elem = eq(1L), allow_na = TRUE)
   )
-
-  type <- match.arg(type)
 
   DBI::SQL(paste0(
     if (!is.na(constr_name)) {
@@ -285,35 +303,41 @@ uk_spec.MariaDBConnection <- function(cols,
 #' @name key_spec
 #'
 #' @param ... Arguments passed on to further methods.
-#' @param con Database connection object.
 #'
 #' @return SQL to be used in a CREATE table statement
 #'
-#' @export
-#'
-key_spec <- function(..., con = get_con()) UseMethod("key_spec", con)
-
 #' @inheritParams uk_spec
 #'
-#' @rdname key_spec
-#'
 #' @export
 #'
-key_spec.MariaDBConnection <- function(cols,
+key_spec <- function(cols,
                                        index_name = NA_character_,
                                        type = c(NA, "btree", "hash"),
                                        block_size = NA_integer_,
                                        comment = NA_character_,
-                                       con = get_con(),
                                        ...) {
+  type <- match.arg(type)
+
+  obj <- as.list(environment())
+  new_sqlr(obj, subclass = "key_spec")
+}
+
+#' @export sqlr_render.sqlr_key_spec
+#' @method sqlr_render sqlr_key_spec
+#' @export
+sqlr_render.sqlr_key_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_key_spec", con)
+
+#' @method sqlr_render.sqlr_key_spec MariaDBConnection
+#' @export
+sqlr_render.sqlr_key_spec.MariaDBConnection <- function(x, con, ...) {
+  list2env(x, environment())
+
   stopifnot(
     is_chr(cols, n_elem = gte(1L)),
     is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
     is_int(block_size, n_elem = eq(1L), allow_na = TRUE),
     is_chr(comment, n_elem = eq(1L), allow_na = TRUE)
   )
-
-  type <- match.arg(type)
 
   DBI::SQL(paste0(
     "KEY",
@@ -345,7 +369,6 @@ key_spec.MariaDBConnection <- function(cols,
 #' @name ft_key_spec
 #'
 #' @param ... Arguments passed on to further methods.
-#' @param con Database connection object.
 #'
 #' @return SQL to be used in a CREATE table statement
 #'
@@ -353,10 +376,6 @@ key_spec.MariaDBConnection <- function(cols,
 #' PLUGINS and use the results for checking if the parser is listed as
 #' FTPARSER. Currently the parser is passed without being escaped!
 #'
-#' @export
-#'
-ft_key_spec <- function(..., con = get_con()) UseMethod("ft_key_spec", con)
-
 #' @inheritParams uk_spec
 #' @param parser Name of the full-text parser to be used in the index. Examples
 #' are \code{ngram}
@@ -364,16 +383,27 @@ ft_key_spec <- function(..., con = get_con()) UseMethod("ft_key_spec", con)
 #' and \code{mecab}
 #' (\url{https://dev.mysql.com/doc/refman/5.7/en/fulltext-search-mecab.html}).
 #'
-#' @rdname ft_key_spec
-#'
 #' @export
 #'
-ft_key_spec.MariaDBConnection <- function(cols,
+ft_key_spec <- function(cols,
                                           index_name = NA_character_,
                                           parser = NA_character_,
                                           comment = NA_character_,
-                                          con = get_con(),
                                           ...) {
+  obj <- as.list(environment())
+  new_sqlr(obj, subclass = "ft_key_spec")
+}
+
+#' @export sqlr_render.sqlr_ft_key_spec
+#' @method sqlr_render sqlr_ft_key_spec
+#' @export
+sqlr_render.sqlr_ft_key_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_ft_key_spec", con)
+
+#' @method sqlr_render.sqlr_ft_key_spec MariaDBConnection
+#' @export
+sqlr_render.sqlr_ft_key_spec.MariaDBConnection <- function(x, con, ...) {
+  list2env(x, environment())
+
   stopifnot(
     is_chr(cols, n_elem = gte(1L)),
     is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),
@@ -408,25 +438,31 @@ ft_key_spec.MariaDBConnection <- function(cols,
 #' @name spat_key_spec
 #'
 #' @param ... Arguments passed on to further methods.
-#' @param con Database connection object.
 #'
 #' @return SQL to be used in a CREATE table statement
 #'
-#' @export
-#'
-spat_key_spec <- function(..., con = get_con()) UseMethod("spat_key_spec", con)
-
 #' @inheritParams uk_spec
 #'
-#' @rdname spat_key_spec
-#'
 #' @export
 #'
-spat_key_spec.MariaDBConnection <- function(cols,
+spat_key_spec <- function(cols,
                                             index_name = NA_character_,
                                             comment = NA_character_,
-                                            con = get_con(),
                                             ...) {
+  obj <- as.list(environment())
+  new_sqlr(obj, subclass = "spat_key_spec")
+}
+
+#' @export sqlr_render.sqlr_spat_key_spec
+#' @method sqlr_render sqlr_spat_key_spec
+#' @export
+sqlr_render.sqlr_spat_key_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_spat_key_spec", con)
+
+#' @method sqlr_render.sqlr_spat_key_spec MariaDBConnection
+#' @export
+sqlr_render.sqlr_spat_key_spec.MariaDBConnection <- function(x, con, ...) {
+  list2env(x, environment())
+
   stopifnot(
     is_chr(cols, n_elem = gte(1L)),
     is_chr(index_name, n_elem = eq(1L), allow_na = TRUE),

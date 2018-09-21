@@ -2,21 +2,14 @@
 % Please edit documentation in R/spec-col.R
 \name{col_spec}
 \alias{col_spec}
-\alias{col_spec.MariaDBConnection}
 \title{Generate SQL for a column definition}
 \usage{
-col_spec(..., con = get_con())
-
-\method{col_spec}{MariaDBConnection}(name = paste(sample(letters, 10,
-  TRUE), collapse = ""), type = col_int(), nullable = TRUE,
-  default = NULL, auto_increment = FALSE, key = c(NA, "unique",
-  "primary", "key"), comment = NULL, con = get_con(), ...)
+col_spec(name = paste(sample(letters, 10, TRUE), collapse = ""),
+  type = col_int(), nullable = TRUE, default = NULL,
+  auto_increment = FALSE, key = c(NA, "unique", "primary", "key"),
+  comment = NULL, ...)
 }
 \arguments{
-\item{...}{Arguments passed to the S3 methods}
-
-\item{con}{A connection used to determine the SQL dialect to be used}
-
 \item{name}{String specifying the column name}
 
 \item{type}{Either a call to one of the functions capable of specifying a
@@ -36,6 +29,8 @@ incrementing.}
 specifying if and what type of index the column represents.}
 
 \item{comment}{An optional comment string.}
+
+\item{...}{Arguments passed to the S3 methods}
 }
 \value{
 SQL to be used in a CREATE table statement

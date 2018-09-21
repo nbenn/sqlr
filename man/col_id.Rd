@@ -2,20 +2,12 @@
 % Please edit documentation in R/spec-col.R
 \name{col_id}
 \alias{col_id}
-\alias{col_id.MariaDBConnection}
 \title{Generate SQL for an id column}
 \usage{
-col_id(..., con = get_con())
-
-\method{col_id}{MariaDBConnection}(name = "id", type = "int",
-  unsigned = TRUE, auto_increment = TRUE, key = "primary",
-  as_lst = FALSE, ...)
+col_id(name = "id", type = "int", unsigned = TRUE,
+  auto_increment = TRUE, key = "primary", as_lst = FALSE, ...)
 }
 \arguments{
-\item{...}{Arguments passed to the S3 methods}
-
-\item{con}{A connection used to determine the SQL dialect to be used}
-
 \item{name}{String specifying the column name}
 
 \item{type}{Either a call to one of the functions capable of specifying a
@@ -34,6 +26,8 @@ specifying if and what type of index the column represents.}
 
 \item{as_lst}{Logical switch for returning the col_spec as a list entry for
 easier c'ing with col_specs from a data.frame}
+
+\item{...}{Arguments passed to the S3 methods}
 }
 \value{
 SQL to be used in a CREATE table statement
