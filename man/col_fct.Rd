@@ -8,7 +8,8 @@
 col_fct(..., con = get_con())
 
 \method{col_fct}{MariaDBConnection}(levels, variant = c("enum", "set"),
-  char_set = NA_character_, collate = NA_character_, con = get_con(), ...)
+  char_set = NA_character_, collate = NA_character_, con = get_con(),
+  ...)
 }
 \arguments{
 \item{...}{Arguments passed to the S3 methods}

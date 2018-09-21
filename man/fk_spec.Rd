@@ -8,9 +8,9 @@
 fk_spec(..., con = get_con())
 
 \method{fk_spec}{MariaDBConnection}(child_ind, parent_tbl, parent_ind,
-  constr_name = NA_character_, index_name = NA_character_, match = c(NA,
-  "simple", "full", "partial"), on_del = "cascade", on_upd = "cascade",
-  check = TRUE, con = get_con(), ...)
+  constr_name = NA_character_, index_name = NA_character_,
+  match = c(NA, "simple", "full", "partial"), on_del = "cascade",
+  on_upd = "cascade", check = TRUE, con = get_con(), ...)
 }
 \arguments{
 \item{...}{Arguments passed on to further methods.}

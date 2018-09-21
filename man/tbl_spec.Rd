@@ -7,8 +7,8 @@
 \usage{
 tbl_spec(..., con = get_con())
 
-\method{tbl_spec}{MariaDBConnection}(name = paste(sample(letters, 10, TRUE),
-  collapse = ""), cols = col_id(), keys = NULL, temp = FALSE,
+\method{tbl_spec}{MariaDBConnection}(name = paste(sample(letters, 10,
+  TRUE), collapse = ""), cols = col_id(), keys = NULL, temp = FALSE,
   force = FALSE, engine = "InnoDB", auto_incr = NA_integer_,
   char_set = NA_character_, collate = NA_character_,
   comment = NA_character_, table_options = NULL, partition = NULL,
@@ -52,7 +52,7 @@ and multiple will end up separated by single spaces.}
 SQL to be used in a CREATE table statement
 }
 \description{
-Generate SQL, that can be used for table definitions in 
+Generate SQL, that can be used for table definitions in
 CREATE TABLE statements.
 }
 \section{TODO}{

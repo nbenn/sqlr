@@ -7,8 +7,8 @@
 \usage{
 show_db_cols(..., con = get_con())
 
-\method{show_db_cols}{MariaDBConnection}(tbl, like = NULL, where = NULL,
-  full = FALSE, parse = FALSE, con = get_con(), ...)
+\method{show_db_cols}{MariaDBConnection}(tbl, like = NULL,
+  where = NULL, full = FALSE, parse = FALSE, con = get_con(), ...)
 }
 \arguments{
 \item{...}{Arguments passed on to further methods.}

@@ -8,7 +8,8 @@
 ft_key_spec(..., con = get_con())
 
 \method{ft_key_spec}{MariaDBConnection}(cols, index_name = NA_character_,
-  parser = NA_character_, comment = NA_character_, con = get_con(), ...)
+  parser = NA_character_, comment = NA_character_, con = get_con(),
+  ...)
 }
 \arguments{
 \item{...}{Arguments passed on to further methods.}

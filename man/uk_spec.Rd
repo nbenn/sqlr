@@ -9,7 +9,8 @@ uk_spec(..., con = get_con())
 
 \method{uk_spec}{MariaDBConnection}(cols, constr_name = NA_character_,
   index_name = NA_character_, type = c(NA, "btree", "hash"),
-  block_size = NA_integer_, comment = NA_character_, con = get_con(), ...)
+  block_size = NA_integer_, comment = NA_character_, con = get_con(),
+  ...)
 }
 \arguments{
 \item{...}{Arguments passed on to further methods.}

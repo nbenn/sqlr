@@ -14,8 +14,9 @@
 \alias{eq}
 \title{Test if an object is a vector}
 \usage{
-is_vec(x, type = c(NA, "int", "num", "lgl", "chr", "lst"), n_elem = gte(1L),
-  names = FALSE, allow_na = FALSE, allow_null = FALSE)
+is_vec(x, type = c(NA, "int", "num", "lgl", "chr", "lst"),
+  n_elem = gte(1L), names = FALSE, allow_na = FALSE,
+  allow_null = FALSE)
 
 is_lgl(...)
 

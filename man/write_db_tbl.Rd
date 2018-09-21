@@ -8,8 +8,9 @@
 write_db_tbl(..., con = get_con())
 
 \method{write_db_tbl}{MariaDBConnection}(name, data, mode = c("insert",
-  "replace"), priority = c(NA, "low", "high", "delayed"), ignore = FALSE,
-  partition = NULL, on_dupl_key = NULL, ..., con = get_con())
+  "replace"), priority = c(NA, "low", "high", "delayed"),
+  ignore = FALSE, partition = NULL, on_dupl_key = NULL, ...,
+  con = get_con())
 }
 \arguments{
 \item{...}{Arguments passed to the S3 methods, some of which might end up

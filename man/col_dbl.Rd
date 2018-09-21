@@ -7,7 +7,8 @@
 \usage{
 col_dbl(..., con = get_con())
 
-\method{col_dbl}{MariaDBConnection}(prec = "double", unsigned = FALSE, ...)
+\method{col_dbl}{MariaDBConnection}(prec = "double", unsigned = FALSE,
+  ...)
 }
 \arguments{
 \item{...}{Arguments passed to the S3 methods}

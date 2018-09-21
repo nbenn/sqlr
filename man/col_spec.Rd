@@ -7,10 +7,10 @@
 \usage{
 col_spec(..., con = get_con())
 
-\method{col_spec}{MariaDBConnection}(name = paste(sample(letters, 10, TRUE),
-  collapse = ""), type = col_int(), nullable = TRUE, default = NULL,
-  auto_increment = FALSE, key = c(NA, "unique", "primary", "key"),
-  comment = NULL, con = get_con(), ...)
+\method{col_spec}{MariaDBConnection}(name = paste(sample(letters, 10,
+  TRUE), collapse = ""), type = col_int(), nullable = TRUE,
+  default = NULL, auto_increment = FALSE, key = c(NA, "unique",
+  "primary", "key"), comment = NULL, con = get_con(), ...)
 }
 \arguments{
 \item{...}{Arguments passed to the S3 methods}
@@ -41,7 +41,7 @@ specifying if and what type of index the column represents.}
 SQL to be used in a CREATE table statement
 }
 \description{
-Generate SQL, that can be used for column definitions in 
+Generate SQL, that can be used for column definitions in
 CREATE/ALTER TABLE statements.
 }
 \examples{
