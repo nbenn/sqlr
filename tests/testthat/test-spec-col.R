@@ -1,5 +1,9 @@
 context("mysql column specification")
 
+setup(
+  set_con(section = "mysql_unittest")
+)
+
 test_that("column types can be specified", {
   foo <- "bar"
   expect_is(
@@ -470,3 +474,7 @@ test_that("id column can be specified", {
     col_id(as_lst = TRUE)[[1]]
   )
 })
+
+teardown(
+  rm_con()
+)
