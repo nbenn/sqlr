@@ -1,14 +1,14 @@
 
 #' @title Test if an object is a vector
-#' 
+#'
 #' @description Intended for validating the input to functions, objects can be
 #' tested if they are vectors, satisfying certain additional constraints, such
 #' as type (integer, numeric, etc.), the number of elements, specified as
 #' (in)equality, whether the object is named, whether it contains NA and if it
 #' is NULL.
-#' 
+#'
 #' @name is_vec
-#' 
+#'
 #' @param x The object to be tested
 #' @param type The type of vector that is expected. Possibly choices are
 #' \code{NA}, \code{"int"}, \code{"num"}, \code{"lgl"}, \code{"chr"}, where NA
@@ -22,11 +22,11 @@
 #' \code{names}.
 #' @param allow_na A logical, specifying whether NA is allowed in x.
 #' @param allow_null A logical, specifying whether x may be NULL.
-#' 
+#'
 #' @return A single logical, indicating whether all conditions are met.
-#' 
+#'
 #' @export
-#' 
+#'
 is_vec <- function(x,
                    type = c(NA, "int", "num", "lgl", "chr", "lst"),
                    n_elem = gte(1L),
@@ -73,26 +73,26 @@ is_vec <- function(x,
 }
 
 #' @param ... Arguments passed to \code{is_vec}.
-#' 
+#'
 #' @rdname is_vec
-#' 
+#'
 #' @export
-#' 
+#'
 is_lgl <- function(...) is_vec(..., type = "lgl")
 
 #' @rdname is_vec
-#' 
+#'
 #' @export
-#' 
+#'
 is_num <- function(...) is_vec(..., type = "num")
 
 #' @param strict A logical switch specifying whether a whole number specified
 #' as numeric (instead if integer) will be considered as an integer as well.
-#' 
+#'
 #' @rdname is_vec
-#' 
+#'
 #' @export
-#' 
+#'
 is_int <- function(x, ..., strict = TRUE) {
   res <- is_vec(x, ..., type = if (strict) "int" else "num")
   if (!strict & !is.null(x))
@@ -103,11 +103,11 @@ is_int <- function(x, ..., strict = TRUE) {
 
 #' @param n_char Behaves analogously to \code{n_elem}, with \code{nchar(x)} on
 #' the lhs.
-#' 
+#'
 #' @rdname is_vec
-#' 
+#'
 #' @export
-#' 
+#'
 is_chr <- function(x, ..., n_char = gte(1L)) {
   res <- is_vec(x, ..., type = "chr")
   if (!is.null(n_char) & !is.null(x))
@@ -117,39 +117,39 @@ is_chr <- function(x, ..., n_char = gte(1L)) {
 }
 
 #' @rdname is_vec
-#' 
+#'
 #' @export
-#' 
+#'
 is_lst <- function(...) is_vec(..., type = "lst")
 
 #' @param b The rhs of the comparison.
-#' 
+#'
 #' @rdname is_vec
-#' 
+#'
 #' @export
-#' 
+#'
 lt  <- function(b) function(a) a < b
 
 #' @rdname is_vec
-#' 
+#'
 #' @export
-#' 
+#'
 lte <- function(b) function(a) a <= b
 
 #' @rdname is_vec
-#' 
+#'
 #' @export
-#' 
+#'
 gt  <- function(b) function(a) a > b
 
 #' @rdname is_vec
-#' 
+#'
 #' @export
-#' 
+#'
 gte <- function(b) function(a) a >= b
 
 #' @rdname is_vec
-#' 
+#'
 #' @export
-#' 
+#'
 eq  <- function(b) function(a) a == b

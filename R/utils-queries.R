@@ -1,12 +1,12 @@
 
 #' @title Show columns of db table(s)
-#' 
+#'
 #' @description Display information about the columns in a given table.
 #' The result may be limited using the arguments \code{like}/\code{where}
 #' and more complete information can be requested using the switch \code{full}.
 #' The returned tibble holds the following values for each table column (see
 #' \url{https://dev.mysql.com/doc/refman/5.7/en/show-columns.html}):
-#' 
+#'
 #' \describe{
 #'   \item{Field}{The column name.}
 #'   \item{Type}{The column data type.}
@@ -26,16 +26,16 @@
 #'   \item{Comment}{Any comment included in the column definition. This value
 #'         is displayed only if \code{full} is true.}
 #' }
-#' 
+#'
 #' @name show_db_cols
-#' 
+#'
 #' @param ... Arguments passed on to further methods.
 #' @param con A connection object to connect to the db.
-#' 
+#'
 #' @return A tibble.
-#' 
+#'
 #' @export
-#' 
+#'
 show_db_cols <- function(..., con = get_con()) UseMethod("show_db_cols", con)
 
 #' @param tbl The table name.
@@ -45,11 +45,11 @@ show_db_cols <- function(..., con = get_con()) UseMethod("show_db_cols", con)
 #' of the returned columns.
 #' @param parse Logical switch for turning the results into a SequelPro
 #' inspired "Structure" view.
-#' 
+#'
 #' @rdname show_db_cols
-#' 
+#'
 #' @export
-#' 
+#'
 show_db_cols.MariaDBConnection <- function(tbl,
                                            like = NULL,
                                            where = NULL,
@@ -103,56 +103,56 @@ show_db_cols.MariaDBConnection <- function(tbl,
 
 
 #' @title Unquote identifiers
-#' 
+#'
 #' @description Quoted identifiers such as produced by
 #' \code{DBI::dbQuoteIdentifier(con, "foo")} are unquoted and stripped of their
 #' \code{SQL} class, yielding the original character vector (here "foo").
-#' 
+#'
 #' @name unquote_ident
-#' 
+#'
 #' @param ... Arguments passed to the S3 methods
 #' @param con A connection used to determine the SQL dialect to be used
-#' 
+#'
 #' @return Character vector.
-#' 
+#'
 #' @export
-#' 
+#'
 unquote_ident <- function(..., con = get_con()) UseMethod("unquote_ident", con)
 
 #' @rdname unquote_ident
-#' 
+#'
 #' @param x Character vector to be unquoted.
-#' 
+#'
 #' @export
-#' 
+#'
 unquote_ident.MariaDBConnection <- function(x, con = get_con(), ...) {
   as.character(sub("^`", "", sub("`$", "", gsub("``", "`", x))))
 }
 
 
 #' @title Unquote strings
-#' 
+#'
 #' @description Quoted strings such as produced by
 #' \code{DBI::dbQuoteString(con, "foo")} are unquoted and stripped of their
 #' \code{SQL} class, yielding the original character vector (here "foo").
-#' 
+#'
 #' @name unquote_str
-#' 
+#'
 #' @param ... Arguments passed to the S3 methods
 #' @param con A connection used to determine the SQL dialect to be used
-#' 
+#'
 #' @return Character vector.
-#' 
+#'
 #' @export
-#' 
+#'
 unquote_str <- function(..., con = get_con()) UseMethod("unquote_str", con)
 
 #' @rdname unquote_str
-#' 
+#'
 #' @param x Character vector to be unquoted.
-#' 
+#'
 #' @export
-#' 
+#'
 unquote_str.MariaDBConnection <- function(x, con = get_con(), ...) {
   patt <- c("\\\\'", "\\\\\"", "\\\\n", "\\\\r", "\\\\\\\\", "\\\\Z")
   repl <- c("'", "\"", "\n", "\r", "\\\\", "\x1a")
@@ -161,38 +161,38 @@ unquote_str.MariaDBConnection <- function(x, con = get_con(), ...) {
 }
 
 #' @title Parse SQL data type definitions
-#' 
+#'
 #' @description Split and parse SQL data type definitions, such as created by
 #' any of the data type specification functions (e.g. [col_int], [col_dbl],
 #' etc.). The result is a tibble with as many rows as SQL statements were
 #' passed and with the following columns:
-#' 
+#'
 #' \describe{
 #'   \item{Type}{The column data type.}
 #'   \item{Length}{Either the length (e.g. CHAR(5) yields 5) or the levels
 #'         of an ENUM or SET field.}
 #'   \item{Unsigned}{Logical, whether the numeric column is signed.}
 #' }
-#' 
+#'
 #' @name parse_data_type
-#' 
+#'
 #' @param ... Arguments passed to the S3 methods
 #' @param con A connection used to determine the SQL dialect to be used
-#' 
+#'
 #' @return A tibble.
-#' 
+#'
 #' @export
-#' 
+#'
 parse_data_type <- function(..., con = get_con()) {
   UseMethod("parse_data_type", con)
 }
 
 #' @rdname parse_data_type
-#' 
+#'
 #' @param x Character vector to be parsed.
-#' 
+#'
 #' @export
-#' 
+#'
 parse_data_type.MariaDBConnection <- function(x,
                                               con = get_con(),
                                               ...) {
@@ -245,10 +245,10 @@ parse_data_type.MariaDBConnection <- function(x,
 }
 
 #' @title Parse SQL column definitions
-#' 
+#'
 #' @description Split and parse SQL column definitions, such as created by
 #' [tbl_spec].
-#' 
+#'
 #' \describe{
 #'   \item{Field}{The column name.}
 #'   \item{Type, Length, Unsigned}{See [parse_data_type].}
@@ -256,26 +256,26 @@ parse_data_type.MariaDBConnection <- function(x,
 #'   \item{Encoding}{The character encoding of a char column.}
 #'   \item{Collation}{The collation of a char column.}
 #' }
-#' 
+#'
 #' @name parse_col_spec
-#' 
+#'
 #' @param ... Arguments passed to the S3 methods
 #' @param con A connection used to determine the SQL dialect to be used
-#' 
+#'
 #' @return A tibble.
-#' 
+#'
 #' @export
-#' 
+#'
 parse_col_spec <- function(..., con = get_con()) {
   UseMethod("parse_col_spec", con)
 }
 
 #' @rdname parse_col_spec
-#' 
+#'
 #' @param x Character vector to be parsed.
-#' 
+#'
 #' @export
-#' 
+#'
 parse_col_spec.MariaDBConnection <- function(x,
                                              con = get_con(),
                                              ...) {

@@ -3,19 +3,19 @@
 #' Look up airline names from their carrier codes.
 #'
 #' @source https://cran.r-project.org/package=nycflights13, v0.2.2
-#' 
+#'
 #' @format Data frame with columns
 #' \describe{
 #' \item{carrier}{Two letter abbreviation}
 #' \item{name}{Full name}
 #' }
-#' 
+#'
 #' @examples
 #' \dontrun{
 #'   airlines <- nycflights13::airlines
 #'   save(airlines, file = "data/airlines.rda", compress = "xz")
 #' }
-#' 
+#'
 "airlines"
 
 #' Airport metadata
@@ -23,7 +23,7 @@
 #' Useful metadata about airports.
 #'
 #' @source https://cran.r-project.org/package=nycflights13, v0.2.2
-#' 
+#'
 #' @format A data frame with columns:
 #' \describe{
 #'  \item{faa}{FAA airport code}
@@ -36,7 +36,7 @@
 #'     U = unknown. N = no dst.}
 #'  \item{tzone}{IANA time zone, as determined by GeoNames webservice}
 #' }
-#' 
+#'
 #' @examples
 #' \dontrun{
 #'   airports <- nycflights13::airports
@@ -46,7 +46,7 @@
 #'   airports$tzone <- as.factor(airports$tzone)
 #'   save(airports, file = "data/airports.rda", compress = "xz")
 #' }
-#' 
+#'
 "airports"
 
 #' Flights data
@@ -55,7 +55,7 @@
 #' 2013.
 #'
 #' @source https://cran.r-project.org/package=nycflights13, v0.2.2
-#' 
+#'
 #' @format Data frame with columns
 #' \describe{
 #' \item{departure}{Date and time of departure as a \code{POSIXct} date}
@@ -71,7 +71,7 @@
 #'   additional metadata.}
 #' \item{distance}{Distance between airports, in miles}
 #' }
-#' 
+#'
 #' @examples
 #' \dontrun{
 #'   flights <- nycflights13::flights
@@ -93,7 +93,7 @@
 #'                          "distance")]
 #'   save(flights, file = "data/flights.rda", compress = "xz")
 #' }
-#' 
+#'
 "flights"
 
 #' Plane metadata.
@@ -105,7 +105,7 @@
 #' so can't be matched.
 #'
 #' @source https://cran.r-project.org/package=nycflights13, v0.2.2
-#' 
+#'
 #' @format A data frame with columns:
 #' \describe{
 #' \item{tailnum}{Tail number}
@@ -116,7 +116,7 @@
 #' \item{speed}{Average cruising speed in mph}
 #' \item{engine}{Type of engine}
 #' }
-#' 
+#'
 #' @examples
 #' \dontrun{
 #'   planes <- nycflights13::planes
@@ -125,7 +125,7 @@
 #'   planes$engine <- factor(planes$engine)
 #'   save(planes, file = "data/planes.rda", compress = "xz")
 #' }
-#' 
+#'
 "planes"
 
 #' Hourly weather data
@@ -147,7 +147,7 @@
 #' \item{pressure}{Sea level pressure in millibars}
 #' \item{visib}{Visibility rating, corresponds to rounded up miles (0-10)}
 #' }
-#' 
+#'
 #' @examples
 #' \dontrun{
 #'   weather <- nycflights13::weather
@@ -169,5 +169,5 @@
 #'                          "pressure", "visib")]
 #'   save(weather, file = "data/weather.rda", compress = "xz")
 #' }
-#' 
+#'
 "weather"

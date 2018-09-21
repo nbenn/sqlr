@@ -1,23 +1,23 @@
 
 #' @title Config environment
-#' 
+#'
 #' @description Configuration information, as well as the current connection
 #' is saved to and fetched from this environment.
-#' 
+#'
 config <- new.env()
 
 #' @title Load yml configuration file
-#' 
+#'
 #' @description Load the yml configuration file used for connecting to a data
 #' base.
-#' 
+#'
 #' @param file_name The file name of the config file. If no value is supplied,
 #' the current wd is searched for files ending in '.yaml' or '.yml', followed
 #' by the extdata dir in the package installation.
 #' @param section A list node to be returned instead of the whole config list.
 #' If multiple nodes match, the last match (the list is traversed recursively)
 #' will be returned
-#' 
+#'
 #' @return The database configuration as a list.
 #'
 load_config <- function(file_name = NULL,
@@ -60,19 +60,19 @@ load_config <- function(file_name = NULL,
 }
 
 #' @title Set the database connection
-#' 
+#'
 #' @description Using the information from the yml config file, generate a
 #' data base connection object and store it alongside the config information
 #' in the config environment.
-#' 
+#'
 #' @inheritParams load_config
 #' @param update Logical switch for forcing a reset to the con object despite
 #' it being present and valid.
-#' 
+#'
 #' @return TRUE if the con object was set, FALSE if not.
 #'
 #' @export
-#' 
+#'
 set_con <- function(file_name = NULL,
                     section = "db_setup",
                     update = FALSE) {
@@ -90,12 +90,12 @@ set_con <- function(file_name = NULL,
 }
 
 #' @title Get the database connection
-#' 
+#'
 #' @description Fetch the database connection stored in the config environment.
 #' If no valid con object is present, it will be created using [set_con()].
-#' 
+#'
 #' @param ... Arguments passed to [set_con].
-#' 
+#'
 #' @return The database connection object.
 #'
 get_con <- function(...) {
@@ -104,14 +104,14 @@ get_con <- function(...) {
 }
 
 #' @title Destroy the database connection
-#' 
+#'
 #' @description Destroy the database connection object that is currently saved
 #' in the config environment.
-#' 
+#'
 #' @return NULL (invisibly)
 #'
 #' @export
-#' 
+#'
 rm_con <- function() {
   if (!is.null(config$con)) DBI::dbDisconnect(config$con)
   config$con <- NULL
@@ -123,12 +123,12 @@ rm_con <- function() {
 #'
 #' @description Depending on the type selected by the user, the appropriate
 #' function is called to set up and/or connect to a database.
-#' 
+#'
 #' @param config A named list containing parameters for \code{dbConnect}, as
 #' well as a slot "dbtype", specifying what database system to connect to.
-#' 
+#'
 #' @return A connection object that can be used for further database access.
-#' 
+#'
 connect_db <- function(config) {
 
   dbtype <- match.arg(config$dbtype, "mysql")
@@ -142,12 +142,12 @@ connect_db <- function(config) {
 #' @description This function provides a wrapper around \code{dbConnect} that
 #' sets up a database and user with all privileges to that schema if any of the
 #' two does not already exist.
-#' 
+#'
 #' @param ... Arguments passed to \code{dbConnect}
-#' 
+#'
 #' @return Connection object that can be used for further database access. The
 #' connection is automatically destroyed when garbage collected.
-#' 
+#'
 connect_mysql <- function(...) {
 
   dots <- list(...)

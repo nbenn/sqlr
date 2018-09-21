@@ -1,20 +1,20 @@
 
-#' @title Add a data.frame to database 
-#' 
+#' @title Add a data.frame to database
+#'
 #' @description Add data contained in a \code{data.frame} to database. In case
 #' the table does not exist, it will be created by [create_db_tbl], using
 #' the arguments passed as \code{...}.
-#' 
+#'
 #' @name write_db_tbl
-#' 
+#'
 #' @param ... Arguments passed to the S3 methods, some of which might end up
 #' as arguments to [create_db_tbl].
 #' @param con A connection used to determine the SQL dialect to be used
-#' 
+#'
 #' @return The number of added rows (invisibly).
-#' 
+#'
 #' @export
-#' 
+#'
 write_db_tbl <- function(..., con = get_con()) UseMethod("write_db_tbl", con)
 
 #' @param name String specifying the table name
@@ -38,13 +38,13 @@ write_db_tbl <- function(..., con = get_con()) UseMethod("write_db_tbl", con)
 #' cause a unique key constraint failure, an UPDATE of the old row occurs. A
 #' named list is expected where names correspond to columns to be updated and
 #' list entries are expected to be SQL expressions and of type \code{SQL}.
-#' 
+#'
 #' @rdname write_db_tbl
-#' 
+#'
 #' @section TODO: Also add LOAD DATA INFILE as option for bulk loading
-#' 
+#'
 #' @export
-#' 
+#'
 write_db_tbl.MariaDBConnection <- function(name,
                                            data,
                                            mode = c("insert", "replace"),

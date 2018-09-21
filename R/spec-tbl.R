@@ -1,18 +1,18 @@
 
 #' @title Generate SQL for a table definition
-#' 
-#' @description Generate SQL, that can be used for table definitions in 
+#'
+#' @description Generate SQL, that can be used for table definitions in
 #' CREATE TABLE statements.
-#' 
+#'
 #' @name tbl_spec
-#' 
+#'
 #' @param ... Arguments passed to the S3 methods
 #' @param con A connection used to determine the SQL dialect to be used
-#' 
+#'
 #' @return SQL to be used in a CREATE table statement
-#' 
+#'
 #' @export
-#' 
+#'
 tbl_spec <- function(..., con = get_con()) UseMethod("tbl_spec", con)
 
 #' @param name String specifying the table name
@@ -33,14 +33,14 @@ tbl_spec <- function(..., con = get_con()) UseMethod("tbl_spec", con)
 #' \code{ENCRYPTION}, \code{ROW_FORMAT}, etc. Must be one or more SQL strings
 #' and multiple will end up separated by single spaces.
 #' @param partition Table partition settings. Currently only NULL is accepted.
-#' 
+#'
 #' @section TODO: create single \code{key_spec} function like \code{col_spec}
 #' @section TODO: implement table partitioning
-#' 
+#'
 #' @rdname tbl_spec
-#' 
+#'
 #' @export
-#' 
+#'
 tbl_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
                                                     collapse = ""),
                                        cols = col_id(),

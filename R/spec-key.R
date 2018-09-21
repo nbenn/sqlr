@@ -1,21 +1,21 @@
 
 #' @title Generate SQL for reference definition
-#' 
+#'
 #' @description Generate SQL, that can be used for foreign key reference
 #' definitions e.g. in CREATE/ALTER TABLE statements.
-#' 
+#'
 #' @name fk_spec
-#' 
+#'
 #' @param ... Arguments passed on to further methods.
 #' @param con Database connection object.
-#' 
+#'
 #' @return SQL to be used in a CREATE table statement
-#' 
+#'
 #' @section TODO: improve checks and add check unit test as soon as tables can
 #' be created.
-#' 
+#'
 #' @export
-#' 
+#'
 fk_spec <- function(..., con = get_con()) UseMethod("fk_spec", con)
 
 #' @param child_ind Index column name(s) from which the reference is pointing
@@ -33,11 +33,11 @@ fk_spec <- function(..., con = get_con()) UseMethod("fk_spec", con)
 #' values in the parent table that have matching rows in the child table.
 #' @param check Logical switch for checking whether parent table/columns are
 #' available.
-#' 
+#'
 #' @rdname fk_spec
-#' 
+#'
 #' @export
-#' 
+#'
 fk_spec.MariaDBConnection <- function(child_ind,
                                       parent_tbl,
                                       parent_ind,
@@ -113,19 +113,19 @@ fk_spec.MariaDBConnection <- function(child_ind,
 
 
 #' @title Generate SQL for primary key definition
-#' 
+#'
 #' @description Generate SQL, that can be used for primary key definitions
 #' e.g. in CREATE/ALTER TABLE statements.
-#' 
+#'
 #' @name pk_spec
-#' 
+#'
 #' @param ... Arguments passed on to further methods.
 #' @param con Database connection object.
-#' 
+#'
 #' @return SQL to be used in a CREATE table statement
-#' 
+#'
 #' @export
-#' 
+#'
 pk_spec <- function(..., con = get_con()) UseMethod("pk_spec", con)
 
 #' @param cols Character vector specifying the column(s) to be used for the
@@ -139,11 +139,11 @@ pk_spec <- function(..., con = get_con()) UseMethod("pk_spec", con)
 #' KEY_BLOCK_SIZE value is permitted.
 #' @param comment Index definitions can include an optional comment of up to
 #' 1024 characters.
-#' 
+#'
 #' @rdname pk_spec
-#' 
+#'
 #' @export
-#' 
+#'
 pk_spec.MariaDBConnection <- function(cols,
                                       constr_name = NA_character_,
                                       type = c(NA, "btree", "hash"),
@@ -178,28 +178,28 @@ pk_spec.MariaDBConnection <- function(cols,
 }
 
 #' @title Generate SQL for unique key definition
-#' 
+#'
 #' @description Generate SQL, that can be used for unique key definitions
 #' e.g. in CREATE/ALTER TABLE statements.
-#' 
+#'
 #' @name uk_spec
-#' 
+#'
 #' @param ... Arguments passed on to further methods.
 #' @param con Database connection object.
-#' 
+#'
 #' @return SQL to be used in a CREATE table statement
-#' 
+#'
 #' @export
-#' 
+#'
 uk_spec <- function(..., con = get_con()) UseMethod("uk_spec", con)
 
 #' @inheritParams pk_spec
 #' @param index_name (Optional) name of the index.
-#' 
+#'
 #' @rdname uk_spec
-#' 
+#'
 #' @export
-#' 
+#'
 uk_spec.MariaDBConnection <- function(cols,
                                       constr_name = NA_character_,
                                       index_name = NA_character_,
@@ -237,27 +237,27 @@ uk_spec.MariaDBConnection <- function(cols,
 }
 
 #' @title Generate SQL for (secondary) key definition
-#' 
+#'
 #' @description Generate SQL, that can be used for (secondary) key definitions
 #' e.g. in CREATE/ALTER TABLE statements.
-#' 
+#'
 #' @name key_spec
-#' 
+#'
 #' @param ... Arguments passed on to further methods.
 #' @param con Database connection object.
-#' 
+#'
 #' @return SQL to be used in a CREATE table statement
-#' 
+#'
 #' @export
-#' 
+#'
 key_spec <- function(..., con = get_con()) UseMethod("key_spec", con)
 
 #' @inheritParams uk_spec
-#' 
+#'
 #' @rdname key_spec
-#' 
+#'
 #' @export
-#' 
+#'
 key_spec.MariaDBConnection <- function(cols,
                                        index_name = NA_character_,
                                        type = c(NA, "btree", "hash"),
@@ -289,23 +289,23 @@ key_spec.MariaDBConnection <- function(cols,
 }
 
 #' @title Generate SQL for fulltext key definition
-#' 
+#'
 #' @description Generate SQL, that can be used for fulltext key definitions
 #' e.g. in CREATE/ALTER TABLE statements.
-#' 
+#'
 #' @name ft_key_spec
-#' 
+#'
 #' @param ... Arguments passed on to further methods.
 #' @param con Database connection object.
-#' 
+#'
 #' @return SQL to be used in a CREATE table statement
-#' 
+#'
 #' @section TODO: implement a function show_db_plugins that fetches SHOW
 #' PLUGINS and use the results for checking if the parser is listed as
 #' FTPARSER. Currently the parser is passed without being escaped!
-#' 
+#'
 #' @export
-#' 
+#'
 ft_key_spec <- function(..., con = get_con()) UseMethod("ft_key_spec", con)
 
 #' @inheritParams uk_spec
@@ -314,11 +314,11 @@ ft_key_spec <- function(..., con = get_con()) UseMethod("ft_key_spec", con)
 #' (\url{https://dev.mysql.com/doc/refman/5.7/en/fulltext-search-ngram.html})
 #' and \code{mecab}
 #' (\url{https://dev.mysql.com/doc/refman/5.7/en/fulltext-search-mecab.html}).
-#' 
+#'
 #' @rdname ft_key_spec
-#' 
+#'
 #' @export
-#' 
+#'
 ft_key_spec.MariaDBConnection <- function(cols,
                                           index_name = NA_character_,
                                           parser = NA_character_,
@@ -345,27 +345,27 @@ ft_key_spec.MariaDBConnection <- function(cols,
 }
 
 #' @title Generate SQL for spatial key definition
-#' 
+#'
 #' @description Generate SQL, that can be used for spatial key definitions
 #' e.g. in CREATE/ALTER TABLE statements.
-#' 
+#'
 #' @name spat_key_spec
-#' 
+#'
 #' @param ... Arguments passed on to further methods.
 #' @param con Database connection object.
-#' 
+#'
 #' @return SQL to be used in a CREATE table statement
-#' 
+#'
 #' @export
-#' 
+#'
 spat_key_spec <- function(..., con = get_con()) UseMethod("spat_key_spec", con)
 
 #' @inheritParams uk_spec
-#' 
+#'
 #' @rdname spat_key_spec
-#' 
+#'
 #' @export
-#' 
+#'
 spat_key_spec.MariaDBConnection <- function(cols,
                                             index_name = NA_character_,
                                             comment = NA_character_,
