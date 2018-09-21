@@ -7,16 +7,16 @@ test_that("integer column types can be specified", {
     get_col_spec(1L, name = "foo"),
     "SQL"
   )
-  expect_equal(
-    as.character(get_col_spec(1L, name = "foo")),
+  expect_render(
+    get_col_spec(1L, name = "foo"),
     "`foo` TINYINT UNSIGNED"
   )
-  expect_equal(
-    as.character(get_col_spec(1L, name = "foo", key = "primary")),
+  expect_render(
+    get_col_spec(1L, name = "foo", key = "primary"),
     "`foo` TINYINT UNSIGNED PRIMARY KEY"
   )
-  expect_equal(
-    as.character(get_col_spec(bit64::as.integer64(1L),
+  expect_render(
+    get_col_spec(bit64::as.integer64(1L,
       name = "foo"
     )),
     "`foo` TINYINT UNSIGNED"
@@ -40,24 +40,24 @@ test_that("numeric column types can be specified", {
     get_col_spec(1.5, name = "foo"),
     "SQL"
   )
-  expect_equal(
-    as.character(get_col_spec(1.5, name = "foo")),
+  expect_render(
+    get_col_spec(1.5, name = "foo"),
     "`foo` DOUBLE"
   )
-  expect_equal(
-    as.character(get_col_spec(1.5, name = "foo", unsigned = TRUE)),
+  expect_render(
+    get_col_spec(1.5, name = "foo", unsigned = TRUE),
     "`foo` DOUBLE UNSIGNED"
   )
-  expect_equal(
-    as.character(get_col_spec(1.5, name = "foo", nullable = FALSE)),
+  expect_render(
+    get_col_spec(1.5, name = "foo", nullable = FALSE),
     "`foo` DOUBLE NOT NULL"
   )
-  expect_equal(
-    as.character(get_col_spec(single(1.5), name = "foo")),
+  expect_render(
+    get_col_spec(single(1.5), name = "foo"),
     "`foo` FLOAT"
   )
-  expect_equal(
-    as.character(get_col_spec(1, name = "foo")),
+  expect_render(
+    get_col_spec(1, name = "foo"),
     "`foo` DOUBLE"
   )
 })
@@ -67,40 +67,40 @@ test_that("character column types can be specified", {
     get_col_spec("a", name = "foo"),
     "SQL"
   )
-  expect_equal(
-    as.character(get_col_spec("a", name = "foo")),
+  expect_render(
+    get_col_spec("a", name = "foo"),
     "`foo` CHAR(1)"
   )
-  expect_equal(
-    as.character(get_col_spec(c("a", "ab"), name = "foo")),
+  expect_render(
+    get_col_spec(c("a", "ab"), name = "foo"),
     "`foo` VARCHAR(2)"
   )
-  expect_equal(
-    as.character(get_col_spec(c("a", "ab", NA), name = "foo")),
+  expect_render(
+    get_col_spec(c("a", "ab", NA), name = "foo"),
     "`foo` VARCHAR(2)"
   )
-  expect_equal(
-    as.character(get_col_spec(paste(rep("a", 300), collapse = ""),
+  expect_render(
+    get_col_spec(paste(rep("a", 300), collapse = "",
       name = "foo"
     )),
     "`foo` VARCHAR(300)"
   )
-  expect_equal(
-    as.character(get_col_spec(paste(rep("a", 30000), collapse = ""),
+  expect_render(
+    get_col_spec(paste(rep("a", 30000), collapse = "",
       name = "foo"
     )),
     "`foo` TEXT"
   )
-  expect_equal(
-    as.character(get_col_spec(paste(rep("\U2661", 30000),
+  expect_render(
+    get_col_spec(paste(rep("\U2661", 30000,
       collapse = ""
     ),
     name = "foo"
     )),
     "`foo` MEDIUMTEXT"
   )
-  expect_equal(
-    as.character(get_col_spec(c("a", "\U2661"), name = "foo")),
+  expect_render(
+    get_col_spec(c("a", "\U2661"), name = "foo"),
     "`foo` VARCHAR(3)"
   )
   expect_equal(
@@ -120,24 +120,24 @@ test_that("raw column types can be specified", {
     get_col_spec(x, name = "foo"),
     "SQL"
   )
-  expect_equal(
-    as.character(get_col_spec(x, name = "foo")),
+  expect_render(
+    get_col_spec(x, name = "foo"),
     "`foo` BINARY(48)"
   )
   expect_equal(
     get_col_spec(x, name = "foo"),
     get_col_spec(blob::as.blob(x), name = "foo")
   )
-  expect_equal(
-    as.character(get_col_spec(y, name = "foo")),
+  expect_render(
+    get_col_spec(y, name = "foo"),
     "`foo` VARBINARY(72)"
   )
-  expect_equal(
-    as.character(get_col_spec(y, name = "foo", force_blob = TRUE)),
+  expect_render(
+    get_col_spec(y, name = "foo", force_blob = TRUE),
     "`foo` TINYBLOB"
   )
-  expect_equal(
-    as.character(get_col_spec(z, name = "foo")),
+  expect_render(
+    get_col_spec(z, name = "foo"),
     "`foo` BLOB"
   )
   expect_error(get_col_spec(list()))
@@ -150,12 +150,12 @@ test_that("logical column types can be specified", {
     get_col_spec(TRUE, name = "foo"),
     "SQL"
   )
-  expect_equal(
-    as.character(get_col_spec(TRUE, name = "foo")),
+  expect_render(
+    get_col_spec(TRUE, name = "foo"),
     "`foo` BOOL"
   )
-  expect_equal(
-    as.character(get_col_spec(c(TRUE, NA, FALSE),
+  expect_render(
+    get_col_spec(c(TRUE, NA, FALSE,
       name = "foo",
       key = "primary"
     )),
@@ -168,19 +168,19 @@ test_that("factor column types can be specified", {
     get_col_spec(factor(letters), name = "foo"),
     "SQL"
   )
-  expect_equal(
-    as.character(get_col_spec(factor(letters[1:3]), name = "foo")),
+  expect_render(
+    get_col_spec(factor(letters[1:3]), name = "foo"),
     "`foo` ENUM('a', 'b', 'c')"
   )
-  expect_equal(
-    as.character(get_col_spec(factor(letters[1:3]),
+  expect_render(
+    get_col_spec(factor(letters[1:3],
       name = "foo",
       char_set = "ascii"
     )),
     "`foo` ENUM('a', 'b', 'c') CHARACTER SET 'ascii'"
   )
-  expect_equal(
-    as.character(get_col_spec(factor(letters[1:3]),
+  expect_render(
+    get_col_spec(factor(letters[1:3],
       name = "foo",
       variant = "set"
     )),
@@ -193,30 +193,30 @@ test_that("date/tome column types can be specified", {
     get_col_spec(as.POSIXct(Sys.time()), name = "foo"),
     "SQL"
   )
-  expect_equal(
-    as.character(get_col_spec(as.POSIXct(Sys.time()),
+  expect_render(
+    get_col_spec(as.POSIXct(Sys.time(),
       name = "foo"
     )),
     "`foo` DATETIME"
   )
-  expect_equal(
-    as.character(get_col_spec(as.POSIXlt(Sys.time()),
+  expect_render(
+    get_col_spec(as.POSIXlt(Sys.time(),
       name = "foo"
     )),
     "`foo` DATETIME"
   )
-  expect_equal(
-    as.character(get_col_spec(Sys.Date(), name = "foo")),
+  expect_render(
+    get_col_spec(Sys.Date(), name = "foo"),
     "`foo` DATE"
   )
-  expect_equal(
-    as.character(get_col_spec(difftime(Sys.time(), Sys.Date()),
+  expect_render(
+    get_col_spec(difftime(Sys.time(), Sys.Date(),
       name = "foo"
     )),
     "`foo` TIME"
   )
-  expect_equal(
-    as.character(get_col_spec(hms::as.hms(12), name = "foo")),
+  expect_render(
+    get_col_spec(hms::as.hms(12), name = "foo"),
     "`foo` TIME"
   )
 })
@@ -226,26 +226,26 @@ test_that("column types can be specified for a data.frame", {
   expect_true(all(sapply(get_col_spec(x), inherits, "SQL")))
   expect_type(get_col_spec(x), "list")
   expect_named(get_col_spec(x), c("a", "b"))
-  expect_equal(
-    as.character(get_col_spec(x)),
+  expect_render(
+    get_col_spec(x),
     c("`a` TINYINT UNSIGNED", "`b` ENUM('a', 'b', 'c')")
   )
-  expect_equal(
-    as.character(get_col_spec(x, nullable = FALSE)),
+  expect_render(
+    get_col_spec(x, nullable = FALSE),
     c(
       "`a` TINYINT UNSIGNED NOT NULL",
       "`b` ENUM('a', 'b', 'c') NOT NULL"
     )
   )
-  expect_equal(
-    as.character(get_col_spec(x, nullable = c(TRUE, FALSE))),
+  expect_render(
+    get_col_spec(x, nullable = c(TRUE, FALSE)),
     c(
       "`a` TINYINT UNSIGNED",
       "`b` ENUM('a', 'b', 'c') NOT NULL"
     )
   )
-  expect_equal(
-    as.character(get_col_spec(x, nullable = list(TRUE, FALSE))),
+  expect_render(
+    get_col_spec(x, nullable = list(TRUE, FALSE)),
     c(
       "`a` TINYINT UNSIGNED",
       "`b` ENUM('a', 'b', 'c') NOT NULL"
@@ -263,8 +263,8 @@ test_that("column types can be specified for a data.frame", {
       "`b` ENUM('a', 'b', 'c') NOT NULL DEFAULT 'a' COMMENT 'foo'"
     )
   )
-  expect_equal(
-    as.character(get_col_spec(tibble::as_tibble(x))),
+  expect_render(
+    get_col_spec(tibble::as_tibble(x)),
     c("`a` TINYINT UNSIGNED", "`b` ENUM('a', 'b', 'c')")
   )
 })

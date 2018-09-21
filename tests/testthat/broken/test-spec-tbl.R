@@ -13,8 +13,8 @@ test_that("tables can be specified", {
   expect_error(tbl_spec("foo", keys = "bar"))
   expect_error(tbl_spec("foo", temp = "bar"))
   expect_error(tbl_spec("foo", table_options = "bar"))
-  expect_equal(
-    as.character(tbl_spec("foo")),
+  expect_render(
+    tbl_spec("foo"),
     paste(
       "CREATE TABLE `foo` (`id` INT UNSIGNED NOT NULL",
       "AUTO_INCREMENT PRIMARY KEY) ENGINE = 'InnoDB'"
@@ -31,15 +31,15 @@ test_that("tables can be specified", {
       )
     )
   )
-  expect_equal(
-    as.character(tbl_spec("foo", temp = TRUE)),
+  expect_render(
+    tbl_spec("foo", temp = TRUE),
     paste(
       "CREATE TEMPORARY TABLE `foo` (`id` INT UNSIGNED NOT",
       "NULL AUTO_INCREMENT PRIMARY KEY) ENGINE = 'InnoDB'"
     )
   )
-  expect_equal(
-    as.character(tbl_spec("foo", force = TRUE)),
+  expect_render(
+    tbl_spec("foo", force = TRUE),
     paste(
       "CREATE TABLE IF NOT EXISTS `foo` (`id` INT UNSIGNED NOT",
       "NULL AUTO_INCREMENT PRIMARY KEY) ENGINE = 'InnoDB'"
@@ -58,24 +58,24 @@ test_that("tables can be specified", {
       "ENGINE = 'InnoDB'"
     )
   )
-  expect_equal(
-    as.character(tbl_spec("foo", auto_incr = 5L)),
+  expect_render(
+    tbl_spec("foo", auto_incr = 5L),
     paste(
       "CREATE TABLE `foo` (`id` INT UNSIGNED NOT NULL",
       "AUTO_INCREMENT PRIMARY KEY) ENGINE = 'InnoDB'",
       "AUTO_INCREMENT = 5"
     )
   )
-  expect_equal(
-    as.character(tbl_spec("foo", char_set = "foobar")),
+  expect_render(
+    tbl_spec("foo", char_set = "foobar"),
     paste(
       "CREATE TABLE `foo` (`id` INT UNSIGNED NOT NULL",
       "AUTO_INCREMENT PRIMARY KEY) ENGINE = 'InnoDB'",
       "DEFAULT CHARACTER SET = foobar"
     )
   )
-  expect_equal(
-    as.character(tbl_spec("foo", col_spec("id"), pk_spec("id"))),
+  expect_render(
+    tbl_spec("foo", col_spec("id"), pk_spec("id")),
     paste(
       "CREATE TABLE `foo` (`id` INT, PRIMARY KEY (`id`))",
       "ENGINE = 'InnoDB'"
