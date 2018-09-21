@@ -231,22 +231,30 @@ col_int.MariaDBConnection <- function(size = "int",
 #'
 #' @return SQL to be used in a CREATE table statement
 #'
-#' @export
-#'
-col_dbl <- function(..., con = get_con()) UseMethod("col_dbl", con)
-
 #' @param prec One of \code{single}, \code{double}, specifying the floating
 #' point precision the column is expected to be capable of holding.
 #' @param unsigned Logical switch specifying whether the values are singed or
 #' unsigned.
 #'
-#' @rdname col_dbl
-#'
 #' @export
 #'
-col_dbl.MariaDBConnection <- function(prec = "double",
+col_dbl <- function(prec = "double",
                                       unsigned = FALSE,
                                       ...) {
+  obj <- as.list(environment())
+  new_sqlr(obj, subclass = "col_dbl")
+}
+
+#' @export sqlr_render.sqlr_col_dbl
+#' @method sqlr_render sqlr_col_dbl
+#' @export
+sqlr_render.sqlr_col_dbl <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_dbl", con)
+
+#' @method sqlr_render.sqlr_col_dbl MariaDBConnection
+#' @export
+sqlr_render.sqlr_col_dbl.MariaDBConnection <- function(x, con, ...) {
+  list2env(x, environment())
+
   stopifnot(
     is_chr(prec, n_elem = eq(1L)),
     any(c("single", "double") %in% prec),
