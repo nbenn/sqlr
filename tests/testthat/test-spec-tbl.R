@@ -1,18 +1,20 @@
 context("mysql table specification")
 
-set_con(section = "mysql_unittest")
+setup(
+  set_con(section = "mysql_unittest")
+)
 
 test_that("tables can be specified", {
-  expect_s4_class(
+  expect_is(
     tbl_spec(),
-    "SQL"
+    "sqlr_tbl_spec"
   )
   expect_error(tbl_spec(""))
-  expect_error(tbl_spec("foo", "bar"))
+  expect_error_render(tbl_spec("foo", "bar"))
   expect_error(tbl_spec(c("foo", "bar")))
-  expect_error(tbl_spec("foo", keys = "bar"))
+  expect_error_render(tbl_spec("foo", keys = "bar"))
   expect_error(tbl_spec("foo", temp = "bar"))
-  expect_error(tbl_spec("foo", table_options = "bar"))
+  expect_error_render(tbl_spec("foo", table_options = "bar"))
   expect_render(
     tbl_spec("foo"),
     paste(
@@ -45,14 +47,14 @@ test_that("tables can be specified", {
       "NULL AUTO_INCREMENT PRIMARY KEY) ENGINE = 'InnoDB'"
     )
   )
-  expect_equal(
-    as.character(tbl_spec(
+  expect_render(
+    tbl_spec(
       "foo",
       list(
         col_spec("bar"),
         col_spec("baz", col_int())
       )
-    )),
+    ),
     paste(
       "CREATE TABLE `foo` (`bar` INT, `baz` INT)",
       "ENGINE = 'InnoDB'"
@@ -81,11 +83,11 @@ test_that("tables can be specified", {
       "ENGINE = 'InnoDB'"
     )
   )
-  expect_equal(
-    as.character(tbl_spec(
+  expect_render(
+    tbl_spec(
       "foo", col_spec("id"),
       list(key_spec("id"), uk_spec("id"))
-    )),
+    ),
     paste(
       "CREATE TABLE `foo` (`id` INT, KEY (`id`), UNIQUE KEY",
       "(`id`)) ENGINE = 'InnoDB'"
@@ -93,4 +95,6 @@ test_that("tables can be specified", {
   )
 })
 
-rm_con()
+teardown(
+  rm_con()
+)

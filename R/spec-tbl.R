@@ -49,19 +49,6 @@ tbl_spec <- function(name = paste(sample(letters, 10, TRUE),
                      table_options = NULL,
                      partition = NULL,
                      ...) {
-  obj <- as.list(environment())
-  new_sqlr(obj, subclass = "tbl_spec")
-}
-
-#' @export sqlr_render.sqlr_tbl_spec
-#' @method sqlr_render sqlr_tbl_spec
-#' @export
-sqlr_render.sqlr_tbl_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_tbl_spec", con)
-
-#' @method sqlr_render.sqlr_tbl_spec MariaDBConnection
-#' @export
-sqlr_render.sqlr_tbl_spec.MariaDBConnection <- function(x, con, ...) {
-  list2env(x, environment())
 
   stopifnot(
     is_chr(name, n_elem = eq(1L)),
@@ -76,6 +63,20 @@ sqlr_render.sqlr_tbl_spec.MariaDBConnection <- function(x, con, ...) {
     is_chr(comment, n_elem = eq(1L), allow_na = TRUE),
     is_chr(engine, n_elem = eq(1L))
   )
+
+  obj <- as.list(environment())
+  new_sqlr(obj, subclass = "tbl_spec")
+}
+
+#' @export sqlr_render.sqlr_tbl_spec
+#' @method sqlr_render sqlr_tbl_spec
+#' @export
+sqlr_render.sqlr_tbl_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_tbl_spec", con)
+
+#' @method sqlr_render.sqlr_tbl_spec MariaDBConnection
+#' @export
+sqlr_render.sqlr_tbl_spec.MariaDBConnection <- function(x, con, ...) {
+  list2env(x, environment())
 
   if (!is.null(table_options)) {
     stopifnot(inherits(table_options, "SQL"), length(table_options) >= 1)
