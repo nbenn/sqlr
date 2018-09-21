@@ -53,6 +53,38 @@ col_spec <- function(name = paste(sample(letters, 10, TRUE),
                      ...) {
   key <- match.arg(key)
 
+  if (is_chr(type)) {
+    stopifnot(is_chr(type, n_elem = eq(1L)))
+    type <-
+      switch(type,
+        col_int = ,
+        integer = ,
+        int = col_int,
+        col_dbl = ,
+        double = ,
+        numeric = col_dbl,
+        col_chr = ,
+        character = ,
+        char = col_chr,
+        col_raw = ,
+        raw = col_raw,
+        col_lgl = ,
+        logical = col_lgl,
+        col_fct = ,
+        factor = col_fct,
+        col_dtm = ,
+        dtm = ,
+        datetime = col_dtm,
+        stop("Unknown type: ", type, call. = FALSE)
+      )
+  }
+
+  if (is.function(type)) {
+    type <- type(...)
+  }
+
+  # FIXME: Check class of return type
+
   obj <- as.list(environment())
   new_sqlr(obj, subclass = "col_spec")
 }
@@ -137,20 +169,6 @@ col_int <- function(size = "int",
                     min = NA,
                     max = NA,
                     ...) {
-  obj <- as.list(environment())
-  new_sqlr(obj, subclass = "col_int")
-}
-
-#' @export sqlr_render.sqlr_col_int
-#' @method sqlr_render sqlr_col_int
-#' @export
-sqlr_render.sqlr_col_int <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_int", con)
-
-#' @method sqlr_render.sqlr_col_int MariaDBConnection
-#' @export
-sqlr_render.sqlr_col_int.MariaDBConnection <- function(x, con, ...) {
-  list2env(x, environment())
-
   if (!is.na(min) | !is.na(max)) {
     if (is.na(min)) {
       min <- bit64::as.integer64(-2147483648)
@@ -188,6 +206,20 @@ sqlr_render.sqlr_col_int.MariaDBConnection <- function(x, con, ...) {
       is_lgl(unsigned, n_elem = eq(1L))
     )
   }
+
+  obj <- list(size = size, unsigned = unsigned)
+  new_sqlr(obj, subclass = "col_int")
+}
+
+#' @export sqlr_render.sqlr_col_int
+#' @method sqlr_render sqlr_col_int
+#' @export
+sqlr_render.sqlr_col_int <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_int", con)
+
+#' @method sqlr_render.sqlr_col_int MariaDBConnection
+#' @export
+sqlr_render.sqlr_col_int.MariaDBConnection <- function(x, con, ...) {
+  list2env(x, environment())
 
   size <- switch(size,
     tiny = "TINYINT",
@@ -598,6 +630,7 @@ sqlr_render.sqlr_col_dtm.MariaDBConnection <- function(x, con, ...) {
 #'
 #' @export
 #'
+# FIXME: Rename to id_col_spec()
 col_id <- function(name = "id",
                    type = "int",
                    unsigned = TRUE,
@@ -606,18 +639,6 @@ col_id <- function(name = "id",
                    as_lst = FALSE,
                    ...) {
   obj <- as.list(environment())
-  new_sqlr(obj, subclass = "col_id")
-}
-
-#' @export sqlr_render.sqlr_col_id
-#' @method sqlr_render sqlr_col_id
-#' @export
-sqlr_render.sqlr_col_id <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_id", con)
-
-#' @method sqlr_render.sqlr_col_id MariaDBConnection
-#' @export
-sqlr_render.sqlr_col_id.MariaDBConnection <- function(x, con, ...) {
-  list2env(x, environment())
 
   spec <- col_spec(
     name = name, type = type, unsigned = unsigned,
