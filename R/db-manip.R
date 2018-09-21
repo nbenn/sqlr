@@ -65,11 +65,12 @@ write_db_tbl.MariaDBConnection <- function(name,
     is_lst(on_dupl_key, names = TRUE, allow_null = TRUE)
   )
 
-  if (!is.null(on_dupl_key))
+  if (!is.null(on_dupl_key)) {
     stopifnot(
       all(sapply(on_dupl_key, inherits, "SQL")),
       all(names(on_dupl_key) %in% names(data))
     )
+  }
   if (!is.null(partition)) stop("this is not implemented yet.")
 
   mode <- match.arg(mode)
@@ -86,10 +87,11 @@ write_db_tbl.MariaDBConnection <- function(name,
   )
 
   if (!DBI::dbExistsTable(con, name)) {
-    if ("cols" %in% names(list(...)))
+    if ("cols" %in% names(list(...))) {
       stopifnot(create_db_tbl(name = name, ...))
-    else
+    } else {
       stopifnot(create_db_tbl(name = name, cols = get_col_spec(data), ...))
+    }
   }
 
   DBI::dbBegin(con)
@@ -98,13 +100,16 @@ write_db_tbl.MariaDBConnection <- function(name,
   insert <- DBI::SQL(
     paste0(
       toupper(mode),
-      if (!is.null(priority))
-        paste0(" ", priority),
-      if (ignore)
-        " IGNORE",
+      if (!is.null(priority)) {
+        paste0(" ", priority)
+      },
+      if (ignore) {
+        " IGNORE"
+      },
       " INTO ", DBI::dbQuoteIdentifier(con, name),
-      if (!is.null(partition))
-        " PARTITION",
+      if (!is.null(partition)) {
+        " PARTITION"
+      },
       " (",
       paste0(DBI::dbQuoteIdentifier(con, names(data)),
         collapse = ", "
@@ -112,7 +117,7 @@ write_db_tbl.MariaDBConnection <- function(name,
       ") VALUES (",
       paste0(rep("?", ncol(data)), collapse = ", "),
       ")",
-      if (!is.null(on_dupl_key))
+      if (!is.null(on_dupl_key)) {
         paste(
           " ON DUPLICATE KEY UPDATE",
           paste(DBI::dbQuoteIdentifier(con, names(on_dupl_key)),
@@ -120,6 +125,7 @@ write_db_tbl.MariaDBConnection <- function(name,
             sep = " = ", collapse = ", "
           )
         )
+      }
     )
   )
 
@@ -133,10 +139,11 @@ write_db_tbl.MariaDBConnection <- function(name,
     finally = DBI::dbClearResult(rs)
     ),
     warning = function(w) {
-      if (grepl("^Factors converted to character$", conditionMessage(w)))
+      if (grepl("^Factors converted to character$", conditionMessage(w))) {
         invokeRestart("muffleWarning")
-      else
+      } else {
         warning(w)
+      }
     }
   )
 

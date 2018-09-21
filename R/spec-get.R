@@ -36,10 +36,11 @@ get_col_spec.integer64 <- function(x, ...)
 get_col_spec.numeric <- function(x, ...) {
   col_spec(...,
     type = col_dbl,
-    prec = if (!is.null(attr(x, "Csingle")) && attr(x, "Csingle"))
+    prec = if (!is.null(attr(x, "Csingle")) && attr(x, "Csingle")) {
       "single"
-    else
+    } else {
       "double"
+    }
   )
 }
 

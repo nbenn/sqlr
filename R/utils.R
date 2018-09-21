@@ -35,13 +35,16 @@ is_vec <- function(x,
                    allow_null = FALSE) {
   if (is.logical(names) & length(names) == 1) {
     check_names <- names
-    if (check_names)
+    if (check_names) {
       names <- names(x)
-    else
+    } else {
       names <- NULL
-  } else if (is.character(names))
+    }
+  } else if (is.character(names)) {
     check_names <- TRUE
-  else stop("names is expected to either be logical or character")
+  } else {
+    stop("names is expected to either be logical or character")
+  }
 
   stopifnot(is.logical(allow_na), length(allow_na) == 1)
   stopifnot(is.logical(allow_null), length(allow_null) == 1)
@@ -95,10 +98,11 @@ is_num <- function(...) is_vec(..., type = "num")
 #'
 is_int <- function(x, ..., strict = TRUE) {
   res <- is_vec(x, ..., type = if (strict) "int" else "num")
-  if (!strict & !is.null(x))
+  if (!strict & !is.null(x)) {
     res && all(floor(x) == ceiling(x), na.rm = TRUE)
-  else
+  } else {
     res
+  }
 }
 
 #' @param n_char Behaves analogously to \code{n_elem}, with \code{nchar(x)} on
@@ -110,10 +114,11 @@ is_int <- function(x, ..., strict = TRUE) {
 #'
 is_chr <- function(x, ..., n_char = gte(1L)) {
   res <- is_vec(x, ..., type = "chr")
-  if (!is.null(n_char) & !is.null(x))
+  if (!is.null(n_char) & !is.null(x)) {
     res && all(n_char(nchar(x[!is.na(x)])))
-  else
+  } else {
     res
+  }
 }
 
 #' @rdname is_vec

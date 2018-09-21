@@ -118,20 +118,25 @@ col_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
   DBI::SQL(paste0(
     DBI::dbQuoteIdentifier(con, name),
     " ", type,
-    if (!nullable)
-      " NOT NULL",
-    if (is_chr(default, n_char = NULL, allow_na = TRUE))
+    if (!nullable) {
+      " NOT NULL"
+    },
+    if (is_chr(default, n_char = NULL, allow_na = TRUE)) {
       paste(" DEFAULT", DBI::dbQuoteString(con, default))
-    else if (is_num(default))
+    } else if (is_num(default)) {
       paste(" DEFAULT", default)
-    else if (is_lgl(default))
-      paste(" DEFAULT", as.numeric(default)),
-    if (auto_increment)
-      " AUTO_INCREMENT",
-    if (!is.null(key))
-      key,
-    if (!is.null(comment) && nchar(comment) > 0)
+    } else if (is_lgl(default)) {
+      paste(" DEFAULT", as.numeric(default))
+    },
+    if (auto_increment) {
+      " AUTO_INCREMENT"
+    },
+    if (!is.null(key)) {
+      key
+    },
+    if (!is.null(comment) && nchar(comment) > 0) {
       paste(" COMMENT", DBI::dbQuoteString(con, comment))
+    }
   ))
 }
 
@@ -167,10 +172,16 @@ col_int.MariaDBConnection <- function(size = "int",
                                       max = NA,
                                       ...) {
   if (!is.na(min) | !is.na(max)) {
-    if (is.na(min)) min <- bit64::as.integer64(-2147483648)
-    else stopifnot(is_int(min, n_elem = eq(1L), strict = FALSE))
-    if (is.na(max)) max <- 2147483647L
-    else stopifnot(is_int(max, n_elem = eq(1L), strict = FALSE))
+    if (is.na(min)) {
+      min <- bit64::as.integer64(-2147483648)
+    } else {
+      stopifnot(is_int(min, n_elem = eq(1L), strict = FALSE))
+    }
+    if (is.na(max)) {
+      max <- 2147483647L
+    } else {
+      stopifnot(is_int(max, n_elem = eq(1L), strict = FALSE))
+    }
 
     stopifnot(min <= max)
 
@@ -314,16 +325,17 @@ sqlr_render.sqlr_col_chr.MariaDBConnection <- function(x, con, ...) {
   length <- as.integer(length)
 
   if (length < 256L) {
-    if (fixed)
+    if (fixed) {
       type <- paste0("CHAR(", length, ")")
-    else if (force_text)
+    } else if (force_text) {
       type <- "TINYTEXT"
-    else
+    } else {
       type <- paste0("VARCHAR(", length, ")")
+    }
   } else if (length < 65536L) {
-    if (force_text)
+    if (force_text) {
       type <- "TEXT"
-    else {
+    } else {
       type <- paste0("VARCHAR(", length, ")")
       if (length >= 16384L) {
         warning(
@@ -332,17 +344,20 @@ sqlr_render.sqlr_col_chr.MariaDBConnection <- function(x, con, ...) {
         )
       }
     }
-  } else if (length < 16777216L)
+  } else if (length < 16777216L) {
     type <- "MEDIUMTEXT"
-  else
+  } else {
     type <- "LONGTEXT"
+  }
 
   DBI::SQL(paste0(
     type,
-    if (!is.na(char_set))
-      paste(" CHARACTER SET", DBI::dbQuoteString(con, char_set)),
-    if (!is.na(collate))
+    if (!is.na(char_set)) {
+      paste(" CHARACTER SET", DBI::dbQuoteString(con, char_set))
+    },
+    if (!is.na(collate)) {
       paste(" COLLATE", DBI::dbQuoteString(con, collate))
+    }
   ))
 }
 
@@ -386,16 +401,17 @@ col_raw.MariaDBConnection <- function(length = 255L,
   if (fixed) stopifnot(length < 256L)
 
   if (length < 256L) {
-    if (fixed)
+    if (fixed) {
       type <- paste0("BINARY(", length, ")")
-    else if (force_blob)
+    } else if (force_blob) {
       type <- "TINYBLOB"
-    else
+    } else {
       type <- paste0("VARBINARY(", length, ")")
+    }
   } else if (length < 65536L) {
-    if (force_blob)
+    if (force_blob) {
       type <- "BLOB"
-    else {
+    } else {
       type <- paste0("VARBINARY(", length, ")")
       if (length >= 16384L) {
         warning(
@@ -404,10 +420,11 @@ col_raw.MariaDBConnection <- function(length = 255L,
         )
       }
     }
-  } else if (length < 16777216L)
+  } else if (length < 16777216L) {
     type <- "MEDIUMBLOB"
-  else
+  } else {
     type <- "LONGBLOB"
+  }
 
   DBI::SQL(type)
 }
@@ -473,10 +490,12 @@ col_fct.MariaDBConnection <- function(levels,
 
   DBI::SQL(paste0(
     variant,
-    if (!is.na(char_set) && nchar(char_set) > 0)
-      paste(" CHARACTER SET", DBI::dbQuoteString(con, char_set)),
-    if (!is.na(collate) && nchar(collate) > 0)
+    if (!is.na(char_set) && nchar(char_set) > 0) {
+      paste(" CHARACTER SET", DBI::dbQuoteString(con, char_set))
+    },
+    if (!is.na(collate) && nchar(collate) > 0) {
       paste(" COLLATE", DBI::dbQuoteString(con, collate))
+    }
   ))
 }
 
@@ -515,20 +534,22 @@ col_dtm.MariaDBConnection <- function(class = c(
 
     class <- class(val)
 
-    if ("POSIXt" %in% class)
+    if ("POSIXt" %in% class) {
       class <- "datetime"
-    else if ("Date" %in% class)
+    } else if ("Date" %in% class) {
       class <- "date"
-    else if ("difftime" %in% class)
+    } else if ("difftime" %in% class) {
       class <- "time"
-    else if ("numeric" %in% class | "integer" %in% class) {
+    } else if ("numeric" %in% class | "integer" %in% class) {
       val <- as.integer(val)
-      if (length(val) == 0 || nchar(val) == 4)
+      if (length(val) == 0 || nchar(val) == 4) {
         class <- "year"
-      else
+      } else {
         stop("numbers are treated as years and only 4 digits are accepted")
-    } else
+      }
+    } else {
       stop("class ", class, " is not recognized for determining col_dtm")
+    }
   } else {
     class <- match.arg(class)
   }
@@ -575,8 +596,9 @@ col_id.MariaDBConnection <- function(name = "id",
     key = key, ...
   )
 
-  if (as_lst)
+  if (as_lst) {
     stats::setNames(list(spec), name)
-  else
+  } else {
     spec
+  }
 }

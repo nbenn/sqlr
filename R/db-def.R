@@ -68,11 +68,13 @@ drop_db_tbl.MariaDBConnection <- function(tbls,
     con,
     DBI::SQL(paste0(
       "DROP",
-      if (temporary)
-        " TEMPORARY",
+      if (temporary) {
+        " TEMPORARY"
+      },
       " TABLE",
-      if (force)
-        " IF EXISTS",
+      if (force) {
+        " IF EXISTS"
+      },
       paste(DBI::dbQuoteIdentifier(con, tbls),
         collapse = ", "
       )

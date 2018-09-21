@@ -71,8 +71,9 @@ tbl_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
     is_chr(engine, n_elem = eq(1L))
   )
 
-  if (!is.null(table_options))
+  if (!is.null(table_options)) {
     stopifnot(inherits(table_options, "SQL"), length(table_options) >= 1)
+  }
   if (!is.null(partition)) stop("not implemented yet.")
 
   if (!is.list(cols)) cols <- list(cols)
@@ -85,27 +86,35 @@ tbl_spec.MariaDBConnection <- function(name = paste(sample(letters, 10, TRUE),
 
   DBI::SQL(paste0(
     "CREATE",
-    if (temp)
-      " TEMPORARY",
+    if (temp) {
+      " TEMPORARY"
+    },
     " TABLE",
-    if (force)
-      " IF NOT EXISTS",
+    if (force) {
+      " IF NOT EXISTS"
+    },
     " ", DBI::dbQuoteIdentifier(con, name),
     " (",
     paste(cols, collapse = ", "),
-    if (!is.null(keys))
-      paste(",", paste(keys, collapse = ", ")),
+    if (!is.null(keys)) {
+      paste(",", paste(keys, collapse = ", "))
+    },
     ")",
     " ENGINE = ", DBI::dbQuoteString(con, engine),
-    if (!is.na(auto_incr))
-      paste(" AUTO_INCREMENT =", auto_incr),
-    if (!is.na(char_set))
-      paste(" DEFAULT CHARACTER SET =", char_set),
-    if (!is.na(collate))
-      paste(" DEFAULT COLLATE =", collate),
-    if (!is.na(comment))
-      paste(" COMMENT =", comment),
-    if (!is.null(table_options))
+    if (!is.na(auto_incr)) {
+      paste(" AUTO_INCREMENT =", auto_incr)
+    },
+    if (!is.na(char_set)) {
+      paste(" DEFAULT CHARACTER SET =", char_set)
+    },
+    if (!is.na(collate)) {
+      paste(" DEFAULT COLLATE =", collate)
+    },
+    if (!is.na(comment)) {
+      paste(" COMMENT =", comment)
+    },
+    if (!is.null(table_options)) {
       paste0(" ", paste(table_options, collapse = " "))
+    }
   ))
 }

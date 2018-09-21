@@ -63,8 +63,9 @@ show_db_cols.MariaDBConnection <- function(tbl,
     is_lgl(full, n_elem = eq(1L)),
     is_lgl(parse, n_elem = eq(1L))
   )
-  if (!is.null(where))
+  if (!is.null(where)) {
     stopifnot(inherits(where, "SQL"), length(where) == 1)
+  }
 
   stopifnot(DBI::dbExistsTable(con, tbl))
 
@@ -73,10 +74,12 @@ show_db_cols.MariaDBConnection <- function(tbl,
     if (full) " FULL",
     " COLUMNS",
     paste(" FROM", DBI::dbQuoteIdentifier(con, tbl)),
-    if (!is.null(like))
-      paste(" LIKE", DBI::dbQuoteString(con, like)),
-    if (!is.null(where) && nchar(where) > 0)
+    if (!is.null(like)) {
+      paste(" LIKE", DBI::dbQuoteString(con, like))
+    },
+    if (!is.null(where) && nchar(where) > 0) {
       paste(" WHERE", where)
+    }
   ))
 
   res <- tibble::as_tibble(DBI::dbGetQuery(con, query))
@@ -89,8 +92,9 @@ show_db_cols.MariaDBConnection <- function(tbl,
       res[, !names(res) %in% c("Field", "Type")]
     ))
 
-    if (!is.logical(res$Null))
+    if (!is.logical(res$Null)) {
       res$Null <- grepl("yes", res$Null, ignore.case = TRUE)
+    }
 
     if ("Collation" %in% names(res)) {
       res <- tibble::add_column(res,
@@ -218,10 +222,11 @@ parse_data_type.MariaDBConnection <- function(x,
 
   parse_length <- function(str) {
     str <- tryCatch(as.integer(str), warning = function(w) {
-      if (grepl("^NAs introduced by coercion$", conditionMessage(w)))
+      if (grepl("^NAs introduced by coercion$", conditionMessage(w))) {
         str
-      else
+      } else {
         warning(w)
+      }
     })
 
     to_parse <- !is.integer(str) & !is.null(str) & !is.na(str)
@@ -294,15 +299,17 @@ parse_col_spec.MariaDBConnection <- function(x,
     quoted <- grepl("^`", str)
     nme <- character(length(quoted))
 
-    if (any(quoted))
+    if (any(quoted)) {
       nme[quoted] <- sub("`(?:.(?!`))+$", "`", str[quoted], perl = TRUE)
-    if (!all(quoted))
+    }
+    if (!all(quoted)) {
       nme[!quoted] <- regmatches(
         str[!quoted],
         regexpr("^([^\\s]+)", str[!quoted],
           perl = TRUE
         )
       )
+    }
     nme
   }
 
@@ -310,7 +317,7 @@ parse_col_spec.MariaDBConnection <- function(x,
   extract_additional <- function(str, what) {
     to_parse <- grepl(what, str)
     res <- character(length(to_parse))
-    if (any(to_parse))
+    if (any(to_parse)) {
       res[to_parse] <- regmatches(
         str[to_parse],
         regexpr(paste0("(?<=", what, "\\s)[^\\s]+"),
@@ -318,6 +325,7 @@ parse_col_spec.MariaDBConnection <- function(x,
           perl = TRUE, ignore.case = TRUE
         )
       )
+    }
     res[!to_parse] <- NA_character_
     unquote_str(res, con)
   }

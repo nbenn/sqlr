@@ -98,15 +98,17 @@ fk_spec.MariaDBConnection <- function(child_ind,
   }
 
   DBI::SQL(paste0(
-    if (!is.na(constr_name))
+    if (!is.na(constr_name)) {
       paste0(
         "CONSTRAINT ",
         DBI::dbQuoteIdentifier(con, constr_name),
         " "
-      ),
+      )
+    },
     "FOREIGN KEY",
-    if (!is.na(index_name))
-      paste0(" ", DBI::dbQuoteIdentifier(con, index_name)),
+    if (!is.na(index_name)) {
+      paste0(" ", DBI::dbQuoteIdentifier(con, index_name))
+    },
     " (",
     paste(DBI::dbQuoteIdentifier(con, child_ind),
       collapse = ", "
@@ -119,8 +121,9 @@ fk_spec.MariaDBConnection <- function(child_ind,
       collapse = ", "
     ),
     ")",
-    if (!is.na(match))
-      paste("MATCH", toupper(match)),
+    if (!is.na(match)) {
+      paste("MATCH", toupper(match))
+    },
     " ON DELETE ", ref_opts[[on_del]],
     " ON UPDATE ", ref_opts[[on_upd]]
   ))
@@ -179,24 +182,28 @@ pk_spec.MariaDBConnection <- function(cols,
   type <- match.arg(type)
 
   DBI::SQL(paste0(
-    if (!is.na(constr_name))
+    if (!is.na(constr_name)) {
       paste0(
         "CONSTRAINT ",
         DBI::dbQuoteIdentifier(con, constr_name),
         " "
-      ),
+      )
+    },
     "PRIMARY KEY",
-    if (!is.na(type))
-      paste0(" USING ", toupper(type)),
+    if (!is.na(type)) {
+      paste0(" USING ", toupper(type))
+    },
     " (",
     paste(DBI::dbQuoteIdentifier(con, cols),
       collapse = ", "
     ),
     ")",
-    if (!is.na(block_size))
-      paste0(" KEY_BLOCK_SIZE = ", block_size),
-    if (!is.na(comment))
+    if (!is.na(block_size)) {
+      paste0(" KEY_BLOCK_SIZE = ", block_size)
+    },
+    if (!is.na(comment)) {
       paste0(" COMMENT ", DBI::dbQuoteString(con, comment))
+    }
   ))
 }
 
@@ -242,26 +249,31 @@ uk_spec.MariaDBConnection <- function(cols,
   type <- match.arg(type)
 
   DBI::SQL(paste0(
-    if (!is.na(constr_name))
+    if (!is.na(constr_name)) {
       paste0(
         "CONSTRAINT ",
         DBI::dbQuoteIdentifier(con, constr_name),
         " "
-      ),
+      )
+    },
     "UNIQUE KEY",
-    if (!is.na(index_name))
-      paste0(" ", DBI::dbQuoteIdentifier(con, index_name)),
-    if (!is.na(type))
-      paste0(" USING ", toupper(type)),
+    if (!is.na(index_name)) {
+      paste0(" ", DBI::dbQuoteIdentifier(con, index_name))
+    },
+    if (!is.na(type)) {
+      paste0(" USING ", toupper(type))
+    },
     " (",
     paste(DBI::dbQuoteIdentifier(con, cols),
       collapse = ", "
     ),
     ")",
-    if (!is.na(block_size))
-      paste0(" KEY_BLOCK_SIZE = ", block_size),
-    if (!is.na(comment))
+    if (!is.na(block_size)) {
+      paste0(" KEY_BLOCK_SIZE = ", block_size)
+    },
+    if (!is.na(comment)) {
       paste0(" COMMENT ", DBI::dbQuoteString(con, comment))
+    }
   ))
 }
 
@@ -305,19 +317,23 @@ key_spec.MariaDBConnection <- function(cols,
 
   DBI::SQL(paste0(
     "KEY",
-    if (!is.na(index_name))
-      paste0(" ", DBI::dbQuoteIdentifier(con, index_name)),
-    if (!is.na(type))
-      paste0(" USING ", toupper(type)),
+    if (!is.na(index_name)) {
+      paste0(" ", DBI::dbQuoteIdentifier(con, index_name))
+    },
+    if (!is.na(type)) {
+      paste0(" USING ", toupper(type))
+    },
     " (",
     paste(DBI::dbQuoteIdentifier(con, cols),
       collapse = ", "
     ),
     ")",
-    if (!is.na(block_size))
-      paste0(" KEY_BLOCK_SIZE = ", block_size),
-    if (!is.na(comment))
+    if (!is.na(block_size)) {
+      paste0(" KEY_BLOCK_SIZE = ", block_size)
+    },
+    if (!is.na(comment)) {
       paste0(" COMMENT ", DBI::dbQuoteString(con, comment))
+    }
   ))
 }
 
@@ -367,17 +383,20 @@ ft_key_spec.MariaDBConnection <- function(cols,
 
   DBI::SQL(paste0(
     "FULLTEXT KEY",
-    if (!is.na(index_name))
-      paste0(" ", DBI::dbQuoteIdentifier(con, index_name)),
+    if (!is.na(index_name)) {
+      paste0(" ", DBI::dbQuoteIdentifier(con, index_name))
+    },
     " (",
     paste(DBI::dbQuoteIdentifier(con, cols),
       collapse = ", "
     ),
     ")",
-    if (!is.na(parser))
-      paste0(" WITH PARSER ", parser),
-    if (!is.na(comment))
+    if (!is.na(parser)) {
+      paste0(" WITH PARSER ", parser)
+    },
+    if (!is.na(comment)) {
       paste0(" COMMENT ", DBI::dbQuoteString(con, comment))
+    }
   ))
 }
 
@@ -416,14 +435,16 @@ spat_key_spec.MariaDBConnection <- function(cols,
 
   DBI::SQL(paste0(
     "SPATIAL KEY",
-    if (!is.na(index_name))
-      paste0(" ", DBI::dbQuoteIdentifier(con, index_name)),
+    if (!is.na(index_name)) {
+      paste0(" ", DBI::dbQuoteIdentifier(con, index_name))
+    },
     " (",
     paste(DBI::dbQuoteIdentifier(con, cols),
       collapse = ", "
     ),
     ")",
-    if (!is.na(comment))
+    if (!is.na(comment)) {
       paste0(" COMMENT ", DBI::dbQuoteString(con, comment))
+    }
   ))
 }

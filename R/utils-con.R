@@ -27,9 +27,13 @@ load_config <- function(file_name = NULL,
   }
 
   find_section <- function(lst, sec) {
-    if (!is.list(lst)) NULL
-    else if (sec %in% names(lst)) section <<- lst[[sec]]
-    else lapply(lst, find_section, sec)
+    if (!is.list(lst)) {
+      NULL
+    } else if (sec %in% names(lst)) {
+      section <<- lst[[sec]]
+    } else {
+      lapply(lst, find_section, sec)
+    }
   }
 
   stopifnot(
@@ -47,16 +51,20 @@ load_config <- function(file_name = NULL,
     }
 
     stopifnot(!is.na(file_name))
-  } else stopifnot(file.exists(file_name))
+  } else {
+    stopifnot(file.exists(file_name))
+  }
 
   cfg <- yaml::yaml.load_file(file_name)
 
   if (!is.null(section)) {
-    if (is.null(unlist(find_section(cfg, section))))
+    if (is.null(unlist(find_section(cfg, section)))) {
       stop("section ", section, " not found in ", file_name)
+    }
     section
-  } else
+  } else {
     cfg
+  }
 }
 
 #' @title Set the database connection
@@ -78,14 +86,16 @@ set_con <- function(file_name = NULL,
                     update = FALSE) {
   stopifnot(is_lgl(update, n_elem = eq(1L)))
 
-  if (!is.null(config$con) && (!DBI::dbIsValid(config$con) || update))
+  if (!is.null(config$con) && (!DBI::dbIsValid(config$con) || update)) {
     rm_con()
+  }
 
   if (is.null(config$con)) {
     config$con <- connect_db(load_config(file_name, section))
     invisible(TRUE)
-  } else
+  } else {
     invisible(FALSE)
+  }
 }
 
 #' @title Get the database connection
@@ -168,8 +178,9 @@ connect_mysql <- function(...) {
         root_dots <- dots[names(dots) != "dbname"]
 
         root_dots$username <- readline()
-        if (root_dots$username == "")
+        if (root_dots$username == "") {
           root_dots$username <- "root"
+        }
 
         message("Please enter the password: ", appendLF = FALSE)
         root_dots$password <- readline()
@@ -195,15 +206,18 @@ connect_mysql <- function(...) {
             ".* TO ",
             DBI::dbQuoteString(root_con, dots$username), "@",
             DBI::dbQuoteString(root_con, dots$host),
-            if (!is.null(dots$password))
+            if (!is.null(dots$password)) {
               paste(
                 " IDENTIFIED BY",
                 DBI::dbQuoteString(root_con, dots$password)
               )
+            }
           ))
         ))
         do.call(DBI::dbConnect, c(RMariaDB::MariaDB(), dots))
-      } else stop(e)
+      } else {
+        stop(e)
+      }
       # nocov end
     }
   )
