@@ -257,8 +257,6 @@ col_dbl.MariaDBConnection <- function(prec = "double",
 #'
 #' @export
 #'
-col_chr <- function(..., con = get_con()) UseMethod("col_chr", con)
-
 #' @param length The maximum length of string the column is expected to hold.
 #' @param fixed Logical switch specifying whether strings are fixed length
 #' or varying in length.
@@ -267,8 +265,6 @@ col_chr <- function(..., con = get_con()) UseMethod("col_chr", con)
 #' rest of the row. TEXT columns only contribute 9 to 12 bytes toward the row
 #' size limit (65,535 bytes).
 #' @param char_set,collate The character set and collation used.
-#'
-#' @rdname col_chr
 #'
 #' @section TODO: implement a function show_db_charset that fetches SHOW
 #' CHARACTER SET and use the results for checking if the char_set is listed.
@@ -279,13 +275,25 @@ col_chr <- function(..., con = get_con()) UseMethod("col_chr", con)
 
 #' @export
 #'
-col_chr.MariaDBConnection <- function(length = 255L,
+col_chr <- function(length = 255L,
                                       fixed = FALSE,
                                       force_text = length >= 16384L,
                                       char_set = NA_character_,
                                       collate = NA_character_,
-                                      con = get_con(),
                                       ...) {
+  obj <- as.list(environment())
+  new_sqlr(obj, subclass = "col_chr")
+}
+
+#' @export sqlr_render.sqlr_col_chr
+#' @method sqlr_render sqlr_col_chr
+#' @export
+sqlr_render.sqlr_col_chr <- function(x, con, ...) UseMethod("sql_render.sqlr_col_chr", con)
+
+#' @method sqlr_render.sqlr_col_chr MariaDBConnection
+#' @export
+sqlr_render.sqlr_col_chr.MariaDBConnection <- function(x, con, ...) {
+  list2env(x, environment())
 
   stopifnot(is_int(length, n_elem = eq(1L), strict = FALSE), length > 0L,
             is_lgl(fixed, n_elem = eq(1L)),
