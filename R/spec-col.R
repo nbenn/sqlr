@@ -42,15 +42,15 @@
 #' @export
 #'
 col_spec <- function(name = paste(sample(letters, 10, TRUE),
-                                         collapse = ""
-                                       ),
-                                       type = col_int(),
-                                       nullable = TRUE,
-                                       default = NULL,
-                                       auto_increment = FALSE,
-                                       key = c(NA, "unique", "primary", "key"),
-                                       comment = NULL,
-                                       ...) {
+                       collapse = ""
+                     ),
+                     type = col_int(),
+                     nullable = TRUE,
+                     default = NULL,
+                     auto_increment = FALSE,
+                     key = c(NA, "unique", "primary", "key"),
+                     comment = NULL,
+                     ...) {
   key <- match.arg(key)
 
   obj <- as.list(environment())
@@ -133,10 +133,10 @@ sqlr_render.sqlr_col_spec.MariaDBConnection <- function(x, con, ...) {
 #' @export
 #'
 col_int <- function(size = "int",
-                                      unsigned = FALSE,
-                                      min = NA,
-                                      max = NA,
-                                      ...) {
+                    unsigned = FALSE,
+                    min = NA,
+                    max = NA,
+                    ...) {
   obj <- as.list(environment())
   new_sqlr(obj, subclass = "col_int")
 }
@@ -219,8 +219,8 @@ sqlr_render.sqlr_col_int.MariaDBConnection <- function(x, con, ...) {
 #' @export
 #'
 col_dbl <- function(prec = "double",
-                                      unsigned = FALSE,
-                                      ...) {
+                    unsigned = FALSE,
+                    ...) {
   obj <- as.list(environment())
   new_sqlr(obj, subclass = "col_dbl")
 }
@@ -371,9 +371,9 @@ sqlr_render.sqlr_col_chr.MariaDBConnection <- function(x, con, ...) {
 #' @export
 #'
 col_raw <- function(length = 255L,
-                                      fixed = FALSE,
-                                      force_blob = length >= 16384L,
-                                      ...) {
+                    fixed = FALSE,
+                    force_blob = length >= 16384L,
+                    ...) {
   obj <- as.list(environment())
   new_sqlr(obj, subclass = "col_raw")
 }
@@ -471,10 +471,10 @@ sqlr_render.sqlr_col_lgl.MariaDBConnection <- function(x, con, ...) {
 #' @export
 #'
 col_fct <- function(levels,
-                                      variant = c("enum", "set"),
-                                      char_set = NA_character_,
-                                      collate = NA_character_,
-                                      ...) {
+                    variant = c("enum", "set"),
+                    char_set = NA_character_,
+                    collate = NA_character_,
+                    ...) {
   variant <- match.arg(variant)
 
   obj <- as.list(environment())
@@ -532,12 +532,11 @@ sqlr_render.sqlr_col_fct.MariaDBConnection <- function(x, con, ...) {
 #' @export
 #'
 col_dtm <- function(class = c(
-                                        "datetime", "date", "time",
-                                        "year"
-                                      ),
-                                      val = NULL,
-                                      ...) {
-
+                      "datetime", "date", "time",
+                      "year"
+                    ),
+                    val = NULL,
+                    ...) {
   if (!is.null(val)) {
     if (!missing(class)) warning("param \"class\" will be ignored.")
 
@@ -600,12 +599,12 @@ sqlr_render.sqlr_col_dtm.MariaDBConnection <- function(x, con, ...) {
 #' @export
 #'
 col_id <- function(name = "id",
-                                     type = "int",
-                                     unsigned = TRUE,
-                                     auto_increment = TRUE,
-                                     key = "primary",
-                                     as_lst = FALSE,
-                                     ...) {
+                   type = "int",
+                   unsigned = TRUE,
+                   auto_increment = TRUE,
+                   key = "primary",
+                   as_lst = FALSE,
+                   ...) {
   obj <- as.list(environment())
   new_sqlr(obj, subclass = "col_id")
 }

@@ -35,20 +35,20 @@
 #' @export
 #'
 tbl_spec <- function(name = paste(sample(letters, 10, TRUE),
-                                         collapse = ""
-                                       ),
-                                       cols = col_id(),
-                                       keys = NULL,
-                                       temp = FALSE,
-                                       force = FALSE,
-                                       engine = "InnoDB",
-                                       auto_incr = NA_integer_,
-                                       char_set = NA_character_,
-                                       collate = NA_character_,
-                                       comment = NA_character_,
-                                       table_options = NULL,
-                                       partition = NULL,
-                                       ...) {
+                       collapse = ""
+                     ),
+                     cols = col_id(),
+                     keys = NULL,
+                     temp = FALSE,
+                     force = FALSE,
+                     engine = "InnoDB",
+                     auto_incr = NA_integer_,
+                     char_set = NA_character_,
+                     collate = NA_character_,
+                     comment = NA_character_,
+                     table_options = NULL,
+                     partition = NULL,
+                     ...) {
   obj <- as.list(environment())
   new_sqlr(obj, subclass = "tbl_spec")
 }
@@ -83,12 +83,12 @@ sqlr_render.sqlr_tbl_spec.MariaDBConnection <- function(x, con, ...) {
   if (!is.null(partition)) stop("not implemented yet.")
 
   if (!is.list(cols)) cols <- list(cols)
-  #FIXME
-  #stopifnot(all(sapply(cols, inherits, "sqlr_col"), length(cols) >= 1))
+  # FIXME
+  # stopifnot(all(sapply(cols, inherits, "sqlr_col"), length(cols) >= 1))
 
   if (!is.null(keys)) {
     if (!is.list(keys)) keys <- list(keys)
-    #stopifnot(all(sapply(keys, inherits, "SQL")), length(keys) >= 1)
+    # stopifnot(all(sapply(keys, inherits, "SQL")), length(keys) >= 1)
   }
 
   DBI::SQL(paste0(

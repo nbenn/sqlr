@@ -32,18 +32,18 @@
 #' @export
 #'
 fk_spec <- function(child_ind,
-                                      parent_tbl,
-                                      parent_ind,
-                                      constr_name = NA_character_,
-                                      index_name = NA_character_,
-                                      match = c(
-                                        NA, "simple", "full",
-                                        "partial"
-                                      ),
-                                      on_del = "cascade",
-                                      on_upd = "cascade",
-                                      check = TRUE,
-                                      ...) {
+                    parent_tbl,
+                    parent_ind,
+                    constr_name = NA_character_,
+                    index_name = NA_character_,
+                    match = c(
+                      NA, "simple", "full",
+                      "partial"
+                    ),
+                    on_del = "cascade",
+                    on_upd = "cascade",
+                    check = TRUE,
+                    ...) {
   match <- match.arg(match)
 
   obj <- as.list(environment())
@@ -162,11 +162,11 @@ sqlr_render.sqlr_fk_spec.MariaDBConnection <- function(x, con, ...) {
 #' @export
 #'
 pk_spec <- function(cols,
-                                      constr_name = NA_character_,
-                                      type = c(NA, "btree", "hash"),
-                                      block_size = NA_integer_,
-                                      comment = NA_character_,
-                                      ...) {
+                    constr_name = NA_character_,
+                    type = c(NA, "btree", "hash"),
+                    block_size = NA_integer_,
+                    comment = NA_character_,
+                    ...) {
   type <- match.arg(type)
 
   obj <- as.list(environment())
@@ -236,12 +236,12 @@ sqlr_render.sqlr_pk_spec.MariaDBConnection <- function(x, con, ...) {
 #' @export
 #'
 uk_spec <- function(cols,
-                                      constr_name = NA_character_,
-                                      index_name = NA_character_,
-                                      type = c(NA, "btree", "hash"),
-                                      block_size = NA_integer_,
-                                      comment = NA_character_,
-                                      ...) {
+                    constr_name = NA_character_,
+                    index_name = NA_character_,
+                    type = c(NA, "btree", "hash"),
+                    block_size = NA_integer_,
+                    comment = NA_character_,
+                    ...) {
   type <- match.arg(type)
 
   obj <- as.list(environment())
@@ -311,11 +311,11 @@ sqlr_render.sqlr_uk_spec.MariaDBConnection <- function(x, con, ...) {
 #' @export
 #'
 key_spec <- function(cols,
-                                       index_name = NA_character_,
-                                       type = c(NA, "btree", "hash"),
-                                       block_size = NA_integer_,
-                                       comment = NA_character_,
-                                       ...) {
+                     index_name = NA_character_,
+                     type = c(NA, "btree", "hash"),
+                     block_size = NA_integer_,
+                     comment = NA_character_,
+                     ...) {
   type <- match.arg(type)
 
   obj <- as.list(environment())
@@ -386,10 +386,10 @@ sqlr_render.sqlr_key_spec.MariaDBConnection <- function(x, con, ...) {
 #' @export
 #'
 ft_key_spec <- function(cols,
-                                          index_name = NA_character_,
-                                          parser = NA_character_,
-                                          comment = NA_character_,
-                                          ...) {
+                        index_name = NA_character_,
+                        parser = NA_character_,
+                        comment = NA_character_,
+                        ...) {
   obj <- as.list(environment())
   new_sqlr(obj, subclass = "ft_key_spec")
 }
@@ -446,9 +446,9 @@ sqlr_render.sqlr_ft_key_spec.MariaDBConnection <- function(x, con, ...) {
 #' @export
 #'
 spat_key_spec <- function(cols,
-                                            index_name = NA_character_,
-                                            comment = NA_character_,
-                                            ...) {
+                          index_name = NA_character_,
+                          comment = NA_character_,
+                          ...) {
   obj <- as.list(environment())
   new_sqlr(obj, subclass = "spat_key_spec")
 }
