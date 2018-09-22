@@ -111,6 +111,7 @@ col_spec <- function(name = paste(sample(letters, 10, TRUE),
 #' @export sqlr_render.sqlr_col_spec
 #' @method sqlr_render sqlr_col_spec
 #' @export
+#' @rdname sqlr_render
 sqlr_render.sqlr_col_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_spec", con)
 
 #' @method sqlr_render.sqlr_col_spec MariaDBConnection
@@ -213,6 +214,7 @@ col_int <- function(size = "int",
 #' @export sqlr_render.sqlr_col_int
 #' @method sqlr_render sqlr_col_int
 #' @export
+#' @rdname sqlr_render
 sqlr_render.sqlr_col_int <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_int", con)
 
 #' @method sqlr_render.sqlr_col_int MariaDBConnection
@@ -259,6 +261,7 @@ col_dbl <- function(prec = "double",
 #' @export sqlr_render.sqlr_col_dbl
 #' @method sqlr_render sqlr_col_dbl
 #' @export
+#' @rdname sqlr_render
 sqlr_render.sqlr_col_dbl <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_dbl", con)
 
 #' @method sqlr_render.sqlr_col_dbl MariaDBConnection
@@ -324,6 +327,7 @@ col_chr <- function(length = 255L,
 #' @export sqlr_render.sqlr_col_chr
 #' @method sqlr_render sqlr_col_chr
 #' @export
+#' @rdname sqlr_render
 sqlr_render.sqlr_col_chr <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_chr", con)
 
 #' @method sqlr_render.sqlr_col_chr MariaDBConnection
@@ -412,6 +416,7 @@ col_raw <- function(length = 255L,
 #' @export sqlr_render.sqlr_col_raw
 #' @method sqlr_render sqlr_col_raw
 #' @export
+#' @rdname sqlr_render
 sqlr_render.sqlr_col_raw <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_raw", con)
 
 #' @method sqlr_render.sqlr_col_raw MariaDBConnection
@@ -474,6 +479,7 @@ col_lgl <- function(...) {
 #' @export sqlr_render.sqlr_col_lgl
 #' @method sqlr_render sqlr_col_lgl
 #' @export
+#' @rdname sqlr_render
 sqlr_render.sqlr_col_lgl <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_lgl", con)
 
 #' @method sqlr_render.sqlr_col_lgl MariaDBConnection
@@ -515,6 +521,7 @@ col_fct <- function(levels,
 #' @export sqlr_render.sqlr_col_fct
 #' @method sqlr_render sqlr_col_fct
 #' @export
+#' @rdname sqlr_render
 sqlr_render.sqlr_col_fct <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_fct", con)
 
 #' @method sqlr_render.sqlr_col_fct MariaDBConnection
@@ -600,6 +607,7 @@ col_dtm <- function(class = c(
 #' @export sqlr_render.sqlr_col_dtm
 #' @method sqlr_render sqlr_col_dtm
 #' @export
+#' @rdname sqlr_render
 sqlr_render.sqlr_col_dtm <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_dtm", con)
 
 #' @method sqlr_render.sqlr_col_dtm MariaDBConnection
