@@ -5,9 +5,9 @@
 \alias{parse_col_spec.MariaDBConnection}
 \title{Parse SQL column definitions}
 \usage{
-parse_col_spec(..., con = get_con())
+parse_col_spec(..., con)
 
-\method{parse_col_spec}{MariaDBConnection}(x, con = get_con(), ...)
+\method{parse_col_spec}{MariaDBConnection}(x, ..., con)
 }
 \arguments{
 \item{...}{Arguments passed to the S3 methods}

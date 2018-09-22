@@ -5,9 +5,9 @@
 \alias{parse_data_type.MariaDBConnection}
 \title{Parse SQL data type definitions}
 \usage{
-parse_data_type(..., con = get_con())
+parse_data_type(..., con)
 
-\method{parse_data_type}{MariaDBConnection}(x, con = get_con(), ...)
+\method{parse_data_type}{MariaDBConnection}(x, ..., con)
 }
 \arguments{
 \item{...}{Arguments passed to the S3 methods}

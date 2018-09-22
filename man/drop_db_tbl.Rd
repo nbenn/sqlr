@@ -5,10 +5,10 @@
 \alias{drop_db_tbl.MariaDBConnection}
 \title{Delete database table(s)}
 \usage{
-drop_db_tbl(..., con = get_con())
+drop_db_tbl(..., con)
 
 \method{drop_db_tbl}{MariaDBConnection}(tbls, temporary = FALSE,
-  force = FALSE, con = get_con(), ...)
+  force = FALSE, ..., con)
 }
 \arguments{
 \item{...}{Arguments passed to the S3 methods}
