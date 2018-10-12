@@ -7,7 +7,7 @@
 \usage{
 create_db_tbl(..., con = get_con())
 
-\method{create_db_tbl}{MariaDBConnection}(..., con = get_con())
+\method{create_db_tbl}{MariaDBConnection}(..., con)
 }
 \arguments{
 \item{...}{Arguments passed to the S3 methods; will end up as the arguments
