@@ -65,6 +65,7 @@ fk_spec <- function(child_ind,
 #' @export sqlr_render.sqlr_fk_spec
 #' @method sqlr_render sqlr_fk_spec
 #' @export
+#' @rdname sqlr_render
 sqlr_render.sqlr_fk_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_fk_spec", con)
 
 #' @method sqlr_render.sqlr_fk_spec MariaDBConnection
@@ -188,6 +189,7 @@ pk_spec <- function(cols,
 #' @export sqlr_render.sqlr_pk_spec
 #' @method sqlr_render sqlr_pk_spec
 #' @export
+#' @rdname sqlr_render
 sqlr_render.sqlr_pk_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_pk_spec", con)
 
 #' @method sqlr_render.sqlr_pk_spec MariaDBConnection
@@ -262,6 +264,7 @@ uk_spec <- function(cols,
 #' @export sqlr_render.sqlr_uk_spec
 #' @method sqlr_render sqlr_uk_spec
 #' @export
+#' @rdname sqlr_render
 sqlr_render.sqlr_uk_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_uk_spec", con)
 
 #' @method sqlr_render.sqlr_uk_spec MariaDBConnection
@@ -336,6 +339,7 @@ key_spec <- function(cols,
 #' @export sqlr_render.sqlr_key_spec
 #' @method sqlr_render sqlr_key_spec
 #' @export
+#' @rdname sqlr_render
 sqlr_render.sqlr_key_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_key_spec", con)
 
 #' @method sqlr_render.sqlr_key_spec MariaDBConnection
@@ -409,6 +413,7 @@ ft_key_spec <- function(cols,
 #' @export sqlr_render.sqlr_ft_key_spec
 #' @method sqlr_render sqlr_ft_key_spec
 #' @export
+#' @rdname sqlr_render
 sqlr_render.sqlr_ft_key_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_ft_key_spec", con)
 
 #' @method sqlr_render.sqlr_ft_key_spec MariaDBConnection
@@ -468,6 +473,7 @@ spat_key_spec <- function(cols,
 #' @export sqlr_render.sqlr_spat_key_spec
 #' @method sqlr_render sqlr_spat_key_spec
 #' @export
+#' @rdname sqlr_render
 sqlr_render.sqlr_spat_key_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_spat_key_spec", con)
 
 #' @method sqlr_render.sqlr_spat_key_spec MariaDBConnection

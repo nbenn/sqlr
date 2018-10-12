@@ -71,6 +71,7 @@ tbl_spec <- function(name = paste(sample(letters, 10, TRUE),
 #' @export sqlr_render.sqlr_tbl_spec
 #' @method sqlr_render sqlr_tbl_spec
 #' @export
+#' @rdname sqlr_render
 sqlr_render.sqlr_tbl_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_tbl_spec", con)
 
 #' @method sqlr_render.sqlr_tbl_spec MariaDBConnection
