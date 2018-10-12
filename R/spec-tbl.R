@@ -72,58 +72,58 @@ tbl_spec <- function(name = paste(sample(letters, 10, TRUE),
 #' @method sqlr_render sqlr_tbl_spec
 #' @export
 #' @rdname sqlr_render
-sqlr_render.sqlr_tbl_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_tbl_spec", con)
+sqlr_render.sqlr_tbl_spec <- function(x, con, ...)
+  UseMethod("sqlr_render.sqlr_tbl_spec", con)
 
 #' @method sqlr_render.sqlr_tbl_spec MariaDBConnection
 #' @export
 sqlr_render.sqlr_tbl_spec.MariaDBConnection <- function(x, con, ...) {
-  list2env(x, environment())
 
-  if (!is.null(table_options)) {
-    stopifnot(inherits(table_options, "SQL"), length(table_options) >= 1)
+  if (!is.null(x$table_options)) {
+    stopifnot(inherits(x$table_options, "SQL"), length(x$table_options) >= 1)
   }
-  if (!is.null(partition)) stop("not implemented yet.")
+  if (!is.null(x$partition)) stop("not implemented yet.")
 
-  if (!is.list(cols)) cols <- list(cols)
+  if (!is.list(x$cols)) x$cols <- list(x$cols)
   # FIXME
   # stopifnot(all(sapply(cols, inherits, "sqlr_col"), length(cols) >= 1))
 
-  if (!is.null(keys)) {
-    if (!is.list(keys)) keys <- list(keys)
+  if (!is.null(x$keys)) {
+    if (!is.list(x$keys)) x$keys <- list(x$keys)
     # stopifnot(all(sapply(keys, inherits, "SQL")), length(keys) >= 1)
   }
 
   DBI::SQL(paste0(
     "CREATE",
-    if (temp) {
+    if (x$temp) {
       " TEMPORARY"
     },
     " TABLE",
-    if (force) {
+    if (x$force) {
       " IF NOT EXISTS"
     },
-    " ", DBI::dbQuoteIdentifier(con, name),
+    " ", DBI::dbQuoteIdentifier(con, x$name),
     " (",
-    paste(sqlr_render(cols, con), collapse = ", "),
-    if (!is.null(keys)) {
-      paste(",", paste(sqlr_render(keys, con), collapse = ", "))
+    paste(sqlr_render(x$cols, con), collapse = ", "),
+    if (!is.null(x$keys)) {
+      paste(",", paste(sqlr_render(x$keys, con), collapse = ", "))
     },
     ")",
-    " ENGINE = ", DBI::dbQuoteString(con, engine),
-    if (!is.na(auto_incr)) {
-      paste(" AUTO_INCREMENT =", auto_incr)
+    " ENGINE = ", DBI::dbQuoteString(con, x$engine),
+    if (!is.na(x$auto_incr)) {
+      paste(" AUTO_INCREMENT =", x$auto_incr)
     },
-    if (!is.na(char_set)) {
-      paste(" DEFAULT CHARACTER SET =", char_set)
+    if (!is.na(x$char_set)) {
+      paste(" DEFAULT CHARACTER SET =", x$char_set)
     },
-    if (!is.na(collate)) {
-      paste(" DEFAULT COLLATE =", collate)
+    if (!is.na(x$collate)) {
+      paste(" DEFAULT COLLATE =", x$collate)
     },
-    if (!is.na(comment)) {
-      paste(" COMMENT =", comment)
+    if (!is.na(x$comment)) {
+      paste(" COMMENT =", x$comment)
     },
-    if (!is.null(table_options)) {
-      paste0(" ", paste(table_options, collapse = " "))
+    if (!is.null(x$table_options)) {
+      paste0(" ", paste(x$table_options, collapse = " "))
     }
   ))
 }

@@ -66,14 +66,14 @@ fk_spec <- function(child_ind,
 #' @method sqlr_render sqlr_fk_spec
 #' @export
 #' @rdname sqlr_render
-sqlr_render.sqlr_fk_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_fk_spec", con)
+sqlr_render.sqlr_fk_spec <- function(x, con, ...)
+  UseMethod("sqlr_render.sqlr_fk_spec", con)
 
 #' @method sqlr_render.sqlr_fk_spec MariaDBConnection
 #' @export
 sqlr_render.sqlr_fk_spec.MariaDBConnection <- function(x, con, ...) {
-  list2env(x, environment())
 
-  if (!is.na(match)) {
+  if (!is.na(x$match)) {
     warning(paste(strwrap(
       paste(
         "For MySQL, the use of an explicit MATCH clause will not have the",
@@ -93,12 +93,12 @@ sqlr_render.sqlr_fk_spec.MariaDBConnection <- function(x, con, ...) {
     set_default = "SET DEFAULT"
   )
 
-  on_del <- match.arg(on_del, names(ref_opts))
-  on_upd <- match.arg(on_upd, names(ref_opts))
+  on_del <- match.arg(x$on_del, names(ref_opts))
+  on_upd <- match.arg(x$on_upd, names(ref_opts))
 
-  if (check) {
-    cols <- show_db_cols(parent_tbl, con = con)
-    stopifnot(all(parent_ind %in% cols$Field))
+  if (x$check) {
+    cols <- show_db_cols(x$parent_tbl, con = con)
+    stopifnot(all(x$parent_ind %in% cols$Field))
     # also check that
     # - referenced cols are unique
     # - referenced cols are not null
@@ -106,31 +106,31 @@ sqlr_render.sqlr_fk_spec.MariaDBConnection <- function(x, con, ...) {
   }
 
   DBI::SQL(paste0(
-    if (!is.na(constr_name)) {
+    if (!is.na(x$constr_name)) {
       paste0(
         "CONSTRAINT ",
-        DBI::dbQuoteIdentifier(con, constr_name),
+        DBI::dbQuoteIdentifier(con, x$constr_name),
         " "
       )
     },
     "FOREIGN KEY",
-    if (!is.na(index_name)) {
-      paste0(" ", DBI::dbQuoteIdentifier(con, index_name))
+    if (!is.na(x$index_name)) {
+      paste0(" ", DBI::dbQuoteIdentifier(con, x$index_name))
     },
     " (",
-    paste(DBI::dbQuoteIdentifier(con, child_ind),
+    paste(DBI::dbQuoteIdentifier(con, x$child_ind),
       collapse = ", "
     ),
     ")",
     " REFERENCES ",
-    DBI::dbQuoteIdentifier(con, parent_tbl),
+    DBI::dbQuoteIdentifier(con, x$parent_tbl),
     " (",
-    paste(DBI::dbQuoteIdentifier(con, parent_ind),
+    paste(DBI::dbQuoteIdentifier(con, x$parent_ind),
       collapse = ", "
     ),
     ")",
-    if (!is.na(match)) {
-      paste("MATCH", toupper(match))
+    if (!is.na(x$match)) {
+      paste("MATCH", toupper(x$match))
     },
     " ON DELETE ", ref_opts[[on_del]],
     " ON UPDATE ", ref_opts[[on_upd]]
@@ -190,35 +190,35 @@ pk_spec <- function(cols,
 #' @method sqlr_render sqlr_pk_spec
 #' @export
 #' @rdname sqlr_render
-sqlr_render.sqlr_pk_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_pk_spec", con)
+sqlr_render.sqlr_pk_spec <- function(x, con, ...)
+  UseMethod("sqlr_render.sqlr_pk_spec", con)
 
 #' @method sqlr_render.sqlr_pk_spec MariaDBConnection
 #' @export
 sqlr_render.sqlr_pk_spec.MariaDBConnection <- function(x, con, ...) {
-  list2env(x, environment())
 
   DBI::SQL(paste0(
-    if (!is.na(constr_name)) {
+    if (!is.na(x$constr_name)) {
       paste0(
         "CONSTRAINT ",
-        DBI::dbQuoteIdentifier(con, constr_name),
+        DBI::dbQuoteIdentifier(con, x$constr_name),
         " "
       )
     },
     "PRIMARY KEY",
-    if (!is.na(type)) {
-      paste0(" USING ", toupper(type))
+    if (!is.na(x$type)) {
+      paste0(" USING ", toupper(x$type))
     },
     " (",
-    paste(DBI::dbQuoteIdentifier(con, cols),
+    paste(DBI::dbQuoteIdentifier(con, x$cols),
       collapse = ", "
     ),
     ")",
-    if (!is.na(block_size)) {
-      paste0(" KEY_BLOCK_SIZE = ", block_size)
+    if (!is.na(x$block_size)) {
+      paste0(" KEY_BLOCK_SIZE = ", x$block_size)
     },
-    if (!is.na(comment)) {
-      paste0(" COMMENT ", DBI::dbQuoteString(con, comment))
+    if (!is.na(x$comment)) {
+      paste0(" COMMENT ", DBI::dbQuoteString(con, x$comment))
     }
   ))
 }
@@ -265,38 +265,38 @@ uk_spec <- function(cols,
 #' @method sqlr_render sqlr_uk_spec
 #' @export
 #' @rdname sqlr_render
-sqlr_render.sqlr_uk_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_uk_spec", con)
+sqlr_render.sqlr_uk_spec <- function(x, con, ...)
+  UseMethod("sqlr_render.sqlr_uk_spec", con)
 
 #' @method sqlr_render.sqlr_uk_spec MariaDBConnection
 #' @export
 sqlr_render.sqlr_uk_spec.MariaDBConnection <- function(x, con, ...) {
-  list2env(x, environment())
 
   DBI::SQL(paste0(
-    if (!is.na(constr_name)) {
+    if (!is.na(x$constr_name)) {
       paste0(
         "CONSTRAINT ",
-        DBI::dbQuoteIdentifier(con, constr_name),
+        DBI::dbQuoteIdentifier(con, x$constr_name),
         " "
       )
     },
     "UNIQUE KEY",
-    if (!is.na(index_name)) {
-      paste0(" ", DBI::dbQuoteIdentifier(con, index_name))
+    if (!is.na(x$index_name)) {
+      paste0(" ", DBI::dbQuoteIdentifier(con, x$index_name))
     },
-    if (!is.na(type)) {
-      paste0(" USING ", toupper(type))
+    if (!is.na(x$type)) {
+      paste0(" USING ", toupper(x$type))
     },
     " (",
-    paste(DBI::dbQuoteIdentifier(con, cols),
+    paste(DBI::dbQuoteIdentifier(con, x$cols),
       collapse = ", "
     ),
     ")",
-    if (!is.na(block_size)) {
-      paste0(" KEY_BLOCK_SIZE = ", block_size)
+    if (!is.na(x$block_size)) {
+      paste0(" KEY_BLOCK_SIZE = ", x$block_size)
     },
-    if (!is.na(comment)) {
-      paste0(" COMMENT ", DBI::dbQuoteString(con, comment))
+    if (!is.na(x$comment)) {
+      paste0(" COMMENT ", DBI::dbQuoteString(con, x$comment))
     }
   ))
 }
@@ -340,31 +340,31 @@ key_spec <- function(cols,
 #' @method sqlr_render sqlr_key_spec
 #' @export
 #' @rdname sqlr_render
-sqlr_render.sqlr_key_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_key_spec", con)
+sqlr_render.sqlr_key_spec <- function(x, con, ...)
+  UseMethod("sqlr_render.sqlr_key_spec", con)
 
 #' @method sqlr_render.sqlr_key_spec MariaDBConnection
 #' @export
 sqlr_render.sqlr_key_spec.MariaDBConnection <- function(x, con, ...) {
-  list2env(x, environment())
 
   DBI::SQL(paste0(
     "KEY",
-    if (!is.na(index_name)) {
-      paste0(" ", DBI::dbQuoteIdentifier(con, index_name))
+    if (!is.na(x$index_name)) {
+      paste0(" ", DBI::dbQuoteIdentifier(con, x$index_name))
     },
-    if (!is.na(type)) {
-      paste0(" USING ", toupper(type))
+    if (!is.na(x$type)) {
+      paste0(" USING ", toupper(x$type))
     },
     " (",
-    paste(DBI::dbQuoteIdentifier(con, cols),
+    paste(DBI::dbQuoteIdentifier(con, x$cols),
       collapse = ", "
     ),
     ")",
-    if (!is.na(block_size)) {
-      paste0(" KEY_BLOCK_SIZE = ", block_size)
+    if (!is.na(x$block_size)) {
+      paste0(" KEY_BLOCK_SIZE = ", x$block_size)
     },
-    if (!is.na(comment)) {
-      paste0(" COMMENT ", DBI::dbQuoteString(con, comment))
+    if (!is.na(x$comment)) {
+      paste0(" COMMENT ", DBI::dbQuoteString(con, x$comment))
     }
   ))
 }
@@ -414,28 +414,28 @@ ft_key_spec <- function(cols,
 #' @method sqlr_render sqlr_ft_key_spec
 #' @export
 #' @rdname sqlr_render
-sqlr_render.sqlr_ft_key_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_ft_key_spec", con)
+sqlr_render.sqlr_ft_key_spec <- function(x, con, ...)
+  UseMethod("sqlr_render.sqlr_ft_key_spec", con)
 
 #' @method sqlr_render.sqlr_ft_key_spec MariaDBConnection
 #' @export
 sqlr_render.sqlr_ft_key_spec.MariaDBConnection <- function(x, con, ...) {
-  list2env(x, environment())
 
   DBI::SQL(paste0(
     "FULLTEXT KEY",
-    if (!is.na(index_name)) {
-      paste0(" ", DBI::dbQuoteIdentifier(con, index_name))
+    if (!is.na(x$index_name)) {
+      paste0(" ", DBI::dbQuoteIdentifier(con, x$index_name))
     },
     " (",
-    paste(DBI::dbQuoteIdentifier(con, cols),
+    paste(DBI::dbQuoteIdentifier(con, x$cols),
       collapse = ", "
     ),
     ")",
-    if (!is.na(parser)) {
-      paste0(" WITH PARSER ", parser)
+    if (!is.na(x$parser)) {
+      paste0(" WITH PARSER ", x$parser)
     },
-    if (!is.na(comment)) {
-      paste0(" COMMENT ", DBI::dbQuoteString(con, comment))
+    if (!is.na(x$comment)) {
+      paste0(" COMMENT ", DBI::dbQuoteString(con, x$comment))
     }
   ))
 }
@@ -474,25 +474,25 @@ spat_key_spec <- function(cols,
 #' @method sqlr_render sqlr_spat_key_spec
 #' @export
 #' @rdname sqlr_render
-sqlr_render.sqlr_spat_key_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_spat_key_spec", con)
+sqlr_render.sqlr_spat_key_spec <- function(x, con, ...)
+  UseMethod("sqlr_render.sqlr_spat_key_spec", con)
 
 #' @method sqlr_render.sqlr_spat_key_spec MariaDBConnection
 #' @export
 sqlr_render.sqlr_spat_key_spec.MariaDBConnection <- function(x, con, ...) {
-  list2env(x, environment())
 
   DBI::SQL(paste0(
     "SPATIAL KEY",
-    if (!is.na(index_name)) {
-      paste0(" ", DBI::dbQuoteIdentifier(con, index_name))
+    if (!is.na(x$index_name)) {
+      paste0(" ", DBI::dbQuoteIdentifier(con, x$index_name))
     },
     " (",
-    paste(DBI::dbQuoteIdentifier(con, cols),
+    paste(DBI::dbQuoteIdentifier(con, x$cols),
       collapse = ", "
     ),
     ")",
-    if (!is.na(comment)) {
-      paste0(" COMMENT ", DBI::dbQuoteString(con, comment))
+    if (!is.na(x$comment)) {
+      paste0(" COMMENT ", DBI::dbQuoteString(con, x$comment))
     }
   ))
 }

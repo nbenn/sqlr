@@ -51,6 +51,7 @@ col_spec <- function(name = paste(sample(letters, 10, TRUE),
                      key = c(NA, "unique", "primary", "key"),
                      comment = NULL,
                      ...) {
+
   key <- match.arg(key)
 
   if (is_chr(type)) {
@@ -112,34 +113,34 @@ col_spec <- function(name = paste(sample(letters, 10, TRUE),
 #' @method sqlr_render sqlr_col_spec
 #' @export
 #' @rdname sqlr_render
-sqlr_render.sqlr_col_spec <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_spec", con)
+sqlr_render.sqlr_col_spec <- function(x, con, ...)
+  UseMethod("sqlr_render.sqlr_col_spec", con)
 
 #' @method sqlr_render.sqlr_col_spec MariaDBConnection
 #' @export
 sqlr_render.sqlr_col_spec.MariaDBConnection <- function(x, con, ...) {
-  list2env(x, environment())
 
   DBI::SQL(paste0(
-    DBI::dbQuoteIdentifier(con, name),
-    " ", sqlr_render(type, con),
-    if (!nullable) {
+    DBI::dbQuoteIdentifier(con, x$name),
+    " ", sqlr_render(x$type, con),
+    if (!x$nullable) {
       " NOT NULL"
     },
-    if (is_chr(default, n_char = NULL, allow_na = TRUE)) {
-      paste(" DEFAULT", DBI::dbQuoteString(con, default))
-    } else if (is_num(default)) {
-      paste(" DEFAULT", default)
-    } else if (is_lgl(default)) {
-      paste(" DEFAULT", as.numeric(default))
+    if (is_chr(x$default, n_char = NULL, allow_na = TRUE)) {
+      paste(" DEFAULT", DBI::dbQuoteString(con, x$default))
+    } else if (is_num(x$default)) {
+      paste(" DEFAULT", x$default)
+    } else if (is_lgl(x$default)) {
+      paste(" DEFAULT", as.numeric(x$default))
     },
-    if (auto_increment) {
+    if (x$auto_increment) {
       " AUTO_INCREMENT"
     },
-    if (!is.null(key)) {
-      key
+    if (!is.null(x$key)) {
+      x$key
     },
-    if (!is.null(comment) && nchar(comment) > 0) {
-      paste(" COMMENT", DBI::dbQuoteString(con, comment))
+    if (!is.null(x$comment) && nchar(x$comment) > 0) {
+      paste(" COMMENT", DBI::dbQuoteString(con, x$comment))
     }
   ))
 }
@@ -169,6 +170,7 @@ col_int <- function(size = "int",
                     min = NA,
                     max = NA,
                     ...) {
+
   if (!is.na(min) | !is.na(max)) {
     if (is.na(min)) {
       min <- bit64::as.integer64(-2147483648)
@@ -215,14 +217,14 @@ col_int <- function(size = "int",
 #' @method sqlr_render sqlr_col_int
 #' @export
 #' @rdname sqlr_render
-sqlr_render.sqlr_col_int <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_int", con)
+sqlr_render.sqlr_col_int <- function(x, con, ...)
+  UseMethod("sqlr_render.sqlr_col_int", con)
 
 #' @method sqlr_render.sqlr_col_int MariaDBConnection
 #' @export
 sqlr_render.sqlr_col_int.MariaDBConnection <- function(x, con, ...) {
-  list2env(x, environment())
 
-  size <- switch(size,
+  size <- switch(x$size,
     tiny = "TINYINT",
     small = "SMALLINT",
     medium = "MEDIUMINT",
@@ -230,7 +232,7 @@ sqlr_render.sqlr_col_int.MariaDBConnection <- function(x, con, ...) {
     big = "BIGINT"
   )
 
-  DBI::SQL(paste0(size, if (unsigned) " UNSIGNED"))
+  DBI::SQL(paste0(size, if (x$unsigned) " UNSIGNED"))
 }
 
 #' @title Generate SQL for floating point data type definition
@@ -254,6 +256,7 @@ sqlr_render.sqlr_col_int.MariaDBConnection <- function(x, con, ...) {
 col_dbl <- function(prec = "double",
                     unsigned = FALSE,
                     ...) {
+
   obj <- as.list(environment())
   new_sqlr(obj, subclass = "col_dbl")
 }
@@ -262,25 +265,25 @@ col_dbl <- function(prec = "double",
 #' @method sqlr_render sqlr_col_dbl
 #' @export
 #' @rdname sqlr_render
-sqlr_render.sqlr_col_dbl <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_dbl", con)
+sqlr_render.sqlr_col_dbl <- function(x, con, ...)
+  UseMethod("sqlr_render.sqlr_col_dbl", con)
 
 #' @method sqlr_render.sqlr_col_dbl MariaDBConnection
 #' @export
 sqlr_render.sqlr_col_dbl.MariaDBConnection <- function(x, con, ...) {
-  list2env(x, environment())
 
   stopifnot(
-    is_chr(prec, n_elem = eq(1L)),
-    any(c("single", "double") %in% prec),
-    is_lgl(unsigned, n_elem = eq(1L))
+    is_chr(x$prec, n_elem = eq(1L)),
+    any(c("single", "double") %in% x$prec),
+    is_lgl(x$unsigned, n_elem = eq(1L))
   )
 
-  prec <- switch(prec,
+  prec <- switch(x$prec,
     single = "FLOAT",
     double = "DOUBLE"
   )
 
-  DBI::SQL(paste0(prec, if (unsigned) " UNSIGNED"))
+  DBI::SQL(paste0(prec, if (x$unsigned) " UNSIGNED"))
 }
 
 #' @title Generate SQL for a string data type definition
@@ -320,6 +323,7 @@ col_chr <- function(length = 255L,
                     char_set = NA_character_,
                     collate = NA_character_,
                     ...) {
+
   obj <- as.list(environment())
   new_sqlr(obj, subclass = "col_chr")
 }
@@ -328,35 +332,35 @@ col_chr <- function(length = 255L,
 #' @method sqlr_render sqlr_col_chr
 #' @export
 #' @rdname sqlr_render
-sqlr_render.sqlr_col_chr <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_chr", con)
+sqlr_render.sqlr_col_chr <- function(x, con, ...)
+  UseMethod("sqlr_render.sqlr_col_chr", con)
 
 #' @method sqlr_render.sqlr_col_chr MariaDBConnection
 #' @export
 sqlr_render.sqlr_col_chr.MariaDBConnection <- function(x, con, ...) {
-  list2env(x, environment())
 
   stopifnot(
-    is_int(length, n_elem = eq(1L), strict = FALSE), length > 0L,
-    is_lgl(fixed, n_elem = eq(1L)),
-    is_lgl(force_text, n_elem = eq(1L)),
-    is_chr(char_set, n_elem = eq(1L), allow_na = TRUE),
-    is_chr(collate, n_elem = eq(1L), allow_na = TRUE),
-    !all(c(fixed, force_text))
+    is_int(x$length, n_elem = eq(1L), strict = FALSE), x$length > 0L,
+    is_lgl(x$fixed, n_elem = eq(1L)),
+    is_lgl(x$force_text, n_elem = eq(1L)),
+    is_chr(x$char_set, n_elem = eq(1L), allow_na = TRUE),
+    is_chr(x$collate, n_elem = eq(1L), allow_na = TRUE),
+    !all(c(x$fixed, x$force_text))
   )
-  if (fixed) stopifnot(length < 256L)
+  if (x$fixed) stopifnot(x$length < 256L)
 
-  length <- as.integer(length)
+  length <- as.integer(x$length)
 
   if (length < 256L) {
-    if (fixed) {
+    if (x$fixed) {
       type <- paste0("CHAR(", length, ")")
-    } else if (force_text) {
+    } else if (x$force_text) {
       type <- "TINYTEXT"
     } else {
       type <- paste0("VARCHAR(", length, ")")
     }
   } else if (length < 65536L) {
-    if (force_text) {
+    if (x$force_text) {
       type <- "TEXT"
     } else {
       type <- paste0("VARCHAR(", length, ")")
@@ -375,11 +379,11 @@ sqlr_render.sqlr_col_chr.MariaDBConnection <- function(x, con, ...) {
 
   DBI::SQL(paste0(
     type,
-    if (!is.na(char_set)) {
-      paste(" CHARACTER SET", DBI::dbQuoteString(con, char_set))
+    if (!is.na(x$char_set)) {
+      paste(" CHARACTER SET", DBI::dbQuoteString(con, x$char_set))
     },
-    if (!is.na(collate)) {
-      paste(" COLLATE", DBI::dbQuoteString(con, collate))
+    if (!is.na(x$collate)) {
+      paste(" COLLATE", DBI::dbQuoteString(con, x$collate))
     }
   ))
 }
@@ -409,6 +413,7 @@ col_raw <- function(length = 255L,
                     fixed = FALSE,
                     force_blob = length >= 16384L,
                     ...) {
+
   obj <- as.list(environment())
   new_sqlr(obj, subclass = "col_raw")
 }
@@ -417,31 +422,33 @@ col_raw <- function(length = 255L,
 #' @method sqlr_render sqlr_col_raw
 #' @export
 #' @rdname sqlr_render
-sqlr_render.sqlr_col_raw <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_raw", con)
+sqlr_render.sqlr_col_raw <- function(x, con, ...)
+  UseMethod("sqlr_render.sqlr_col_raw", con)
 
 #' @method sqlr_render.sqlr_col_raw MariaDBConnection
 #' @export
 sqlr_render.sqlr_col_raw.MariaDBConnection <- function(x, con, ...) {
-  list2env(x, environment())
 
   stopifnot(
-    is_int(length, n_elem = eq(1L), strict = FALSE), length > 0L,
-    is_lgl(fixed, n_elem = eq(1L)),
-    is_lgl(force_blob, n_elem = eq(1L)),
-    !all(c(fixed, force_blob))
+    is_int(x$length, n_elem = eq(1L), strict = FALSE), x$length > 0L,
+    is_lgl(x$fixed, n_elem = eq(1L)),
+    is_lgl(x$force_blob, n_elem = eq(1L)),
+    !all(c(x$fixed, x$force_blob))
   )
-  if (fixed) stopifnot(length < 256L)
+  if (x$fixed) stopifnot(x$length < 256L)
+
+  length <- as.integer(x$length)
 
   if (length < 256L) {
-    if (fixed) {
+    if (x$fixed) {
       type <- paste0("BINARY(", length, ")")
-    } else if (force_blob) {
+    } else if (x$force_blob) {
       type <- "TINYBLOB"
     } else {
       type <- paste0("VARBINARY(", length, ")")
     }
   } else if (length < 65536L) {
-    if (force_blob) {
+    if (x$force_blob) {
       type <- "BLOB"
     } else {
       type <- paste0("VARBINARY(", length, ")")
@@ -480,12 +487,12 @@ col_lgl <- function(...) {
 #' @method sqlr_render sqlr_col_lgl
 #' @export
 #' @rdname sqlr_render
-sqlr_render.sqlr_col_lgl <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_lgl", con)
+sqlr_render.sqlr_col_lgl <- function(x, con, ...)
+  UseMethod("sqlr_render.sqlr_col_lgl", con)
 
 #' @method sqlr_render.sqlr_col_lgl MariaDBConnection
 #' @export
 sqlr_render.sqlr_col_lgl.MariaDBConnection <- function(x, con, ...) {
-  list2env(x, environment())
 
   DBI::SQL("BOOL")
 }
@@ -512,6 +519,7 @@ col_fct <- function(levels,
                     char_set = NA_character_,
                     collate = NA_character_,
                     ...) {
+
   variant <- match.arg(variant)
 
   obj <- as.list(environment())
@@ -522,21 +530,21 @@ col_fct <- function(levels,
 #' @method sqlr_render sqlr_col_fct
 #' @export
 #' @rdname sqlr_render
-sqlr_render.sqlr_col_fct <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_fct", con)
+sqlr_render.sqlr_col_fct <- function(x, con, ...)
+  UseMethod("sqlr_render.sqlr_col_fct", con)
 
 #' @method sqlr_render.sqlr_col_fct MariaDBConnection
 #' @export
 sqlr_render.sqlr_col_fct.MariaDBConnection <- function(x, con, ...) {
-  list2env(x, environment())
 
-  stopifnot(is_chr(levels, n_elem = gte(1L), n_char = NULL))
+  stopifnot(is_chr(x$levels, n_elem = gte(1L), n_char = NULL))
 
-  levels <- unique(levels)
+  levels <- unique(x$levels)
 
   levels <- DBI::dbQuoteString(con, levels)
 
   variant <- paste0(
-    toupper(variant),
+    toupper(x$variant),
     "(",
     paste(levels, collapse = ", "),
     ")"
@@ -544,11 +552,11 @@ sqlr_render.sqlr_col_fct.MariaDBConnection <- function(x, con, ...) {
 
   DBI::SQL(paste0(
     variant,
-    if (!is.na(char_set) && nchar(char_set) > 0) {
-      paste(" CHARACTER SET", DBI::dbQuoteString(con, char_set))
+    if (!is.na(x$char_set) && nchar(x$char_set) > 0) {
+      paste(" CHARACTER SET", DBI::dbQuoteString(con, x$char_set))
     },
-    if (!is.na(collate) && nchar(collate) > 0) {
-      paste(" COLLATE", DBI::dbQuoteString(con, collate))
+    if (!is.na(x$collate) && nchar(x$collate) > 0) {
+      paste(" COLLATE", DBI::dbQuoteString(con, x$collate))
     }
   ))
 }
@@ -575,6 +583,7 @@ col_dtm <- function(class = c(
                     ),
                     val = NULL,
                     ...) {
+
   if (!is.null(val)) {
     if (!missing(class)) warning("param \"class\" will be ignored.")
 
@@ -608,14 +617,14 @@ col_dtm <- function(class = c(
 #' @method sqlr_render sqlr_col_dtm
 #' @export
 #' @rdname sqlr_render
-sqlr_render.sqlr_col_dtm <- function(x, con, ...) UseMethod("sqlr_render.sqlr_col_dtm", con)
+sqlr_render.sqlr_col_dtm <- function(x, con, ...)
+  UseMethod("sqlr_render.sqlr_col_dtm", con)
 
 #' @method sqlr_render.sqlr_col_dtm MariaDBConnection
 #' @export
 sqlr_render.sqlr_col_dtm.MariaDBConnection <- function(x, con, ...) {
-  list2env(x, environment())
 
-  DBI::SQL(toupper(class))
+  DBI::SQL(toupper(x$class))
 }
 
 #' @title Generate SQL for an id column
@@ -645,7 +654,6 @@ col_id <- function(name = "id",
                    key = "primary",
                    as_lst = FALSE,
                    ...) {
-  obj <- as.list(environment())
 
   spec <- col_spec(
     name = name, type = type, unsigned = unsigned,
