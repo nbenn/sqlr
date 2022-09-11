@@ -6,7 +6,8 @@ Authors@R: c(
 Description:
     Starting with MardaDB/MySQL and possibly expanding to other SQL dialects, the aim of this package is to help with generating queries for creating and altering tables.
 Depends:
-    R (>= 3.6.0)
+    R (>= 3.6.0),
+    R7 (>= 0.0.0.9000)
 Imports:
     DBI
 Suggests:
@@ -16,4 +17,6 @@ BugReports: https://github.com/nbenn/sqlr/issues
 License: GPL-3 | file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1
+RoxygenNote: 7.2.1
+Remotes:
+    RConsortium/OOP-WG
