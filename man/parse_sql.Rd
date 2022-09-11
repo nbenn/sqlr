@@ -10,6 +10,8 @@ parse_sql(x, con, ...)
 \item{x}{SQL string}
 
 \item{con}{Database connection}
+
+\item{...}{Generic consistency}
 }
 \value{
 {sqlr} object

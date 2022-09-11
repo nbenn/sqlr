@@ -10,6 +10,8 @@ render_sql(x, con, ...)
 \item{x}{Object}
 
 \item{con}{Database connection}
+
+\item{...}{Generic consistency}
 }
 \value{
 SQL string
@@ -17,4 +19,8 @@ SQL string
 \description{
 For a given SQL dialect determined by `con`, SQL is generated corresponding
 to the object passed as `x`.
+}
+\examples{
+render_sql(smallint(), simulate_postgres())
+
 }

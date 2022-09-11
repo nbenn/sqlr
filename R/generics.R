@@ -6,8 +6,12 @@
 #'
 #' @param x Object
 #' @param con Database connection
+#' @param ... Generic consistency
 #'
 #' @return SQL string
+#'
+#' @examples
+#' render_sql(smallint(), simulate_postgres())
 #'
 #' @export
 render_sql <- new_generic("render_sql", c("x", "con"))
@@ -19,6 +23,7 @@ render_sql <- new_generic("render_sql", c("x", "con"))
 #'
 #' @param x SQL string
 #' @param con Database connection
+#' @param ... Generic consistency
 #'
 #' @return {sqlr} object
 #'
