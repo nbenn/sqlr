@@ -16,6 +16,150 @@ knitr::opts_chunk$set(
 # sqlr
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/nbenn/sqlr/actions/workflows/check-standard.yaml/badge.svg)](https://github.com/nbenn/sqlr/actions/workflows/check-standard.yaml)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-After a long period of inactivity, the initial proof of concept (available as `retired` branch) will be re-imagined.
+Describe a database schema in R, emit it as data definition language for a
+given SQL dialect, and read it back out of a live database.
+
+Generating SQL from R is a solved problem in patches. DBI carries type
+mappings and quoting, dbplyr covers the query side, and packages that need a
+`CREATE TABLE` tend to assemble one by hand. What is missing is the middle
+term: a representation of a schema that is neither a string nor a connection,
+which you can build, render, reflect and compare. That is what this package
+is for.
+
+## Installation
+
+``` r
+pak::pkg_install("nbenn/sqlr")
+```
+
+The core package renders nothing on its own -- a dialect supplies the
+spellings. Install whichever you need:
+
+``` r
+pak::pkg_install("nbenn/sqlr.postgres")
+pak::pkg_install("nbenn/sqlr.sqlite")
+```
+
+## Describing a schema
+
+Tables, columns, constraints and indexes are ordinary constructor calls, and
+nest in the order you would write them.
+
+```{r schema}
+library(sqlr)
+library(sqlr.sqlite)
+
+schema <- sqlr_schema(
+  "main",
+  sqlr_table(
+    "users",
+    sqlr_column("id", sqlr_bigint(), null = FALSE),
+    sqlr_column("email", "varchar(255)", null = FALSE),
+    sqlr_column("nickname", sqlr_text(), default = "anon"),
+    sqlr_primary_key("id"),
+    sqlr_unique("email")
+  ),
+  sqlr_table(
+    "orders",
+    sqlr_column("id", sqlr_bigint(), null = FALSE),
+    sqlr_column("user_id", sqlr_bigint(), null = FALSE),
+    sqlr_column("total", sqlr_numeric(10, 2)),
+    sqlr_primary_key("id"),
+    sqlr_foreign_key("user_id", "users", "id", on_delete = "cascade"),
+    sqlr_index("user_id", name = "orders_user_idx")
+  )
+)
+```
+
+Types are given either as objects or as the string spelling you would write
+in SQL, so `sqlr_varchar(255)` and `"varchar(255)"` mean the same thing.
+Check constraints go in the same way, via `sqlr_check("total > 0")`.
+
+## Rendering
+
+```{r render}
+cat(paste0(sqlr_render(schema, sqlite()), ";"), sep = "\n\n")
+```
+
+Rendering a schema is not rendering each table in turn. Foreign keys can form
+cycles -- a self-reference, or two tables pointing at one another -- so tables
+come out in dependency order, and a key that would close a cycle is lifted
+into a trailing `ALTER TABLE`. Engines without `ADD CONSTRAINT`, SQLite among
+them, opt out of that and keep every constraint inline.
+
+## Reading a schema back
+
+Point `sqlr_reflect()` at a connection and it returns the same representation
+`sqlr_render()` consumes, built from the database catalogue rather than by
+parsing SQL.
+
+```{r reflect}
+con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+
+for (stmt in sqlr_render(schema, sqlite())) DBI::dbExecute(con, stmt)
+
+sqlr_equal(schema, sqlr_reflect(con))
+```
+
+That round trip is the package's own test oracle, and it is stricter than it
+looks. Comparison is structural: constraints and indexes are matched on what
+they constrain rather than on their order or their names. A schema you wrote
+therefore compares equal to one reflected out of a database that picked its
+own constraint names, which is what makes comparing against an existing
+database useful rather than a wall of spurious differences.
+
+How much survives the trip is bounded by what a database will tell you.
+Postgres reports check constraints, so they compare; SQLite records them only
+inside the original `CREATE TABLE` text, so reflecting them would mean parsing
+DDL and the dialect declines to guess. Each dialect documents where it stops.
+
+When two schemas do differ, `sqlr_diff()` says how.
+
+```{r diff}
+altered <- sqlr_table(
+  "users",
+  sqlr_column("id", sqlr_int(), null = FALSE),
+  sqlr_column("email", "varchar(255)"),
+  sqlr_primary_key("id")
+)
+
+sqlr_diff(schema@tables[[2L]], altered)
+```
+
+```{r cleanup, include = FALSE}
+DBI::dbDisconnect(con)
+```
+
+## Dialects
+
+A dialect is an object, not a connection. Rendering therefore needs no
+database and no driver package installed, and the test suite runs without a
+server. Given a live connection, `sqlr_for()` resolves the right dialect.
+
+There is deliberately no generic fallback dialect. Nothing renders "ANSI SQL",
+because no engine implements it faithfully and an untestable default would
+quietly accumulate behaviour no database had ever accepted. A connection with
+no dialect registered is an error rather than a guess.
+
+Writing one means implementing the protocol in `?sqlr_render` and
+`?sqlr_reflect`: how types spell in both directions, and whatever the engine
+does differently.
+
+## Scope
+
+Currently modelled: schemas, tables, columns, types, primary keys, unique and
+foreign key constraints, check constraints, indexes, defaults and identity
+columns.
+
+Not yet: views, triggers, sequences beyond identity, partitions and grants.
+Types a dialect does not model survive as `sqlr_other()` and render verbatim,
+so an unsupported column does not stop you reflecting the table around it.
+
+Comparing two schemas is a step towards generating the migration between
+them. The representation is built with that in mind -- object identity and
+equality are defined so a diff is possible -- but the change engine itself is
+not written yet.
