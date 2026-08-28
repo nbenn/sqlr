@@ -1,7 +1,3 @@
-
-#' @import R7
-#' @importFrom DBI SQL
+#' @import S7
 #' @keywords internal
 "_PACKAGE"
-
-sql <- SQL

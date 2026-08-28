@@ -4,9 +4,9 @@
 \name{sqlr-package}
 \alias{sqlr}
 \alias{sqlr-package}
-\title{sqlr: Build SQL queries for creating/altering tables}
+\title{sqlr: Represent and Generate SQL Schemas}
 \description{
-Starting with MardaDB/MySQL and possibly expanding to other SQL dialects, the aim of this package is to help with generating queries for creating and altering tables.
+A dialect-independent representation of a relational schema -- tables, columns, types, constraints and indexes -- that can be built up from R, rendered as data definition language for a given SQL dialect, and learned back from a live database. Dialect support is provided by companion packages.
 }
 \seealso{
 Useful links:
@@ -18,6 +18,11 @@ Useful links:
 }
 \author{
 \strong{Maintainer}: Nicolas Bennett \email{r@nbenn.ch}
+
+Authors:
+\itemize{
+  \item Nicolas Bennett \email{r@nbenn.ch}
+}
 
 }
 \keyword{internal}
