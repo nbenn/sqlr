@@ -1,0 +1,144 @@
+# Reverse-dependency CI: run each dialect package's test suite against the
+# sqlr in this branch rather than the one on main.
+#
+# Core's own suite dispatches on a test dialect, which keeps this package free
+# of database dependencies but means nothing here can catch a change that
+# breaks a real dialect. That signal lives downstream, so this workflow brings
+# it back upstream where the change is being made.
+#
+# To cover a new dialect, add its repository to the matrix below.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+name: revdep
+
+jobs:
+
+  revdep:
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 30
+
+    name: ${{ matrix.pkg }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        pkg:
+          - nbenn/sqlr.postgres
+          - nbenn/sqlr.sqlite
+
+    # Attached to every leg rather than only the postgres one. A service
+    # cannot be declared per matrix entry, and the alternative -- splitting
+    # into two near-identical jobs -- costs more in duplication than the few
+    # seconds the sqlite leg spends ignoring a container it never opens.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: dbi
+          POSTGRES_PASSWORD: dbi
+          POSTGRES_DB: dbi
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U dbi -d dbi"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+
+    steps:
+
+      - uses: actions/checkout@v4
+        with:
+          path: pkg
+
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ matrix.pkg }}
+          path: revdep
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      # Resolves the dialect's own dependencies, including its
+      # `Remotes: nbenn/sqlr`. That pulls sqlr from main -- which is the wrong
+      # sqlr for this workflow, and is overwritten by the next step.
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          working-directory: revdep
+          extra-packages: any::testthat
+
+      - name: Install sqlr from this branch
+        run: R CMD INSTALL pkg
+
+      # Ordering the two installs the other way round, or a future change to
+      # how the dialect names its remote, would leave main's sqlr in place and
+      # the suite would pass while testing nothing this branch changed. A
+      # local install records no RemoteType; an install from GitHub does.
+      - name: Verify the branch build is the one installed
+        run: |
+          Rscript -e '
+            desc <- packageDescription("sqlr")
+            if (!is.null(desc$RemoteType)) {
+              stop(
+                "sqlr was installed from ", desc$RemoteType,
+                ", not from this branch",
+                call. = FALSE
+              )
+            }
+            cat("sqlr under test:", desc$Version, "from this branch\n")
+          '
+
+      # Without a reachable server the round-trip tests skip themselves, and a
+      # skip is indistinguishable from a pass in the summary line. Failing here
+      # keeps a broken service from being reported as a green revdep.
+      - name: Assert the database is reachable
+        if: matrix.pkg == 'nbenn/sqlr.postgres'
+        run: |
+          Rscript -e '
+            con <- DBI::dbConnect(
+              RPostgres::Postgres(),
+              host = "localhost", port = 5432,
+              user = "dbi", password = "dbi", dbname = "dbi"
+            )
+            on.exit(DBI::dbDisconnect(con))
+            cat("postgres reachable:", DBI::dbGetQuery(con, "SHOW server_version")[[1L]], "\n")
+          '
+
+      - name: Run the dialect test suite
+        run: |
+          Rscript -e 'testthat::test_local("revdep", stop_on_failure = TRUE)'
+
+  # A single stable check name for branch protection, so the required-checks
+  # list does not have to change when a dialect is added to the matrix.
+  revdep-all:
+
+    needs: revdep
+
+    if: always()
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 5
+
+    steps:
+      - name: Aggregate revdep matrix
+        env:
+          RESULT: ${{ needs.revdep.result }}
+        run: |
+          echo "revdep matrix result: $RESULT"
+          case "$RESULT" in
+            success|skipped) exit 0 ;;
+            *) exit 1 ;;
+          esac
