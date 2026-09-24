@@ -15,6 +15,7 @@ Imports:
     S7,
     utils
 Suggests:
+    DBI,
     testthat (>= 3.0.0)
 URL: https://github.com/nbenn/sqlr
 BugReports: https://github.com/nbenn/sqlr/issues
@@ -38,3 +39,4 @@ Collate:
     'order.R'
     'render.R'
     'compare.R'
+    'conformance.R'
