@@ -65,10 +65,9 @@ schema <- sqlr_schema(
 )
 ```
 
-Types are given either as objects or as the string spelling you would
-write in SQL, so `sqlr_varchar(255)` and `"varchar(255)"` mean the same
-thing. Check constraints go in the same way, via
-`sqlr_check("total > 0")`.
+Types are given either as objects or as their SQL-standard spelling, so
+`sqlr_varchar(255)` and `"varchar(255)"` mean the same thing. Check
+constraints go in the same way, via `sqlr_check("total > 0")`.
 
 ## Rendering
 

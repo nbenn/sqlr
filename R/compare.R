@@ -87,8 +87,8 @@ diff_column <- function(x, y, prefix) {
   where <- paste0(prefix, "column ", x@name, ": ")
 
   c(
-    if (!identical(type_key(x@type), type_key(y@type))) {
-      paste0(where, "type ", type_key(x@type), " vs ", type_key(y@type))
+    if (!identical(constructor_call(x@type), constructor_call(y@type))) {
+      paste0(where, "type ", format(x@type), " vs ", format(y@type))
     },
     if (!identical(x@null, y@null)) {
       paste0(where, "null ", x@null, " vs ", y@null)
@@ -102,19 +102,6 @@ diff_column <- function(x, y, prefix) {
     if (!identical(is.null(x@identity), is.null(y@identity))) {
       paste0(where, "identity present on one side only")
     }
-  )
-}
-
-type_key <- function(x) {
-  props <- setdiff(names(props(x)), "raw")
-  paste0(
-    class(x)[[1L]], "(",
-    paste0(
-      props, "=",
-      vapply(props, function(p) paste0(prop(x, p), collapse = "/"), character(1L)),
-      collapse = ", "
-    ),
-    ")"
   )
 }
 

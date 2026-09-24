@@ -12,8 +12,7 @@ Description:
 Depends:
     R (>= 4.1)
 Imports:
-    S7,
-    utils
+    S7
 Suggests:
     testthat (>= 3.0.0)
 URL: https://github.com/nbenn/sqlr
