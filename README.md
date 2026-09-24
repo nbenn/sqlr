@@ -160,7 +160,10 @@ than a guess.
 
 Writing one means implementing the protocol in `?sqlr_render` and
 `?sqlr_reflect`: how types spell in both directions, and whatever the
-engine does differently.
+engine does differently. Its test suite then calls `sqlr_test_types()`,
+which writes every type sqlr models to a live database and checks that
+each reads back unchanged. A type the engine cannot represent is
+declared with a reason and skipped.
 
 ## Scope
 
