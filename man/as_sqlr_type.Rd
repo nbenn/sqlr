@@ -13,12 +13,37 @@ as_sqlr_type(x)
 An object inheriting from `sqlr_type`.
 }
 \description{
-Accepts a [sqlr_type] unchanged, or parses a string spelling such as
-`"varchar(255)"` or `"numeric(10, 2)"`. Spellings sqlr does not recognise
-become [sqlr_other()] and are carried through verbatim.
+Accepts a [sqlr_type] unchanged, or parses one of the SQL-standard type
+spellings below, in any case and spacing. Anything else is an error,
+including engine aliases such as `int4`, `timestamptz` and `bytea`, so that
+the accepted set changes only when the types sqlr models do.
+}
+\details{
+| Type | Spellings |
+|---|---|
+| [sqlr_integer_type] | `smallint`, `integer` or `int`, `bigint` |
+| [sqlr_float_type] | `real`, `double precision`, `float(p)`: 4 bytes for `p` from 1 to 24, 8 bytes from 25 to 53 |
+| [sqlr_decimal_type] | `numeric(p, s)` or `decimal(p, s)`, both arguments optional |
+| [sqlr_string_type] | `char(n)` or `character(n)`, where `n` defaults to 1; `varchar(n)` or `character varying(n)`; `text` |
+| [sqlr_binary_type] | `binary(n)`, which is fixed-length; `varbinary(n)`; `blob` |
+| [sqlr_boolean_type] | `boolean` |
+| [sqlr_time_type] | `date`; `time` and `timestamp`, each with an optional `(p)` and an optional `with time zone` or `without time zone` |
+| [sqlr_json_type] | `json` |
+| [sqlr_uuid_type] | `uuid` |
+
+A bare `float` is refused, being 8 bytes in some engines and 4 in others.
+Unsigned and 1-byte integers and binary JSON have no standard spelling, so
+build them with their constructors, and use [sqlr_other()] to carry any
+other type verbatim.
+
+The `format()` method runs the table in reverse. It gives the standard
+spelling of a type, or its constructor call if it has none.
 }
 \examples{
 as_sqlr_type("varchar(255)")
-as_sqlr_type("geometry")
+as_sqlr_type("TIMESTAMP(3) WITH TIME ZONE")
+
+format(sqlr_numeric(10, 2))
+format(sqlr_int(unsigned = TRUE))
 
 }

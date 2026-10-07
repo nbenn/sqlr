@@ -34,6 +34,13 @@ test_that("differences are reported", {
   expect_match(sqlr_diff(a, c), "null")
 })
 
+test_that("a type difference is reported in SQL spelling", {
+  a <- sqlr_table("t", sqlr_column("x", "varchar(255)"))
+  b <- sqlr_table("t", sqlr_column("x", sqlr_text()))
+
+  expect_equal(sqlr_diff(a, b), "column x: type varchar(255) vs text")
+})
+
 test_that("missing and extra tables are reported", {
   a <- sqlr_schema("s", sqlr_table("x", sqlr_column("id", sqlr_int())))
   b <- sqlr_schema("s", sqlr_table("y", sqlr_column("id", sqlr_int())))

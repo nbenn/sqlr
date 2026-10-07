@@ -2,26 +2,24 @@
 % Please edit documentation in R/generics.R
 \name{sqlr_render_type}
 \alias{sqlr_render_type}
-\alias{sqlr_parse_type}
-\title{Map between sqlr types and dialect spellings}
+\title{Render a type in a dialect}
 \usage{
 sqlr_render_type(type, dialect, ...)
-
-sqlr_parse_type(dialect, ...)
 }
 \arguments{
 \item{type}{A [sqlr_type].}
 
 \item{dialect}{A [sqlr_dialect].}
 
-\item{...}{Passed to methods; `sqlr_parse_type()` takes the type spelling
-reported by the database catalogue this way.}
+\item{...}{Passed to methods.}
 }
 \value{
-`sqlr_render_type()` a string; `sqlr_parse_type()` a [sqlr_type].
+A string.
 }
 \description{
-Every dialect owes both directions: reflection has to arrive at the same
-type object that authoring produced, or an authored schema will never
-compare equal to the one read back.
+Spells a [sqlr_type] the way `dialect` writes it in data definition
+language. Every dialect owes the reverse direction too, inside its
+[sqlr_reflect_schema()] method: reflection has to arrive at the same type
+object that authoring produced, or an authored schema will never compare
+equal to the one read back.
 }

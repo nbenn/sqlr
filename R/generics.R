@@ -21,25 +21,22 @@
 #' @export
 sqlr_render <- new_generic("sqlr_render", c("x", "dialect"))
 
-#' Map between sqlr types and dialect spellings
+#' Render a type in a dialect
 #'
-#' Every dialect owes both directions: reflection has to arrive at the same
-#' type object that authoring produced, or an authored schema will never
-#' compare equal to the one read back.
+#' Spells a [sqlr_type] the way `dialect` writes it in data definition
+#' language. Every dialect owes the reverse direction too, inside its
+#' [sqlr_reflect_schema()] method: reflection has to arrive at the same type
+#' object that authoring produced, or an authored schema will never compare
+#' equal to the one read back.
 #'
 #' @param type A [sqlr_type].
 #' @param dialect A [sqlr_dialect].
-#' @param ... Passed to methods; `sqlr_parse_type()` takes the type spelling
-#'   reported by the database catalogue this way.
+#' @param ... Passed to methods.
 #'
-#' @return `sqlr_render_type()` a string; `sqlr_parse_type()` a [sqlr_type].
+#' @return A string.
 #'
 #' @export
 sqlr_render_type <- new_generic("sqlr_render_type", c("type", "dialect"))
-
-#' @rdname sqlr_render_type
-#' @export
-sqlr_parse_type <- new_generic("sqlr_parse_type", "dialect")
 
 #' Quote identifiers and literals
 #'
